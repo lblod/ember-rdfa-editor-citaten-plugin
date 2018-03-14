@@ -9,7 +9,6 @@ export default Mixin.create({
   inhoud: attr(),
   taal: attr(),
   titel: attr(),
-  page: attr(),
   score: attr(),
   uri: attr()
 });

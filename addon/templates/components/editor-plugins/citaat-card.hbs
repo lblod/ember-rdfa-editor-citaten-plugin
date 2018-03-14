@@ -17,7 +17,7 @@
         {{#each results as |result|}}
           <li {{action "insertHint" result.origModel}}>
             {{result.title}}
-            <span class="text-fade">{{result.page}}</span>
+            <span class="text-fade">{{result.uri}}</span>
           </li>
         {{/each}}
       </ul>

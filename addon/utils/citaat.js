@@ -3,7 +3,7 @@ import EmberObject from '@ember/object';
 /**
  * Citaat
  *
- * @module 
+ * @module
  * @class Citaat
  * @constructor
  * @extends EmberObject
@@ -11,5 +11,6 @@ import EmberObject from '@ember/object';
 export default EmberObject.extend({
   title: "",
   abstract: "",
+  uri: "",
   origModel: null
 });

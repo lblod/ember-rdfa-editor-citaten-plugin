@@ -65,7 +65,7 @@ export default Component.extend({
   parseResult(result) {
     return Citaat.create({
       title: result.get('citeeropschrift'),
-      page: result.get('page'),
+      uri: result.get('uri'),
       origModel: result
     });
   },
