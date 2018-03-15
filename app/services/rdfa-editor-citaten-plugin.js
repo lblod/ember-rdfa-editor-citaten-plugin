@@ -1,1 +1,1 @@
-export { default } from 'ember-rdfa-editor-citaten-plugin/services/rdfa-editor-citaten-plugin';
+export { default } from '@lblod/ember-rdfa-editor-citaten-plugin/services/rdfa-editor-citaten-plugin';

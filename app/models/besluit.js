@@ -1,1 +1,1 @@
-export { default } from 'ember-rdfa-editor-citaten-plugin/models/besluit';
+export { default } from '@lblod/ember-rdfa-editor-citaten-plugin/models/besluit';

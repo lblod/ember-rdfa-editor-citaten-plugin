@@ -1,1 +1,1 @@
-export { default } from 'ember-rdfa-editor-citaten-plugin/components/card-pagination';
+export { default } from '@lblod/ember-rdfa-editor-citaten-plugin/components/card-pagination';

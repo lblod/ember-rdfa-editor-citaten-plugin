@@ -1,1 +1,1 @@
-export { default } from 'ember-rdfa-editor-citaten-plugin/components/editor-plugins/citaat-card';
+export { default } from '@lblod/ember-rdfa-editor-citaten-plugin/components/editor-plugins/citaat-card';

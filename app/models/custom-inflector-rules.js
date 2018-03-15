@@ -1,1 +1,1 @@
-export { default } from 'ember-rdfa-editor-citaten-plugin/models/custom-inflector-rules';
+export { default } from '@lblod/ember-rdfa-editor-citaten-plugin/models/custom-inflector-rules';
