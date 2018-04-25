@@ -3,6 +3,7 @@ import { Promise } from 'rsvp';
 import Service, { inject as service } from '@ember/service';
 import { isEmpty, isBlank } from '@ember/utils';
 import '../models/custom-inflector-rules';
+import { task } from 'ember-concurrency';
 
 const STOP_WORDS=['het', 'de'];
 
@@ -53,7 +54,7 @@ export default Service.extend({
   },
 
   /**
-   * Handles the incoming events from the editor dispatcher asynchronous
+   * Restartable task to handle the incoming events from the editor dispatcher
    *
    * @method execute
    *
@@ -62,12 +63,9 @@ export default Service.extend({
    * @param {Object} hintsRegistry Registry of hints in the editor
    * @param {Object} editor The RDFa editor instance
    *
-   * @return {Promise} A promise that resolves when the hints registry has been updated
-   *                  (adding new hints and removing outdated hints)
-   *
    * @public
    */
-  async execute(hrId, contexts, hintsRegistry, editor) {
+  execute: task(function * (hrId, contexts, hintsRegistry, editor) {
     this.removeAllHints(hintsRegistry);
     if (contexts.length === 0) return;
     const hints = [];
@@ -76,13 +74,13 @@ export default Service.extend({
       hints.push(...hintsForContext);
     };
 
-    await Promise.all(contexts.filter(c => this.contextIsApplicable(c)).map(context => generateHintsForContextAsync(context)));
+    yield Promise.all(contexts.filter(c => this.contextIsApplicable(c)).map(context => generateHintsForContextAsync(context)));
     this.set('hints', hints); // todo: use these hints to update cards instead of destroying and recreating
    if (hints.length > 0) {
       hintsRegistry.addHints(hrId, this.get('who'), hints);
    }
 
-  },
+  }).restartable(),
 
   removeAllHints(registry) {
     this.get('hints').forEach( (hint) => registry.removeHintsAtLocation(hint.get('location'), hint.get('info.hrId'), 'editor-plugins/citaat-card'));
