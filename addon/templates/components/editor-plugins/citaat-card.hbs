@@ -1,5 +1,8 @@
-{{#if results.length}}
-  <!-- <div class="modal-dialog modal-dialog--static modal-dialog--small modal-dialog--sectioned"> -->
+{{#if loading}}
+  <div class="loader"><span class="u-visually-hidden">Aan het laden</span></div>
+{{else}}
+  {{#if results.length}}
+    <!-- <div class="modal-dialog modal-dialog--static modal-dialog--small modal-dialog--sectioned"> -->
     <div class="modal-dialog__header">
       <div class="grid">
         <div class="col--10-12">
@@ -30,10 +33,9 @@
       {{/wu-button-group}}
     </div>
     <!-- </div> -->
-{{/if}}
-
-{{#if loading}}
-  <div class="loader"><span class="u-visually-hidden">Aan het laden</span></div>
+  {{else}}
+    <p>Geen referenties gevonden</p>
+  {{/if}}
 {{/if}}
 
 {{#each errors as |error|}}
