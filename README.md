@@ -26,5 +26,3 @@ export default Model.extend(BesluitModelMixin, {
   // your template model here
 });
 ```
-
-
