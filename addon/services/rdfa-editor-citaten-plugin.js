@@ -6,6 +6,7 @@ import '../models/custom-inflector-rules';
 import { task } from 'ember-concurrency';
 
 const STOP_WORDS=['het', 'de'];
+const DEBOUNCE_MS=250;
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -73,7 +74,7 @@ export default Service.extend({
       const hintsForContext = await this.generateHintsForContext(context, hrId, hintsRegistry, editor);
       hints.push(...hintsForContext);
     };
-
+    yield timeout(DEBOUNCE_MS);
     yield Promise.all(contexts.filter(c => this.contextIsApplicable(c)).map(context => generateHintsForContextAsync(context)));
     this.set('hints', hints); // todo: use these hints to update cards instead of destroying and recreating
    if (hints.length > 0) {
