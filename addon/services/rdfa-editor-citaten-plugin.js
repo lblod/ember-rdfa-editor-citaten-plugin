@@ -3,7 +3,7 @@ import { Promise } from 'rsvp';
 import Service, { inject as service } from '@ember/service';
 import { isEmpty, isBlank } from '@ember/utils';
 import '../models/custom-inflector-rules';
-import { task } from 'ember-concurrency';
+import { task, timeout } from 'ember-concurrency';
 
 const STOP_WORDS=['het', 'de'];
 const DEBOUNCE_MS=250;
