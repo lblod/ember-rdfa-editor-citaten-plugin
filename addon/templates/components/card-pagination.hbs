@@ -1,7 +1,8 @@
 <ul class="pager__list">
   <li class="pager__element">
     <span class="u-visually-hidden">Rij</span>
-    <strong>{{rangeStart}} - {{rangeEnd}}</strong> van {{total}} resultaten</li>
+    <strong>{{rangeStart}} - {{rangeEnd}}</strong> van {{total}} resultaten
+  </li>
   {{#unless isFirstPage}}
     <li class="pager__element">
       <a {{action "prev"}}>
@@ -12,7 +13,8 @@
   {{/unless}}
   {{#unless isLastPage}}
     <li class="pager__element">
-      <a {{action "next"}}>volgende
+      <a {{action "next"}}>
+        volgende
         <span class="u-visually-hidden"> {{pageSize}} rijen</span>
         {{wu-icon "vi-arrow" class="vi-u-s"}}
       </a>

@@ -2,7 +2,6 @@
   <div class="loader"><span class="u-visually-hidden">Aan het laden</span></div>
 {{else}}
   {{#if results.length}}
-    <!-- <div class="modal-dialog modal-dialog--static modal-dialog--small modal-dialog--sectioned"> -->
     <div class="modal-dialog__header">
       <div class="grid">
         <div class="col--10-12">
@@ -24,15 +23,37 @@
           </li>
         {{/each}}
       </ul>
-      {{card-pagination pageSize=pageSize pageNumber=pageNumber total=totalSize prev=(action "prevPage") next=(action "nextPage")}}
+      {{card-pagination
+        pageSize=pageSize
+        pageNumber=pageNumber
+        total=totalSize
+        prev=(action "prevPage")
+        next=(action "nextPage")
+      }}
     </div>
     <div class="u-visually-hidden modal-dialog__footer">
       {{#wu-button-group}}
-        {{wu-button label="Uitgebreid zoeken" size="small" isNarrow=true isAlt=true command="ctrl + f" commandLocation="below" onClick=null}}
-        {{wu-button label="Negeer" size="tiny" isLink=true isDark=true isNarrow=true command="esc" commandLocation="below" onClick=null}}
+        {{wu-button
+          label="Uitgebreid zoeken"
+          size="small"
+          isNarrow=true
+          isAlt=true
+          command="ctrl + f"
+          commandLocation="below"
+          onClick=null
+        }}
+        {{wu-button
+          label="Negeer"
+          size="tiny"
+          isLink=true
+          isDark=true
+          isNarrow=true
+          command="esc"
+          commandLocation="below"
+          onClick=null
+        }}
       {{/wu-button-group}}
     </div>
-    <!-- </div> -->
   {{else}}
     <p>Geen referenties gevonden</p>
   {{/if}}
