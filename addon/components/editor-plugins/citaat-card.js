@@ -5,8 +5,7 @@ import { inject as service } from '@ember/service';
 import Citaat from '../../utils/citaat';
 import { reads } from '@ember/object/computed';
 import '../../models/custom-inflector-rules';
-import { task, timeout } from 'ember-concurrency';
-const DEBOUNCE_MS = 250;
+import { task } from 'ember-concurrency';
 
 export default Component.extend({
   layout,
@@ -15,7 +14,6 @@ export default Component.extend({
   hrId: reads('info.hrId'),
   location: reads('info.location'),
   store: service(),
-  results: alias('besluiten'),
   loading: alias('search.isRunning'),
   errors: null,
   pageNumber: 0,
@@ -25,7 +23,11 @@ export default Component.extend({
     this._super(...arguments);
     this.set('errors', []);
     this.set('message', '');
-    this.get('search').perform();
+  },
+  async didReceiveAttrs() {
+    const results = await this.info.query;
+    this.set('totalSize', results.get('meta.count'));
+    this.set('besluiten', results.map(r => this.parseResult(r)));
   },
   willDestroyElement() {
     this.set('errors', []);
@@ -38,20 +40,10 @@ export default Component.extend({
   },
 
    search: task( function *() {
-    let searchWords = this.get('info.words');
-     let filter = this.buildFilter(searchWords);
-     yield timeout(DEBOUNCE_MS);
-     yield this.get('findAndHandleCitation').perform('besluit', 'besluiten', filter);
-  }),
-
-  buildFilter(words){
-    let filter = {
-      page: { number: this.get('pageNumber'), size: this.get('pageSize') },
-      sort: '-score',
-      'filter[titel]':  words
-    };
-    return filter;
-  },
+     const results = yield this.info.query;
+     const count = results.meta.count;
+     this.set('besluiten', results.map((r) => this.parseResult(r)));
+   }),
   findAndHandleCitation: task( function * (forType, setOnProperty, filter) {
     try {
       let result = yield this.get('store').query(forType, filter);
@@ -64,7 +56,8 @@ export default Component.extend({
   }),
   parseResult(result) {
     return Citaat.create({
-      title: result.get('citeeropschrift'),
+      title: result.get('titel'),
+      citeeropschrift: this.info.match,
       uri: result.get('uri'),
       origModel: result
     });
