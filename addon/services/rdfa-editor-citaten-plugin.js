@@ -6,8 +6,8 @@ import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 
 const STOP_WORDS=['het', 'de'];
-const regex = new RegExp('((gelet\\sop)\\s(het\\sdecreet|de\\sbeslissing)?|(het\\sdecreet|de\\sbeslissing))\\s([a-z0-9\\s]{3,})','ig');
-const matchRegex = new RegExp('((gelet\\sop)\\s+(het\\sdecreet|de\\sbeslissing)?|(het\\sdecreet|de\\sbeslissing))\\s(van\\s*(de gemeenteraad)).*\\stot\\s([a-z0-9\\s]{3,})','ig');
+const regex = new RegExp('((gelet\\sop)\\s((het)?\\s?decreet|(de)?\\sbeslissing)?|((het)?\\s?decreet|(de)?\\sbeslissing))\\s([a-z0-9\\s]{3,})','ig');
+const matchRegex = new RegExp('((gelet\\sop)\\s((het)?\\s?decreet|(de)?\\sbeslissing)?|((het)?\\s?decreet|(de)?\\sbeslissing))\\s?(van\\s(de gemeenteraad))?\\s?(tot)?\\s?([a-z0-9\\s]{3,})','ig');
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -70,7 +70,7 @@ export default Service.extend({
     const hints = A();
     for (var snippet of contexts) {
       hintsRegistry.removeHintsInRegion(snippet.region, hrId, this.who);
-      if (yield this.hasApplicableContext(snippet)) {
+      if (snippet.text && (yield this.hasApplicableContext(snippet))) {
         const matchList = yield this.extractData(snippet);
         for (const data of matchList) {
           hintsRegistry.removeHintsInRegion(snippet.region, hrId, this.who);
@@ -107,6 +107,8 @@ export default Service.extend({
     const match = data.match;
     const words = data.words;
     let location = [match.position, match.position + match.text.length];
+    console.log(location);
+    console.log(match.text);
     const query = this.fetchResources(words);
     const card = EmberObject.create({
       location,
@@ -124,19 +126,28 @@ export default Service.extend({
     const matches = A();
     var quickMatch;
     while ((quickMatch = matchRegex.exec(snippet.text)) !== null) {
-      if (!quickMatch || !quickMatch[7])
-        return null;
-      const text = quickMatch[7];
+      /*
+       * match[1] = match 1 to 7
+       * match[2] = "gelet op"
+       * match[3] = "het decreet|de beslissing"
+       * match[4] = "het"
+       * match[5] = "de"
+       * match[6] = "het decreet|de beslissing"
+       * match[7] = "het"
+       * match[8] = "de"
+       * match[9] = "van de gemeenteraad"
+       * match[10] = "de gemeenteraad"
+       * match[11] = "\stot\s"
+       * match[12] = actual input
+       */
+      if (!quickMatch || !quickMatch[12]) {
+        console.warn('no match');
+        return matches;
+      }
+      console.log('foo');
+      const text = quickMatch[12];
       const words = text.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
-      const match = {text: ''};
-      match.text = `${quickMatch[3] ? quickMatch[3] : quickMatch[1]}`;
-      if (quickMatch[5])
-        match.text = match.text + ' ' + quickMatch[5];
-      match.text = match.text + ' tot ';
-      match.text = match.text + quickMatch[7];
-      match.position = snippet.region[0] + quickMatch.index;
-      if (quickMatch[2])
-        match.position = match.position + quickMatch[2].length + 1;
+      const match = { text:quickMatch[0], position: snippet.region[0] + quickMatch.index };
       matches.pushObject({match, words, realMatch: quickMatch});
     }
     return matches;
