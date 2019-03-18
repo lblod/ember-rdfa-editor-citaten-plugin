@@ -1,4 +1,5 @@
-import { alias } from '@ember/object/computed';
+import { isEmpty } from '@ember/utils';
+import { computed } from '@ember/object';
 import Component from '@ember/component';
 import layout from '../../templates/components/editor-plugins/citaat-card';
 import { inject as service } from '@ember/service';
@@ -14,18 +15,24 @@ export default Component.extend({
   hrId: reads('info.hrId'),
   location: reads('info.location'),
   store: service(),
-  loading: alias('search.isRunning'),
   errors: null,
   pageNumber: 0,
   pageSize: 5,
   totalSize: null,
+  insertHintActive: null,
   init() {
     this._super(...arguments);
     this.set('errors', []);
     this.set('message', '');
+    this.set('insertHintActive', false);
   },
+  loading: computed('initialLoad', 'search.isRunning', function() {
+    return this.initialLoad || this.search.isRunning;
+  }),
   async didReceiveAttrs() {
+    this.set('initialLoad', true);
     const results = await this.info.query;
+    this.set('initialLoad', false);
     this.set('totalSize', results.get('meta.count'));
     this.set('besluiten', results.map(r => this.parseResult(r)));
   },
@@ -35,47 +42,42 @@ export default Component.extend({
   removeHint() {
     this.get('hintsRegistry').removeHintsAtLocation(this.get('location'), this.get('hrId'), 'editor-plugins/citaat-card');
   },
-  buildHTMLForHint(hint) {
-    return "<a class=\"annotation\" href=\""+ hint.get("uri") +  "\" property=\"eli:cites\">" + hint.get("citeeropschrift") + "</a>&nbsp;";
+  buildHTMLForHint(uri, title) {
+    return "<a class=\"annotation\" href=\""+ uri +  "\" property=\"eli:cites\">" + title + "</a>&nbsp;";
   },
 
    search: task( function *() {
-     const results = yield this.info.query;
+     const results = yield this.info.fetchPage(this.pageNumber);
      const count = results.meta.count;
      this.set('totalSize', count);
      this.set('besluiten', results.map((r) => this.parseResult(r)));
    }),
-  findAndHandleCitation: task( function * (forType, setOnProperty, filter) {
-    try {
-      let result = yield this.get('store').query(forType, filter);
-      this.set('totalSize', result.get('meta.count'));
-      this.set(setOnProperty, result.map(r => this.parseResult(r)));
-    }
-    catch(e) {
-      this.get('errors').pushObject('request for ' + forType + ' failed');
-    }
-  }),
   parseResult(result) {
+    const title = isEmpty(result.get('citeeropschrift')) ? result.get('titel') : result.get('citeeropschrift');
     return Citaat.create({
-      title: result.get('titel'),
+      title,
       citeeropschrift: this.info.match,
       uri: result.get('uri'),
       origModel: result
     });
   },
-  prevPage() {
-    this.set('pageNumber', this.get('pageNumber') - 1);
-    this.search();
-  },
-  nextPage() {
-    this.set('pageNumber', this.get('pageNumber') + 1);
-    this.search();
-  },
   actions: {
-    insertHint(hint) {
+    toggleInsertHint(besluit) {
+      this.toggleProperty('insertHintActive');
+      this.set('currentBesluit', besluit);
+    },
+    insertHint(uri, title) {
       const updatedLocation = this.get('hintsRegistry').updateLocationToCurrentIndex(this.get('hrId'), this.get('location'));
       this.removeHint();
-      this.get('editor').replaceTextWithHTML(...updatedLocation, this.buildHTMLForHint(hint));
+      this.get('editor').replaceTextWithHTML(...updatedLocation, this.buildHTMLForHint(uri, title));
+    },
+    prevPage() {
+      this.set('pageNumber', this.get('pageNumber') - 1);
+      this.get('search').perform();
+    },
+    nextPage() {
+      this.set('pageNumber', this.get('pageNumber') + 1);
+      this.get('search').perform();
     }
   }
 });

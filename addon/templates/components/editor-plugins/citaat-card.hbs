@@ -1,38 +1,47 @@
-<div class="modal-dialog__header">
-	<div class="grid">
-	  <div class="col--10-12">
-	    <p class="u-spacer--tiny">
-				Wil u graag een referentie naar een besluit invoegen:
-	    </p>
+{{#if insertHintActive}}
+  {{editor-plugins/insert-citaat-card
+    besluit=currentBesluit
+    toggleInsertHint=(action 'toggleInsertHint')
+    insertHint=(action 'insertHint')
+  }}
+{{else}}
+  <div class="modal-dialog__header">
+	  <div class="grid">
+	    <div class="col--10-12">
+	      <p class="u-spacer--tiny">
+				  Wil u graag een referentie naar een besluit invoegen:
+	      </p>
+	    </div>
 	  </div>
-	</div>
-</div>
+  </div>
 
-<div class="modal-dialog__content modal-dialog__content--sectioned">
-  {{#if search.isRunning}}
-    <div class="u-padding--round">
-      <p class="loader"><span class="u-visually-hidden">Aan het laden</span></p>
-    </div>
-  {{else if besluiten.length}}
-    <ul class="link-list link-list--bordered">
-      {{#each besluiten as |besluit|}}
+  <div class="modal-dialog__content modal-dialog__content--sectioned">
+    {{#if loading}}
+      <div class="u-padding--round">
+        <p class="loader"><span class="u-visually-hidden">Aan het laden</span></p>
+      </div>
+    {{else}}
+      {{#if besluiten.length}}
+        <ul class="link-list link-list--bordered">
+          {{#each besluiten as |citaat|}}
 
-        <li class="link-list__item link-list__item--sidenotes">
-          <a class="" onclick={{action 'insertHint' besluit}}>
-            {{besluit.title}}
-
-            <span class="link-list__item__sidenote uppercase">
-            </span>
-          </a>
-        </li>
-      {{/each}}
-    </ul>
-    {{editor-plugins/citaat-card-pagination prev=prevPage next=nextPage pageNumber=pageNumber pageSize=pageSize total=totalSize}}
+            <li class="link-list__item link-list__item--sidenotes">
+              <a class="" onclick={{action 'insertHint' citaat.uri citaat.title}}>
+                {{citaat.title}}
+                <span class="link-list__item__sidenote uppercase">
+                </span>
+              </a>
+            </li>
+          {{/each}}
+        </ul>
+        {{editor-plugins/citaat-card-pagination prev=(action 'prevPage') next=(action 'nextPage') pageNumber=pageNumber pageSize=pageSize total=totalSize}}
   {{else}}
-    <div class="u-padding--round--small">
-      <p>Geen besluiten gevonden. Is de informatie van de gemeenteraad al beschikbaar?.</p>
-      <br>
-      <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
-    </div>
-  {{/if}}
-</div>
+        <div class="u-padding--round--small">
+          <p>Geen besluiten gevonden. Is de informatie van de gemeenteraad al beschikbaar?.</p>
+          <br>
+          <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
+        </div>
+      {{/if}}
+    {{/if}}
+  </div>
+{{/if}}
