@@ -106,8 +106,6 @@ export default Service.extend({
     const match = data.match;
     const words = data.words;
     let location = [match.position, match.position + match.text.length];
-    console.log(location);
-    console.log(match.text);
     const query = this.fetchResources(words);
     const card = EmberObject.create({
       location,
@@ -140,10 +138,8 @@ export default Service.extend({
        * match[12] = actual input
        */
       if (!quickMatch || !quickMatch[12]) {
-        console.warn('no match');
         return matches;
       }
-      console.log('foo');
       const text = quickMatch[12];
       const words = text.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
       const match = { text:quickMatch[0], position: snippet.region[0] + quickMatch.index };
