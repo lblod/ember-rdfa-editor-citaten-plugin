@@ -42,6 +42,7 @@ export default Component.extend({
    search: task( function *() {
      const results = yield this.info.query;
      const count = results.meta.count;
+     this.set('totalSize', count);
      this.set('besluiten', results.map((r) => this.parseResult(r)));
    }),
   findAndHandleCitation: task( function * (forType, setOnProperty, filter) {
@@ -62,19 +63,19 @@ export default Component.extend({
       origModel: result
     });
   },
+  prevPage() {
+    this.set('pageNumber', this.get('pageNumber') - 1);
+    this.search();
+  },
+  nextPage() {
+    this.set('pageNumber', this.get('pageNumber') + 1);
+    this.search();
+  },
   actions: {
     insertHint(hint) {
       const updatedLocation = this.get('hintsRegistry').updateLocationToCurrentIndex(this.get('hrId'), this.get('location'));
       this.removeHint();
       this.get('editor').replaceTextWithHTML(...updatedLocation, this.buildHTMLForHint(hint));
-    },
-    prevPage() {
-      this.set('pageNumber', this.get('pageNumber') - 1);
-      this.search();
-    },
-    nextPage() {
-      this.set('pageNumber', this.get('pageNumber') + 1);
-      this.search();
     }
   }
 });

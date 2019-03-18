@@ -5,7 +5,7 @@ import '../models/custom-inflector-rules';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 
-const STOP_WORDS=['het', 'de'];
+const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const regex = new RegExp('((gelet\\sop)\\s((het)?\\s?decreet|(de)?\\sbeslissing)?|((het)?\\s?decreet|(de)?\\sbeslissing))\\s([a-z0-9\\s]{3,})','ig');
 const matchRegex = new RegExp('((gelet\\sop)\\s((het)?\\s?decreet|(de)?\\sbeslissing)?|((het)?\\s?decreet|(de)?\\sbeslissing))\\s?(van\\s(de gemeenteraad))?\\s?(tot)?\\s?([a-z0-9\\s]{3,})','ig');
 
@@ -49,7 +49,7 @@ export default Service.extend({
   async hasApplicableContext(snippet) {
     const triples = snippet.context;
     const besluit = triples.find(t => t.predicate == 'a' &&  this.get('besluitClasses').includes(t.object));
-    if (besluit && triples.any((s) => /*s.subject === besluit.subject &&*/ s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) {
+    if (besluit && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) {
       return regex.test(snippet.text);
     }
   return false;
@@ -67,7 +67,6 @@ export default Service.extend({
    * @public
    */
   execute: task(function * (hrId, contexts, hintsRegistry, editor) {
-    const hints = A();
     for (var snippet of contexts) {
       hintsRegistry.removeHintsInRegion(snippet.region, hrId, this.who);
       if (snippet.text && (yield this.hasApplicableContext(snippet))) {

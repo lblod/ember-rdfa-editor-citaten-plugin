@@ -2,7 +2,7 @@ import { equal } from '@ember/object/computed';
 import { assert } from '@ember/debug';
 import { computed } from '@ember/object';
 import Component from '@ember/component';
-import layout from '../templates/components/card-pagination';
+import layout from '../../templates/components/editor-plugins/citaat-card-pagination';
 
 export default Component.extend({
   layout,
