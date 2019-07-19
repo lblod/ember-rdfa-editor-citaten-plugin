@@ -50,6 +50,7 @@ export default Service.extend({
     const triples = snippet.context;
     const besluit = triples.find(t => t.predicate == 'a' &&  this.get('besluitClasses').includes(t.object));
     if (besluit && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) {
+      const text = snippet.text ? snippet.text : "";
       return regex.test(snippet.text);
     }
   return false;
