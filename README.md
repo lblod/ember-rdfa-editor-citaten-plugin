@@ -2,7 +2,16 @@
 
 RDFa editor plugin to insert citations of a legal resource or legal expression level.
 
-## Installation
+Compatibility
+------------------------------------------------------------------------------
+
+* Ember.js v3.4 or above
+* Ember CLI v2.13 or above
+* Node.js v8 or above
+
+
+Installation
+------------------------------------------------------------------------------
 ```
 ember install @lblod/ember-rdfa-editor
 ember install @lblod/ember-rdfa-editor-citaten-plugin
@@ -26,3 +35,14 @@ export default Model.extend(BesluitModelMixin, {
   // your template model here
 });
 ```
+
+Contributing
+------------------------------------------------------------------------------
+
+See the [Contributing](CONTRIBUTING.md) guide for details.
+
+
+License
+------------------------------------------------------------------------------
+
+This project is licensed under the [MIT License](LICENSE.md).
