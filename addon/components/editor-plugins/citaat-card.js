@@ -7,6 +7,7 @@ import Citaat from '../../utils/citaat';
 import { reads } from '@ember/object/computed';
 import '../../models/custom-inflector-rules';
 import { task } from 'ember-concurrency';
+import { warn } from '@ember/debug';
 
 export default Component.extend({
   layout,
@@ -35,7 +36,7 @@ export default Component.extend({
       this.set('besluiten', results.map(r => this.parseResult(r)));
     }
     catch(e) {
-      console.log(e);
+      warn(e, {id: 'citaat-card.init'});
     }
     finally {
       this.set('initialLoad', false);

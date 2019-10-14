@@ -1,25 +1,25 @@
 <div class="modal-dialog__header">
-	<div class="grid">
-	  <div class="col--10-12">
-	    <p class="u-spacer--tiny">
-				Beheer citaat:
-	    </p>
-	  </div>
-	</div>
+  <div class="grid">
+    <div class="col--10-12">
+      <p class="u-spacer--tiny">
+        Beheer citaat:
+      </p>
+    </div>
+  </div>
   <div class="modal-dialog__content modal-dialog__content--sectioned">
-    Link: <a href="{{besluit.uri}}">{{besluit.title}}</a>
+    Link: <a href={{besluit.uri}}>{{besluit.title}}</a>
     <br>
-    Citeeropschrift: <input />
+    Citeeropschrift: <input >
     <br>
     {{wu-button
       label="Voeg toe"
       size="small"
-      onClick=(action 'insert')
+      onClick=(action "insert")
     }}
     {{wu-button
       label="Annuleer"
       size="small"
-      onClick=(action 'cancel')
+      onClick=(action "cancel")
     }}
 
   </div>

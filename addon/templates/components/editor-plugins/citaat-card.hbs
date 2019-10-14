@@ -1,18 +1,18 @@
 {{#if insertHintActive}}
   {{editor-plugins/insert-citaat-card
     besluit=currentBesluit
-    toggleInsertHint=(action 'toggleInsertHint')
-    insertHint=(action 'insertHint')
+    toggleInsertHint=(action "toggleInsertHint")
+    insertHint=(action "insertHint")
   }}
 {{else}}
   <div class="modal-dialog__header">
-	  <div class="grid">
-	    <div class="col--10-12">
-	      <p class="u-spacer--tiny">
-				  Wil u graag een referentie naar een besluit invoegen:
-	      </p>
-	    </div>
-	  </div>
+	   <div class="grid">
+	     <div class="col--10-12">
+	       <p class="u-spacer--tiny">
+				      Wil u graag een referentie naar een besluit invoegen:
+	       </p>
+	     </div>
+	   </div>
   </div>
 
   <div class="modal-dialog__content modal-dialog__content--sectioned">
@@ -26,7 +26,7 @@
           {{#each besluiten as |citaat|}}
 
             <li class="link-list__item link-list__item--sidenotes">
-              <a class="" onclick={{action 'insertHint' citaat.uri citaat.title}}>
+              <a class="" onclick={{action "insertHint" citaat.uri citaat.title}}>
                 {{citaat.title}}
                 <span class="link-list__item__sidenote uppercase">
                 </span>
@@ -34,8 +34,8 @@
             </li>
           {{/each}}
         </ul>
-        {{editor-plugins/citaat-card-pagination prev=(action 'prevPage') next=(action 'nextPage') pageNumber=pageNumber pageSize=pageSize total=totalSize}}
-  {{else}}
+        {{editor-plugins/citaat-card-pagination prev=(action "prevPage") next=(action "nextPage") pageNumber=pageNumber pageSize=pageSize total=totalSize}}
+      {{else}}
         <div class="u-padding--round--small">
           <p>Geen besluiten gevonden. Is de informatie van de gemeenteraad al beschikbaar?.</p>
           <br>
