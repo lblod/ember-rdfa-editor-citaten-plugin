@@ -46,8 +46,7 @@ export default Component.extend({
   },
   buildHTMLForHint(uri, title) {
     title = title.toLowerCase();
-    const start = (title.startsWith('besluit') || title.startsWith('decreet')) ? "Het " : "de ";
-    return start + "<a class=\"annotation\" href=\""+ uri +  "\" property=\"eli:cites\">" + title + "</a>&nbsp;";
+    return "<a class=\"annotation\" href=\""+ uri +  "\" property=\"eli:cites\">" + title + "</a>&nbsp;";
   },
 
    search: task( function *() {

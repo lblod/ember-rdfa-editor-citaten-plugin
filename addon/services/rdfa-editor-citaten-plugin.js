@@ -5,7 +5,7 @@ import '../models/custom-inflector-rules';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|beslissing|besluit|koninklijk\\sbesluit)([\\s\\w\\dd;:\'"()&-_]{3,})|[a-z]+decreet)','ig');
+const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|beslissing|[a-z]*\\s?besluit|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})|[a-z]+decreet)','ig');
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -65,15 +65,17 @@ export default Service.extend({
    *
    * @public
    */
-  execute: task(function * (hrId, contexts, hintsRegistry, editor) {
-    for (var snippet of contexts) {
-      if (snippet.text && (this.hasApplicableContext(snippet))) {
-        const matchList = this.extractData(snippet);
-        const cards = A();
-        for (const data of matchList) {
-          cards.pushObject(this.createCardForMatch(data, hrId, hintsRegistry, editor));
+  execute: task(function * (hrId, blocks, hintsRegistry, editor) { //eslint-disable-line require-yield
+    for (let block of blocks) {
+      const cards = A();
+      if (block.text) {
+        if (this.hasApplicableContext(block)) {
+          const matchList = this.extractData(block);
+          for (const data of matchList) {
+            cards.pushObject(this.createCardForMatch(data, hrId, hintsRegistry, editor));
+          }
         }
-        hintsRegistry.removeHintsInRegion(snippet.region, hrId, this.who);
+        hintsRegistry.removeHintsInRegion(block.region, hrId, this.who);
         hintsRegistry.addHints(hrId, this.who, cards);
       }
     }
@@ -132,10 +134,12 @@ export default Service.extend({
        * match[4] = "decreet|beslissing|besluit"
        * match[5] = actual input
        */
-      const text = quickMatch[5] ? quickMatch[5] : quickMatch[3];
-      const updatedText = this.cleanupText(text);
+      const searchText = quickMatch[5] ? quickMatch[5] : quickMatch[3];
+      const text = quickMatch[3];
+      const updatedText = this.cleanupText(searchText);
       const words = updatedText.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
-      const match = { text:quickMatch[0], position: snippet.region[0] + quickMatch.index };
+      const index = snippet.text.indexOf(text);
+      const match = { text, position: snippet.region[0] + index };
       matches.pushObject({match, words, realMatch: quickMatch});
     }
     return matches;
