@@ -15,14 +15,12 @@ export default Component.extend({
   hrId: reads('info.hrId'),
   location: reads('info.location'),
   store: service(),
-  errors: null,
   pageNumber: 0,
   pageSize: 5,
   totalSize: null,
   insertHintActive: null,
   init() {
     this._super(...arguments);
-    this.set('errors', []);
     this.set('message', '');
     this.set('insertHintActive', false);
   },
@@ -31,19 +29,25 @@ export default Component.extend({
   }),
   async didReceiveAttrs() {
     this.set('initialLoad', true);
-    const results = await this.info.query;
-    this.set('initialLoad', false);
-    this.set('totalSize', results.get('meta.count'));
-    this.set('besluiten', results.map(r => this.parseResult(r)));
-  },
-  willDestroyElement() {
-    this.set('errors', []);
+    try {
+      const results = await this.info.query;
+      this.set('totalSize', results.get('meta.count'));
+      this.set('besluiten', results.map(r => this.parseResult(r)));
+    }
+    catch(e) {
+      console.log(e);
+    }
+    finally {
+      this.set('initialLoad', false);
+    }
   },
   removeHint() {
     this.get('hintsRegistry').removeHintsAtLocation(this.get('location'), this.get('hrId'), 'editor-plugins/citaat-card');
   },
   buildHTMLForHint(uri, title) {
-    return "<a class=\"annotation\" href=\""+ uri +  "\" property=\"eli:cites\">" + title + "</a>&nbsp;";
+    title = title.toLowerCase();
+    const start = (title.startsWith('besluit') || title.startsWith('decreet')) ? "Het " : "de ";
+    return start + "<a class=\"annotation\" href=\""+ uri +  "\" property=\"eli:cites\">" + title + "</a>&nbsp;";
   },
 
    search: task( function *() {
