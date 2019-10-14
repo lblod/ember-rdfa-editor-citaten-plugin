@@ -4,10 +4,8 @@ import { isBlank } from '@ember/utils';
 import '../models/custom-inflector-rules';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
-
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const regex = new RegExp('((gelet\\sop)\\s((het)?\\s?decreet|(de)?\\sbeslissing)?|((het)?\\s?decreet|(de)?\\sbeslissing))\\s([a-z0-9\\s]{3,})','ig');
-const matchRegex = new RegExp('((gelet\\sop)\\s((het)?\\s?decreet|(de)?\\sbeslissing)?|((het)?\\s?decreet|(de)?\\sbeslissing))\\s?(van\\s(de gemeenteraad))?\\s?(tot)?\\s?([a-z0-9\\s]{3,})','ig');
+const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|beslissing|besluit|koninklijk\\sbesluit)([\\s\\w\\dd;:\'"()&-_]{3,})|[a-z]+decreet)','ig');
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -51,7 +49,7 @@ export default Service.extend({
     const besluit = triples.find(t => t.predicate == 'a' &&  this.get('besluitClasses').includes(t.object));
     if (besluit && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) {
       const text = snippet.text ? snippet.text : "";
-      return regex.test(snippet.text);
+      return regex.test(text);
     }
   return false;
   },
@@ -69,13 +67,14 @@ export default Service.extend({
    */
   execute: task(function * (hrId, contexts, hintsRegistry, editor) {
     for (var snippet of contexts) {
-      hintsRegistry.removeHintsInRegion(snippet.region, hrId, this.who);
-      if (snippet.text && (yield this.hasApplicableContext(snippet))) {
-        const matchList = yield this.extractData(snippet);
+      if (snippet.text && (this.hasApplicableContext(snippet))) {
+        const matchList = this.extractData(snippet);
+        const cards = A();
         for (const data of matchList) {
-          hintsRegistry.removeHintsInRegion(snippet.region, hrId, this.who);
-          hintsRegistry.addHints(hrId, this.get('who'), [this.createCardForMatch(data, hrId, hintsRegistry, editor)]);
+          cards.pushObject(this.createCardForMatch(data, hrId, hintsRegistry, editor));
         }
+        hintsRegistry.removeHintsInRegion(snippet.region, hrId, this.who);
+        hintsRegistry.addHints(hrId, this.who, cards);
       }
     }
   }),
@@ -120,32 +119,43 @@ export default Service.extend({
     return card;
   },
 
-  async extractData(snippet) {
+  extractData(snippet) {
     const matches = A();
     var quickMatch;
-    while ((quickMatch = matchRegex.exec(snippet.text)) !== null) {
+    regex.lastIndex = 0;
+    while ((quickMatch = regex.exec(snippet.text)) !== null) {
       /*
-       * match[1] = match 1 to 7
-       * match[2] = "gelet op"
-       * match[3] = "het decreet|de beslissing"
-       * match[4] = "het"
-       * match[5] = "de"
-       * match[6] = "het decreet|de beslissing"
-       * match[7] = "het"
-       * match[8] = "de"
-       * match[9] = "van de gemeenteraad"
-       * match[10] = "de gemeenteraad"
-       * match[11] = "\stot\s"
-       * match[12] = actual input
+       * match[0] = match 1 to end
+       * match[1] = "gelet op"
+       * match[2] = "het|de
+       * match[3] = 4 +5
+       * match[4] = "decreet|beslissing|besluit"
+       * match[5] = actual input
        */
-      if (!quickMatch || !quickMatch[12]) {
-        return matches;
-      }
-      const text = quickMatch[12];
-      const words = text.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
+      const text = quickMatch[5] ? quickMatch[5] : quickMatch[3];
+      const updatedText = this.cleanupText(text);
+      const words = updatedText.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
       const match = { text:quickMatch[0], position: snippet.region[0] + quickMatch.index };
       matches.pushObject({match, words, realMatch: quickMatch});
     }
     return matches;
+  },
+  cleanupText(text) {
+    const { updatedText }=this.extractDates(text);
+    const textWithoutOddChars=updatedText.replace(/[,.:"()&]/g,'');
+    return textWithoutOddChars;
+  },
+  extractDates(text) {
+    var date;
+    const dateRegex = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})','g');
+    const matches=[];
+    while ((date = dateRegex.exec(text)) !== null) {
+      matches.pushObject(date);
+    }
+    var updatedText = text;
+    for (let match of matches) {
+      updatedText = updatedText.replace(match[0],'');
+    }
+    return {dates: matches, updatedText };
   }
 });
