@@ -5,7 +5,7 @@ import '../models/custom-inflector-rules';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|beslissing|[a-z]*\\s?besluit|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})|[a-z]+decreet)','ig');
+const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|beslissing|[a-z]*\\s?besluit|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -53,6 +53,7 @@ export default Service.extend({
     }
   return false;
   },
+
   /**
    * Restartable task to handle the incoming events from the editor dispatcher
    *
@@ -135,7 +136,8 @@ export default Service.extend({
        * match[5] = actual input
        */
       const searchText = quickMatch[5] ? quickMatch[5] : quickMatch[3];
-      const text = quickMatch[3];
+      const artikelIndex = quickMatch[3].indexOf("artikel");
+      const text = artikelIndex >= 0 ? quickMatch[3].slice(0, artikelIndex) : quickMatch[3];
       const updatedText = this.cleanupText(searchText);
       const words = updatedText.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
       const index = snippet.text.indexOf(text);
@@ -147,7 +149,8 @@ export default Service.extend({
   cleanupText(text) {
     const { updatedText }=this.extractDates(text);
     const textWithoutOddChars=updatedText.replace(/[,.:"()&]/g,'');
-    return textWithoutOddChars;
+    const indexOfArtikel=textWithoutOddChars.indexOf("artikel");
+    return indexOfArtikel >= 0 ? textWithoutOddChars.slice(0, indexOfArtikel) : textWithoutOddChars;
   },
   extractDates(text) {
     var date;
