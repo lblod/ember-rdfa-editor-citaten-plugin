@@ -44,7 +44,7 @@ export default Service.extend({
     ]);
   },
 
-  async hasApplicableContext(snippet) {
+  hasApplicableContext(snippet) {
     const triples = snippet.context;
     const besluit = triples.find(t => t.predicate == 'a' &&  this.get('besluitClasses').includes(t.object));
     if (besluit && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) {
