@@ -1,9 +1,10 @@
 import EmberObject from '@ember/object';
 import Service, { inject as service } from '@ember/service';
 import { isBlank } from '@ember/utils';
-import '../models/custom-inflector-rules';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
+import fetch from 'fetch';
+
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|beslissing|[a-z]*\\s?besluit|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
 
@@ -73,7 +74,7 @@ export default Service.extend({
         if (this.hasApplicableContext(block)) {
           const matchList = this.extractData(block);
           for (const data of matchList) {
-            cards.pushObject(this.createCardForMatch(data, hrId, hintsRegistry, editor));
+            cards.pushObject(yield this.createCardForMatch(data, hrId, hintsRegistry, editor));
           }
         }
         hintsRegistry.removeHintsInRegion(block.region, hrId, this.who);
@@ -82,14 +83,47 @@ export default Service.extend({
     }
   }),
 
-  fetchResources(words, page = 0) {
-    let filter = {
-      page: { number: page, size: 5 },
-      sort: '-score',
-      'filter[titel]':  words
-    };
-    return this.store.query('besluit', filter);
+  async fetchResources(words, page = 0) {
+    let decisions = [];
+    const totalCountQuery = `
+      PREFIX eli: <http://data.europa.eu/eli/ontology#>
+
+      SELECT COUNT(?uri) as ?count
+      WHERE {
+        ?uri eli:title ?title .
+        FILTER CONTAINS(?title, "${words}")
+      }`;
+    const encodedTotalCountQuery = escape(totalCountQuery);
+    const endpointTotalCount = `https://codex.opendata.api.vlaanderen.be:8888/sparql?query=${encodedTotalCountQuery}`;
+    const rawTotalCount = await fetch(endpointTotalCount, {headers: {'Accept': 'application/sparql-results+json'}});
+    const totalCount = parseInt((await rawTotalCount.json()).results.bindings[0].count.value);
+
+    if (totalCount > 0) {
+      const pageSize = 5;
+      const query = `
+        PREFIX eli: <http://data.europa.eu/eli/ontology#>
+
+        SELECT DISTINCT *
+        WHERE {
+          ?uri eli:title ?title ;
+            ?p ?o .
+          FILTER CONTAINS(?title, "${words}")
+        }
+        LIMIT ${pageSize}
+        OFFSET ${page}`;
+
+      const encodedQuery = escape(query);
+      const endpoint = `https://codex.opendata.api.vlaanderen.be:8888/sparql?query=${encodedQuery}`;
+      const rawDecisions = await fetch(endpoint, {headers: {'Accept': 'application/sparql-results+json'}});
+      decisions = await rawDecisions.json();
+    }
+
+    return EmberObject.create({
+      totalCount: totalCount,
+      decisions: totalCount > 0 ? decisions.results.bindings : decisions
+    });
   },
+
   /**
    * Creates a hint for a match
    *
@@ -105,11 +139,11 @@ export default Service.extend({
    *
    * @private
    */
-  createCardForMatch(data, hrId, hintsRegistry, editor) {
+  async createCardForMatch(data, hrId, hintsRegistry, editor) {
     const match = data.match;
     const words = data.words;
     let location = [match.position, match.position + match.text.length];
-    const query = this.fetchResources(words);
+    const query = await this.fetchResources(words);
     const card = EmberObject.create({
       location,
       info: {

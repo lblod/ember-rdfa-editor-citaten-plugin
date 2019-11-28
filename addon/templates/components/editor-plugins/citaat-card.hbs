@@ -6,13 +6,13 @@
   }}
 {{else}}
   <div class="modal-dialog__header">
-	   <div class="grid">
-	     <div class="col--10-12">
-	       <p class="u-spacer--tiny">
-				      Wil u graag een referentie naar een besluit invoegen:
-	       </p>
-	     </div>
-	   </div>
+    <div class="grid">
+      <div class="col--10-12">
+        <p class="u-spacer--tiny">
+          Wil u graag een referentie naar een besluit invoegen:
+        </p>
+      </div>
+    </div>
   </div>
 
   <div class="modal-dialog__content modal-dialog__content--sectioned">
@@ -24,12 +24,10 @@
       {{#if besluiten.length}}
         <ul class="link-list link-list--bordered">
           {{#each besluiten as |citaat|}}
-
             <li class="link-list__item link-list__item--sidenotes">
-              <a class="" onclick={{action "insertHint" citaat.uri citaat.title}}>
-                {{citaat.title}}
-                <span class="link-list__item__sidenote uppercase">
-                </span>
+              <a class="" onclick={{action "insertHint" citaat.uri.value citaat.title.value}}>
+                {{capitalize citaat.title.value}}
+                <span class="link-list__item__sidenote uppercase"></span>
               </a>
             </li>
           {{/each}}
