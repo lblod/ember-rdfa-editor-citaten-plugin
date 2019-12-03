@@ -91,7 +91,7 @@ export default Service.extend({
       SELECT COUNT(?uri) as ?count
       WHERE {
         ?uri eli:title ?title .
-        FILTER CONTAINS(?title, "${words}")
+        ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
       }`;
     const encodedTotalCountQuery = escape(totalCountQuery);
     const endpointTotalCount = `https://codex.opendata.api.vlaanderen.be:8888/sparql?query=${encodedTotalCountQuery}`;
@@ -105,9 +105,8 @@ export default Service.extend({
 
         SELECT DISTINCT *
         WHERE {
-          ?uri eli:title ?title ;
-            ?p ?o .
-          FILTER CONTAINS(?title, "${words}")
+          ?uri eli:title ?title .
+          ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
         }
         LIMIT ${pageSize}
         OFFSET ${page}`;
