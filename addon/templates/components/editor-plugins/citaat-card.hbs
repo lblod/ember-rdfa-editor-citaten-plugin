@@ -16,7 +16,7 @@
   </div>
 
   <div class="modal-dialog__content modal-dialog__content--sectioned">
-    {{#if loading}}
+    {{#if search.isRunning}}
       <div class="u-padding--round">
         <p class="loader"><span class="u-visually-hidden">Aan het laden</span></p>
       </div>
@@ -35,7 +35,11 @@
         {{editor-plugins/citaat-card-pagination prev=(action "prevPage") next=(action "nextPage") pageNumber=pageNumber pageSize=pageSize total=totalSize}}
       {{else}}
         <div class="u-padding--round--small">
-          <p>Geen besluiten gevonden. Is de informatie van de gemeenteraad al beschikbaar?.</p>
+          {{#if error}}
+            <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
+          {{else}}
+            <p>Geen besluiten gevonden.</p>
+          {{/if}}
           <br>
           <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
         </div>

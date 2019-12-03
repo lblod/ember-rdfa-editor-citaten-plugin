@@ -74,7 +74,7 @@ export default Service.extend({
         if (this.hasApplicableContext(block)) {
           const matchList = this.extractData(block);
           for (const data of matchList) {
-            cards.pushObject(yield this.createCardForMatch(data, hrId, hintsRegistry, editor));
+            cards.pushObject(this.createCardForMatch(data, hrId, hintsRegistry, editor));
           }
         }
         hintsRegistry.removeHintsInRegion(block.region, hrId, this.who);
@@ -139,17 +139,16 @@ export default Service.extend({
    *
    * @private
    */
-  async createCardForMatch(data, hrId, hintsRegistry, editor) {
+  createCardForMatch(data, hrId, hintsRegistry, editor) {
     const match = data.match;
     const words = data.words;
     let location = [match.position, match.position + match.text.length];
-    const query = await this.fetchResources(words);
     const card = EmberObject.create({
       location,
       info: {
         match: match.text,
         fetchPage: (page = 1) => this.fetchResources(words, page),
-        query, location, hrId, hintsRegistry, editor
+        location, hrId, hintsRegistry, editor
       },
       card: this.get('who')
     });
