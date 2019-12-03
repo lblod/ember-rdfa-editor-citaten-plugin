@@ -4,7 +4,6 @@ import layout from '../../templates/components/editor-plugins/citaat-card';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { task } from 'ember-concurrency';
-import { warn } from '@ember/debug';
 
 export default Component.extend({
   layout,
@@ -65,14 +64,18 @@ export default Component.extend({
       this.removeHint();
 
       const selection = this.editor.selectHighlight(updatedLocation);
-      this.editor.update(selection, {
-        set: {
-          tag: 'a',
-          property: 'eli:cites',
-          href: uri,
-          innerHTML: title
-        }
-      });
+      const tag = 'a';
+      this.editor.update(
+        selection,
+        {
+          set: {
+            property: 'eli:cites',
+            href: uri,
+            innerHTML: title
+          }
+        },
+        tag
+      );
     },
 
     prevPage() {
