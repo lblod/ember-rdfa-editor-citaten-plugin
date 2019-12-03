@@ -41,7 +41,7 @@ export default Component.extend({
 
   buildHTMLForHint(uri, title) {
     title = title.toLowerCase();
-    return "<a class=\"annotation\" href=\"" + uri + "\" property=\"eli:cites\">" + title + "</a>&nbsp;";
+    return `${this.info.typeLabel} <a class="annotation" href="${uri}" property="eli:cites">${title}</a>&nbsp;`;
   },
 
   search: task(function*() {

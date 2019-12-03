@@ -156,7 +156,8 @@ export default Service.extend({
       location,
       info: {
         match: match.text,
-        fetchPage: (page = 1) => this.fetchResources(words, type, page),
+        typeLabel: type.label,
+        fetchPage: (page = 1) => this.fetchResources(words, type.uri, page),
         location, hrId, hintsRegistry, editor
       },
       card: this.get('who')
@@ -179,13 +180,14 @@ export default Service.extend({
        */
       const searchText = quickMatch[5] ? quickMatch[5] : quickMatch[3];
       const artikelIndex = quickMatch[3].indexOf("artikel");
-      const text = artikelIndex >= 0 ? quickMatch[5].slice(0, artikelIndex) : quickMatch[5];
+      const text = artikelIndex >= 0 ? quickMatch[3].slice(0, artikelIndex) : quickMatch[3];
       const updatedText = this.cleanupText(searchText);
       const words = updatedText.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
       const index = snippet.text.indexOf(text);
       const match = { text, position: snippet.region[0] + index };
-      const type = LEGISLATION_TYPES[quickMatch[4].toLowerCase()];
-      matches.pushObject({match, type, words, realMatch: quickMatch});
+      const typeLabel = quickMatch[4] ? quickMatch[4].toLowerCase() : "decreet";
+      const type = LEGISLATION_TYPES[typeLabel];
+      matches.pushObject({match, type: {uri: type, label: typeLabel}, words, realMatch: quickMatch});
     }
     return matches;
   },
