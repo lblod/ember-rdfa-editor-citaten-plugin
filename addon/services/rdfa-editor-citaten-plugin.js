@@ -4,9 +4,14 @@ import { isBlank } from '@ember/utils';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 import fetch from 'fetch';
-
+const LEGISLATION_TYPES = {
+  "decreet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Decreet",
+  "koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/KoninklijkBesluit",
+  "wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Wet",
+  "ministrieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit"
+};
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|beslissing|[a-z]*\\s?besluit|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
+const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|wet|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -83,14 +88,16 @@ export default Service.extend({
     }
   }),
 
-  async fetchResources(words, page = 0) {
+  async fetchResources(words, type, page = 0) {
     let decisions = [];
     const totalCountQuery = `
       PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
       SELECT COUNT(?uri) as ?count
       WHERE {
-        ?uri eli:title ?title .
+          ?uri eli:is_realized_by ?expression;
+               eli:type_document <${type}>.
+        ?expression eli:title ?title .
         ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
       }`;
     const encodedTotalCountQuery = escape(totalCountQuery);
@@ -103,9 +110,11 @@ export default Service.extend({
       const query = `
         PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
-        SELECT DISTINCT *
+        SELECT DISTINCT ?uri ?title
         WHERE {
-          ?uri eli:title ?title .
+          ?uri eli:is_realized_by ?expression;
+               eli:type_document <${type}>.
+          ?expression eli:title ?title .
           ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
         }
         LIMIT ${pageSize}
@@ -141,12 +150,13 @@ export default Service.extend({
   createCardForMatch(data, hrId, hintsRegistry, editor) {
     const match = data.match;
     const words = data.words;
+    const type = data.type;
     let location = [match.position, match.position + match.text.length];
     const card = EmberObject.create({
       location,
       info: {
         match: match.text,
-        fetchPage: (page = 1) => this.fetchResources(words, page),
+        fetchPage: (page = 1) => this.fetchResources(words, type, page),
         location, hrId, hintsRegistry, editor
       },
       card: this.get('who')
@@ -169,12 +179,13 @@ export default Service.extend({
        */
       const searchText = quickMatch[5] ? quickMatch[5] : quickMatch[3];
       const artikelIndex = quickMatch[3].indexOf("artikel");
-      const text = artikelIndex >= 0 ? quickMatch[3].slice(0, artikelIndex) : quickMatch[3];
+      const text = artikelIndex >= 0 ? quickMatch[5].slice(0, artikelIndex) : quickMatch[5];
       const updatedText = this.cleanupText(searchText);
       const words = updatedText.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
       const index = snippet.text.indexOf(text);
       const match = { text, position: snippet.region[0] + index };
-      matches.pushObject({match, words, realMatch: quickMatch});
+      const type = LEGISLATION_TYPES[quickMatch[4].toLowerCase()];
+      matches.pushObject({match, type, words, realMatch: quickMatch});
     }
     return matches;
   },
