@@ -31,19 +31,8 @@ export default Component.extend({
     return this.initialLoad || this.search.isRunning;
   }),
 
-  async didReceiveAttrs() {
-    this.set('initialLoad', true);
-    try {
-      const results = await this.info.query;
-      this.set('totalSize', results.totalCount);
-      this.set('besluiten', results.decisions);
-    } catch (e) {
-      warn(e, {
-        id: 'citaat-card.init'
-      });
-    } finally {
-      this.set('initialLoad', false);
-    }
+  didReceiveAttrs() {
+    this.search.perform();
   },
 
   removeHint() {
@@ -51,9 +40,18 @@ export default Component.extend({
   },
 
   search: task(function*() {
-    const results = yield this.info.fetchPage(this.pageNumber);
-    this.set('totalSize', results.totalCount);
-    this.set('besluiten', results.decisions);
+    this.set('error', null);
+    try {
+      const results = yield this.info.fetchPage(this.pageNumber);
+      this.set('totalSize', results.totalCount);
+      this.set('besluiten', results.decisions);
+    }
+    catch(e) {
+      console.warn(e); // eslint-ignore-line no-console
+      this.set('totalSize', null);
+      this.set('besluiten', []);
+      this.set('error', e);
+    }
   }),
 
   actions: {
