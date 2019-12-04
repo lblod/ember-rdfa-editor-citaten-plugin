@@ -39,18 +39,9 @@ export default Component.extend({
   },
 
   search: task(function*() {
-    this.set('error', null);
-    try {
-      const results = yield this.info.fetchPage(this.pageNumber);
-      this.set('totalSize', results.totalCount);
-      this.set('besluiten', results.decisions);
-    }
-    catch(e) {
-      console.warn(e); // eslint-ignore-line no-console
-      this.set('totalSize', null);
-      this.set('besluiten', []);
-      this.set('error', e);
-    }
+    const results = yield this.info.fetchPage(this.pageNumber);
+    this.set('totalSize', results.totalCount);
+    this.set('besluiten', results.decisions);
   }),
 
   actions: {
@@ -64,18 +55,14 @@ export default Component.extend({
       this.removeHint();
 
       const selection = this.editor.selectHighlight(updatedLocation);
-      const tag = 'a';
-      this.editor.update(
-        selection,
-        {
-          set: {
-            property: 'eli:cites',
-            href: uri,
-            innerHTML: title
-          }
-        },
-        tag
-      );
+      this.editor.update(selection, {
+        set: {
+          property: 'eli:cites',
+          href: uri,
+          tag: 'a',
+          innerHTML: title
+        }
+      });
     },
 
     prevPage() {
