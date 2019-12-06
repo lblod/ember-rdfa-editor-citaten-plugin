@@ -39,6 +39,12 @@ export default Component.extend({
     this.get('hintsRegistry').removeHintsAtLocation(this.get('location'), this.get('hrId'), 'editor-plugins/citaat-card');
   },
 
+  buildHTMLForHint(uri, title) {
+    console.log('coucou');
+    title = title.toLowerCase();
+    return `${this.info.typeLabel} <a class="annotation" href="${uri}" property="eli:cites">${title}</a>&nbsp;`;
+  },
+
   search: task(function*() {
     this.set('error', null);
     try {
@@ -67,10 +73,7 @@ export default Component.extend({
       const selection = this.editor.selectHighlight(updatedLocation);
       this.editor.update(selection, {
         set: {
-          property: 'eli:cites',
-          href: uri,
-          tag: 'a',
-          innerHTML: title
+          innerHTML: this.buildHTMLForHint(uri, title)
         }
       });
     },
