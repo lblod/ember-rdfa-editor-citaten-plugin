@@ -4,6 +4,7 @@ import layout from '../../templates/components/editor-plugins/citaat-card';
 import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { task } from 'ember-concurrency';
+import { warn } from '@ember/debug';
 
 export default Component.extend({
   layout,
@@ -38,10 +39,24 @@ export default Component.extend({
     this.get('hintsRegistry').removeHintsAtLocation(this.get('location'), this.get('hrId'), 'editor-plugins/citaat-card');
   },
 
+  buildHTMLForHint(uri, title) {
+    title = title.toLowerCase();
+    return `${this.info.typeLabel} <a class="annotation" href="${uri}" property="eli:cites">${title}</a>&nbsp;`;
+  },
+
   search: task(function*() {
-    const results = yield this.info.fetchPage(this.pageNumber);
-    this.set('totalSize', results.totalCount);
-    this.set('besluiten', results.decisions);
+    this.set('error', null);
+    try {
+      const results = yield this.info.fetchPage(this.pageNumber);
+      this.set('totalSize', results.totalCount);
+      this.set('besluiten', results.decisions);
+    }
+    catch(e) {
+      console.warn(e); // eslint-ignore-line no-console
+      this.set('totalSize', null);
+      this.set('besluiten', []);
+      this.set('error', e);
+    }
   }),
 
   actions: {
@@ -53,16 +68,7 @@ export default Component.extend({
     insertHint(uri, title) {
       const updatedLocation = this.get('hintsRegistry').updateLocationToCurrentIndex(this.get('hrId'), this.get('location'));
       this.removeHint();
-
-      const selection = this.editor.selectHighlight(updatedLocation);
-      this.editor.update(selection, {
-        set: {
-          property: 'eli:cites',
-          href: uri,
-          tag: 'a',
-          innerHTML: title
-        }
-      });
+      this.get('editor').replaceTextWithHTML(...updatedLocation, this.buildHTMLForHint(uri, title));
     },
 
     prevPage() {
