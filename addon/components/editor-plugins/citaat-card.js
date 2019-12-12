@@ -40,7 +40,6 @@ export default Component.extend({
   },
 
   buildHTMLForHint(uri, title) {
-    console.log('coucou');
     title = title.toLowerCase();
     return `${this.info.typeLabel} <a class="annotation" href="${uri}" property="eli:cites">${title}</a>&nbsp;`;
   },
