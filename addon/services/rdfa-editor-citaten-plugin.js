@@ -89,15 +89,20 @@ export default Service.extend({
   }),
 
   async fetchResources(words, type, page = 0) {
+    // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
+    // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
+    // as range.(see AP https://data.vlaanderen.be/doc/applicatieprofiel/besluit-publicatie/#Rechtsgrond)
+    // But I currently don't think in the editor you'll ever directly work on a LegalResource.
     let decisions = [];
     const totalCountQuery = `
       PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
-      SELECT COUNT(?uri) as ?count
+      SELECT COUNT(?expressionUri) as ?count
       WHERE {
-          ?uri eli:is_realized_by ?expression;
+          ?uri eli:is_realized_by ?expressionUri;
                eli:type_document <${type}>.
-        ?expression eli:title ?title .
+        ?expressionUri eli:title ?title .
+        ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
         ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
       }`;
     const encodedTotalCountQuery = escape(totalCountQuery);
@@ -110,11 +115,12 @@ export default Service.extend({
       const query = `
         PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
-        SELECT DISTINCT ?uri ?title
+        SELECT DISTINCT ?expressionUri as ?uri ?title
         WHERE {
-          ?uri eli:is_realized_by ?expression;
+          ?legalResourceUri eli:is_realized_by ?expressionUri;
                eli:type_document <${type}>.
-          ?expression eli:title ?title .
+          ?expressionUri eli:title ?title .
+          ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
           ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
         }
         LIMIT ${pageSize}
