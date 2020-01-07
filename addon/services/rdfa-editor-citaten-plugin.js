@@ -8,7 +8,7 @@ const LEGISLATION_TYPES = {
   "decreet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Decreet",
   "koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/KoninklijkBesluit",
   "wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Wet",
-  "ministrieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit"
+  "ministerieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit"
 };
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|wet|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
