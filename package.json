@@ -1,6 +1,6 @@
 {
   "name": "@lblod/ember-rdfa-editor-citaten-plugin",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "RDFa editor plugin to insert citaten in the editor.",
   "keywords": [
     "ember-addon"
@@ -26,6 +26,7 @@
   "dependencies": {
     "ember-cli-babel": "^7.7.3",
     "ember-cli-htmlbars": "^3.0.1",
+    "ember-cli-string-helpers": "^4.0.5",
     "ember-mu-transform-helpers": "^2.0.0"
   },
   "devDependencies": {

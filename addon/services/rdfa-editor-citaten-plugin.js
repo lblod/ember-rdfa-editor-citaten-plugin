@@ -8,7 +8,7 @@ const LEGISLATION_TYPES = {
   "decreet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Decreet",
   "koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/KoninklijkBesluit",
   "wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Wet",
-  "ministrieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit",
+  "ministerieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit",
   "besluit van de vlaamse regering": "https://data.vlaanderen.be/id/concept/AardWetgeving/BesluitVanDeVlaamseRegering",
   "omzendbrief": "https://data.vlaanderen.be/id/concept/AardWetgeving/Omzendbrief",
   "verdrag": "https://data.vlaanderen.be/id/concept/AardWetgeving/Verdrag",
@@ -20,7 +20,6 @@ const LEGISLATION_TYPES = {
   "bijzondere wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/BijzondereWet",
   "genummerd koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/GenummerdKoninklijkBesluit",
   "protocol": "https://data.vlaanderen.be/id/concept/AardWetgeving/Protocol"
-
 };
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|wet|omzendbrief|verdrag|grondwet|grondwetswijziging|samenwerkingsakkoord|wetboek|bijzondere wet|protocol|besluit van de vlaamse regering|gecoordineerde wetten|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
@@ -101,15 +100,20 @@ export default Service.extend({
   }),
 
   async fetchResources(words, type, page = 0) {
+    // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
+    // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
+    // as range.(see AP https://data.vlaanderen.be/doc/applicatieprofiel/besluit-publicatie/#Rechtsgrond)
+    // But I currently don't think in the editor you'll ever directly work on a LegalResource.
     let decisions = [];
     const totalCountQuery = `
       PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
-      SELECT COUNT(?uri) as ?count
+      SELECT COUNT(?expressionUri) as ?count
       WHERE {
-          ?uri eli:is_realized_by ?expression;
+          ?uri eli:is_realized_by ?expressionUri;
                eli:type_document <${type}>.
-        ?expression eli:title ?title .
+        ?expressionUri eli:title ?title .
+        ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
         ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
       }`;
     const encodedTotalCountQuery = escape(totalCountQuery);
@@ -122,11 +126,12 @@ export default Service.extend({
       const query = `
         PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
-        SELECT DISTINCT ?uri ?title
+        SELECT DISTINCT ?expressionUri as ?uri ?title
         WHERE {
-          ?uri eli:is_realized_by ?expression;
+          ?legalResourceUri eli:is_realized_by ?expressionUri;
                eli:type_document <${type}>.
-          ?expression eli:title ?title .
+          ?expressionUri eli:title ?title .
+          ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
           ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
         }
         LIMIT ${pageSize}
