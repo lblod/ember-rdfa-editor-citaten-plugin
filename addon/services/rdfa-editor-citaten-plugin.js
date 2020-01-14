@@ -8,10 +8,22 @@ const LEGISLATION_TYPES = {
   "decreet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Decreet",
   "koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/KoninklijkBesluit",
   "wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Wet",
-  "ministrieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit"
+  "ministrieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit",
+  "besluit van de vlaamse regering": "https://data.vlaanderen.be/id/concept/AardWetgeving/BesluitVanDeVlaamseRegering",
+  "omzendbrief": "https://data.vlaanderen.be/id/concept/AardWetgeving/Omzendbrief",
+  "verdrag": "https://data.vlaanderen.be/id/concept/AardWetgeving/Verdrag",
+  "grondwet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Grondwet",
+  "grondwetswijziging": "https://data.vlaanderen.be/id/concept/AardWetgeving/Grondwetwijziging",
+  "samenwerkingsakkoord": "https://data.vlaanderen.be/id/concept/AardWetgeving/Samenwerkingsakkoord",
+  "wetboek": "https://data.vlaanderen.be/id/concept/AardWetgeving/Wetboek",
+  "gecoordineerde wetten": "https://data.vlaanderen.be/id/concept/AardWetgeving/GecoordineerdeWetten",
+  "bijzondere wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/BijzondereWet",
+  "genummerd koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/GenummerdKoninklijkBesluit",
+  "protocol": "https://data.vlaanderen.be/id/concept/AardWetgeving/Protocol"
+
 };
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|wet|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
+const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|wet|omzendbrief|verdrag|grondwet|grondwetswijziging|samenwerkingsakkoord|wetboek|bijzondere wet|protocol|besluit van de vlaamse regering|gecoordineerde wetten|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
