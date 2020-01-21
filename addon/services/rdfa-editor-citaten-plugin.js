@@ -4,23 +4,8 @@ import { isBlank } from '@ember/utils';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 import fetch from 'fetch';
-const LEGISLATION_TYPES = {
-  "decreet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Decreet",
-  "koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/KoninklijkBesluit",
-  "wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Wet",
-  "ministerieel besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/MinisterieelBesluit",
-  "besluit van de vlaamse regering": "https://data.vlaanderen.be/id/concept/AardWetgeving/BesluitVanDeVlaamseRegering",
-  "omzendbrief": "https://data.vlaanderen.be/id/concept/AardWetgeving/Omzendbrief",
-  "verdrag": "https://data.vlaanderen.be/id/concept/AardWetgeving/Verdrag",
-  "grondwet": "https://data.vlaanderen.be/id/concept/AardWetgeving/Grondwet",
-  "grondwetswijziging": "https://data.vlaanderen.be/id/concept/AardWetgeving/Grondwetwijziging",
-  "samenwerkingsakkoord": "https://data.vlaanderen.be/id/concept/AardWetgeving/Samenwerkingsakkoord",
-  "wetboek": "https://data.vlaanderen.be/id/concept/AardWetgeving/Wetboek",
-  "gecoordineerde wetten": "https://data.vlaanderen.be/id/concept/AardWetgeving/GecoordineerdeWetten",
-  "bijzondere wet": "https://data.vlaanderen.be/id/concept/AardWetgeving/BijzondereWet",
-  "genummerd koninklijk besluit": "https://data.vlaanderen.be/id/concept/AardWetgeving/GenummerdKoninklijkBesluit",
-  "protocol": "https://data.vlaanderen.be/id/concept/AardWetgeving/Protocol"
-};
+import { LEGISLATION_TYPES } from '../utils/legislation-types'
+
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet|grondwet)','ig');
 
@@ -173,8 +158,9 @@ export default Service.extend({
       location,
       info: {
         match: match.text,
-        typeLabel: type.label,
-        fetchPage: (page = 1) => this.fetchResources(words, type.uri, page),
+        typeLabel: type.omitTypeLabel ? "" : type.label,
+        typeUri: type.uri,
+        fetchPage: (page = 1, type = type.uri) => this.fetchResources(words, type, page),
         location, hrId, hintsRegistry, editor
       },
       card: this.get('who')

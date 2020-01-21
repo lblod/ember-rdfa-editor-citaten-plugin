@@ -5,7 +5,7 @@ import { inject as service } from '@ember/service';
 import { reads } from '@ember/object/computed';
 import { task } from 'ember-concurrency';
 import { warn } from '@ember/debug';
-
+import { LEGISLATION_TYPES } from '../../utils/legislation-types'
 export default Component.extend({
   layout,
 
@@ -32,6 +32,7 @@ export default Component.extend({
   }),
 
   didReceiveAttrs() {
+    this.legislationType = this.info.typeUri;
     this.search.perform();
   },
 
@@ -47,7 +48,7 @@ export default Component.extend({
   search: task(function*() {
     this.set('error', null);
     try {
-      const results = yield this.info.fetchPage(this.pageNumber);
+      const results = yield this.info.fetchPage(this.pageNumber, this.legislationType);
       this.set('totalSize', results.totalCount);
       this.set('besluiten', results.decisions);
     }
