@@ -22,7 +22,7 @@ const LEGISLATION_TYPES = {
   "protocol": "https://data.vlaanderen.be/id/concept/AardWetgeving/Protocol"
 };
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|wet|omzendbrief|verdrag|grondwet|grondwetswijziging|samenwerkingsakkoord|wetboek|bijzondere wet|protocol|besluit van de vlaamse regering|gecoordineerde wetten|[a-z]*\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet)','ig');
+const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet|grondwet)','ig');
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -192,7 +192,7 @@ export default Service.extend({
        * match[1] = "gelet op"
        * match[2] = "het|de
        * match[3] = 4 +5
-       * match[4] = "decreet|beslissing|besluit"
+       * match[4] = "decreet|beslissing|besluit|..."
        * match[5] = actual input
        */
       const searchText = quickMatch[5] ? quickMatch[5] : quickMatch[3];
@@ -202,9 +202,23 @@ export default Service.extend({
       const words = updatedText.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
       const index = snippet.text.indexOf(text);
       const match = { text, position: snippet.region[0] + index };
-      const typeLabel = quickMatch[4] ? quickMatch[4].toLowerCase() : "decreet";
+      let typeLabel;
+      let omitTypeLabel = false;
+      if (quickMatch[4])
+      {
+        typeLabel = quickMatch[4];
+      }
+      else {
+        if (text.includes("grondwet")) {
+          typeLabel = "grondwet";
+          omitTypeLabel = true;
+        }
+        else {
+          typeLabel = "decreet";
+        }
+      }
       const type = LEGISLATION_TYPES[typeLabel];
-      matches.pushObject({match, type: {uri: type, label: typeLabel}, words, realMatch: quickMatch});
+      matches.pushObject({match, type: {uri: type, label: typeLabel, omitTypeLabel}, words, realMatch: quickMatch});
     }
     return matches;
   },
