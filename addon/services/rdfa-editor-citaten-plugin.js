@@ -203,7 +203,7 @@ export default Service.extend({
           typeLabel = "decreet";
         }
       }
-      const type = LEGISLATION_TYPES[typeLabel];
+      const type = LEGISLATION_TYPES[typeLabel.toLowerCase()];
       matches.pushObject({match, type: {uri: type, label: typeLabel, omitTypeLabel}, words, realMatch: quickMatch});
     }
     return matches;
