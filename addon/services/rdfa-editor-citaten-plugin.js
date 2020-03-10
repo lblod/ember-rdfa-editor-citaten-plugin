@@ -130,7 +130,15 @@ export default Service.extend({
 
     return EmberObject.create({
       totalCount: totalCount,
-      decisions: totalCount > 0 ? decisions.results.bindings : decisions
+      decisions: totalCount > 0 ? decisions.results.bindings.map((result) => {
+        const shadowDomElement = document.createElement('textarea')
+        shadowDomElement.innerHTML = result.title.value
+        const escapedTitle = shadowDomElement.textContent
+        return {
+          uri: result.uri,
+          title: {...result.title, value: escapedTitle}
+        }
+      }) : decisions
     });
   },
 
