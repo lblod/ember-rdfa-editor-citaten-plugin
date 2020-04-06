@@ -162,13 +162,14 @@ export default Service.extend({
     const words = data.words;
     const type = data.type;
     let location = [match.position, match.position + match.text.length];
+    const typeUri = type.uri;
     const card = EmberObject.create({
       location,
       info: {
         match: match.text,
         typeLabel: type.omitTypeLabel ? "" : type.label,
-        typeUri: type.uri,
-        fetchPage: (page = 1, type = type.uri) => this.fetchResources(words, type, page),
+        typeUri,
+        fetchPage: (page = 1, type = typeUri) => this.fetchResources(words, type, page),
         location, hrId, hintsRegistry, editor
       },
       card: this.get('who')
