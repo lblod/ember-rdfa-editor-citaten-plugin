@@ -69,8 +69,10 @@ export default Service.extend({
    * @public
    */
   execute: task(function * (hrId, blocks, hintsRegistry, editor) { //eslint-disable-line require-yield
+    hintsRegistry.removeHints({rdfaBlocks: blocks, scope: this.who, hrId});
+
+    const cards = A();
     for (let block of blocks) {
-      const cards = A();
       if (block.text) {
         if (this.hasApplicableContext(block)) {
           const matchList = this.extractData(block);
@@ -79,9 +81,8 @@ export default Service.extend({
           }
         }
       }
-      hintsRegistry.removeHintsInRegion(block.region, hrId, this.who);
-      hintsRegistry.addHints(hrId, this.who, cards);
     }
+    hintsRegistry.addHints(hrId, this.who, cards);
   }),
 
   async fetchResources(words, type, page = 0) {
