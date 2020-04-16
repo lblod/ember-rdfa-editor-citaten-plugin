@@ -53,7 +53,7 @@ export default Service.extend({
       const text = snippet.text ? snippet.text : "";
       return regex.test(text);
     }
-  return false;
+    return false;
   },
 
   /**
