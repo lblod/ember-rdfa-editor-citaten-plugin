@@ -78,9 +78,9 @@ export default Service.extend({
             cards.pushObject(this.createCardForMatch(data, hrId, hintsRegistry, editor));
           }
         }
-        hintsRegistry.removeHintsInRegion(block.region, hrId, this.who);
-        hintsRegistry.addHints(hrId, this.who, cards);
       }
+      hintsRegistry.removeHintsInRegion(block.region, hrId, this.who);
+      hintsRegistry.addHints(hrId, this.who, cards);
     }
   }),
 
