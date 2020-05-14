@@ -9,12 +9,9 @@
   <header class="say-card__header">
     <h2 class="say-card__title">Voeg verwijzing naar een {{this.info.typeLabel}} toe:</h2>
   </header>
-
   <div class="say-card__content">
     {{#if search.isRunning}}
-      <div class="u-padding--round">
-        <p class="loader"><span class="u-visually-hidden">Aan het laden</span></p>
-      </div>
+      <p class="say-loader"><span class="u-visually-hidden">Aan het laden</span></p>
     {{else}}
       {{#if besluiten.length}}
         <ul class="say-link-list">
@@ -36,19 +33,11 @@
             </li>
           {{/each}}
         </ul>
-      {{else}}
-        <div class="u-padding--round--small">
-          {{#if error}}
-            <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
-          {{else}}
-            <p>Geen besluiten gevonden.</p>
-          {{/if}}
-          <br>
-          <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
-        </div>
       {{/if}}
     {{/if}}
   </div>
+  {{#if search.isRunning}}
+  {{else}}
   {{#if besluiten.length}}
   {{!-- {{editor-plugins/citaat-card-pagination prev=(action "prevPage") next=(action "nextPage") pageNumber=pageNumber pageSize=pageSize total=totalSize}} --}}
   <footer class="say-card__footer">
@@ -59,6 +48,18 @@
       Uitgebreid zoeken
     </a>
   </footer>
+  {{else}}
+  <div class="say-card__info">
+    {{#if error}}
+      <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
+    {{else}}
+      <p>Geen besluiten gevonden.</p>
+    {{/if}}
+  </div>
+  <footer class="say-card__footer">
+    <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
+  </footer>
+  {{/if}}
   {{/if}}
 </article>
 {{/if}}
