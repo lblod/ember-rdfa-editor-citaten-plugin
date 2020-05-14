@@ -8,6 +8,7 @@ import { warn } from '@ember/debug';
 import { LEGISLATION_TYPES } from '../../utils/legislation-types'
 export default Component.extend({
   layout,
+  tagName: '',
 
   editor: reads('info.editor'),
   hintsRegistry: reads('info.hintsRegistry'),
