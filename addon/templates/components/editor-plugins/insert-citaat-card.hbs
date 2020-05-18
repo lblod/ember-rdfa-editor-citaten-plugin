@@ -1,25 +1,26 @@
-<div class="modal-dialog__header">
-  <div class="grid">
-    <div class="col--10-12">
-      <p class="u-spacer--tiny">
-        Beheer citaat:
-      </p>
-    </div>
+<article class="say-card">
+  <header class="say-card__header">
+    <h2 class="say-card__title">Beheer citaat:</h2>
+  </header>
+  <div class="say-card__content">
+    <p>
+      Link: <a href={{besluit.uri}}>{{besluit.title}}</a>
+    </p>
+    <p>
+      <label for="cite">
+        Citeeropschrift:
+      </label>
+      <input id="cite">
+    </p>
   </div>
-  <div class="modal-dialog__content modal-dialog__content--sectioned">
-    Link: <a href={{besluit.uri}}>{{besluit.title}}</a>
-    <br>
-    Citeeropschrift: <input >
-    <br>
-    {{wu-button
-      label="Voeg toe"
-      size="small"
-      onClick=(action "insert")
-    }}
-    {{wu-button
-      label="Annuleer"
-      size="small"
-      onClick=(action "cancel")
-    }}
+  <div class="say-card__footer">
+    <p>
+      <button {{action "insert"}} class="say-button">
+        Voeg to
+      </button>
+      <button {{action "cancel"}} class="say-button say-button--secondary">
+        Annuleer
+      </button>
+    </p>
   </div>
-</div>
+</article>

@@ -11,7 +11,7 @@
   </header>
   <div class="say-card__content">
     {{#if search.isRunning}}
-      <p class="say-loader"><span class="u-visually-hidden">Aan het laden</span></p>
+      <p class="say-loader"><span class="say-u-hidden-visually">Aan het laden</span></p>
     {{else}}
       {{#if besluiten.length}}
         <ul class="say-link-list">
@@ -23,12 +23,12 @@
                 </span>
               </a>
               <button onclick={{action "insertHint" citaat.uri.value citaat.title.value}} class="say-link-list__insert">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="au-c-icon au-c-icon--large" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large" aria-hidden="true">
                   <g class="plus-text">
                     <path d="M14.4,4.85714846 L0,4.85714846 L0,7.28571615 L14.4,7.28571615 L14.4,4.85714846 Z M14.4,0 L0,0 L0,2.42856769 L14.4,2.42856769 L14.4,0 Z M19.2,9.71428385 L19.2,4.85714846 L16.8,4.85714846 L16.8,9.71428385 L12,9.71428385 L12,12.1428646 L16.8,12.1428646 L16.8,17 L19.2,17 L19.2,12.1428646 L24,12.1428646 L24,9.71428385 L19.2,9.71428385 Z M0,12.1428646 L9.6,12.1428646 L9.6,9.71428385 L0,9.71428385 L0,12.1428646 Z"></path>
                   </g>
                 </svg>
-                <span class="say-hidden-visually">Voeg citaat in</span>
+                <span class="say-u-hidden-visually">Voeg citaat in</span>
               </button>
             </li>
           {{/each}}
@@ -39,7 +39,7 @@
   {{#if search.isRunning}}
   {{else}}
   {{#if besluiten.length}}
-  {{!-- {{editor-plugins/citaat-card-pagination prev=(action "prevPage") next=(action "nextPage") pageNumber=pageNumber pageSize=pageSize total=totalSize}} --}}
+  {{editor-plugins/citaat-card-pagination prev=(action "prevPage") next=(action "nextPage") pageNumber=pageNumber pageSize=pageSize total=totalSize}}
   <footer class="say-card__footer">
     <a href="/citaten/citaten-zoek" class="say-button say-button--tertiary">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="au-c-icon au-c-icon--left" aria-hidden="true">

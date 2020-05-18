@@ -6,7 +6,6 @@ import layout from '../../templates/components/editor-plugins/citaat-card-pagina
 
 export default Component.extend({
   layout,
-  classNames: ['pager'],
   pageNumber: 0,
   pageSize: 5,
   total: undefined,
