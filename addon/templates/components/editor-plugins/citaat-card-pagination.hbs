@@ -6,24 +6,24 @@
   <ul class="say-pagination__list">
     {{#unless isFirstPage}}
       <li class="say-pagination__item">
-        <a {{action "prev"}} class="say-button say-button--tertiary">
+        <button {{action "prev"}} class="say-button say-button--tertiary">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
             <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
           </svg>
           vorige
           <span class="say-u-hidden-visually"> {{pageSize}} rijen</span>
-        </a>
+        </button>
       </li>
     {{/unless}}
     {{#unless isLastPage}}
       <li class="say-pagination__item">
-        <a {{action "next"}} class="say-button say-button--tertiary">
+        <button {{action "next"}} class="say-button say-button--tertiary">
           volgende
           <span class="say-u-hidden-visually"> {{pageSize}} rijen</span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
             <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
           </svg>
-        </a>
+        </button>
       </li>
     {{/unless}}
   </ul>
