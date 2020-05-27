@@ -1,25 +1,25 @@
 <div class="say-pagination">
   <p class="say-pagination__info">
     <span class="say-u-hidden-visually">Rij</span>
-    <strong>{{rangeStart}} - {{rangeEnd}}</strong> van {{total}} <span class="say-u-hidden-visually">resultaten</span>
+    <strong>{{this.rangeStart}} - {{this.rangeEnd}}</strong> van {{@total}} <span class="say-u-hidden-visually">resultaten</span>
   </p>
   <ul class="say-pagination__list">
-    {{#unless isFirstPage}}
+    {{#unless this.isFirstPage}}
       <li class="say-pagination__item">
-        <button {{action "prev"}} class="say-button say-button--tertiary">
+        <button {{on "click" @prev}} class="say-button say-button--tertiary">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
             <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
           </svg>
           vorige
-          <span class="say-u-hidden-visually"> {{pageSize}} rijen</span>
+          <span class="say-u-hidden-visually"> {{@pageSize}} rijen</span>
         </button>
       </li>
     {{/unless}}
-    {{#unless isLastPage}}
+    {{#unless this.isLastPage}}
       <li class="say-pagination__item">
-        <button {{action "next"}} class="say-button say-button--tertiary">
+        <button {{on "click" @next}} class="say-button say-button--tertiary">
           volgende
-          <span class="say-u-hidden-visually"> {{pageSize}} rijen</span>
+          <span class="say-u-hidden-visually"> {{@pageSize}} rijen</span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
             <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
           </svg>
