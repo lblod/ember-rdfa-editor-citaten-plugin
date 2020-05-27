@@ -3,11 +3,18 @@ import Service, { inject as service } from '@ember/service';
 import { isBlank } from '@ember/utils';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
-import fetch from 'fetch';
-import { LEGISLATION_TYPES } from '../utils/legislation-types'
+import { LEGISLATION_TYPES } from '../utils/legislation-types';
+import { fetchLegalResources } from '../utils/vlaamse-codex';
 
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet|grondwet)','ig');
+const CITATION_REGEX = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet|grondwet)','ig');
+const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})','g');
+const DECISION_TYPES = [
+      'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',
+      'http://data.vlaanderen.be/ns/mandaat#AanstellingsBesluit',
+      'http://data.vlaanderen.be/ns/besluit#Besluit'
+];
+const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
 
 /**
 * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
@@ -17,44 +24,8 @@ const regex = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|ve
 * @extends Ember.Service
 *
 */
-export default Service.extend({
-  store: service(),
-
-  /**
-   * @property who
-   * @type string
-   * @default 'editor-plugins/citaat-card'
-   *
-   * @private
-  */
-  who: 'editor-plugins/citaat-card',
-
-  /**
-   * @property besluitClasses
-   * @type Array
-   *
-   * @private
-   */
-  besluitClasses: null,
-
-  init() {
-    this._super(...arguments);
-    this.set('besluitClasses', [
-      'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',
-      'http://data.vlaanderen.be/ns/mandaat#AanstellingsBesluit',
-      'http://data.vlaanderen.be/ns/besluit#Besluit'
-    ]);
-  },
-
-  hasApplicableContext(snippet) {
-    const triples = snippet.context;
-    const besluit = triples.find(t => t.predicate == 'a' &&  this.get('besluitClasses').includes(t.object));
-    if (besluit && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) {
-      const text = snippet.text ? snippet.text : "";
-      return regex.test(text);
-    }
-    return false;
-  },
+export default class RdfaEditorCitatenPlugin extends Service {
+  @service store;
 
   /**
    * Restartable task to handle the incoming events from the editor dispatcher
@@ -69,79 +40,45 @@ export default Service.extend({
    * @public
    */
   execute: task(function * (hrId, blocks, hintsRegistry, editor) { //eslint-disable-line require-yield
-    hintsRegistry.removeHints({rdfaBlocks: blocks, scope: this.who, hrId});
+    hintsRegistry.removeHints({rdfaBlocks: blocks, scope: EDITOR_CARD_NAME, hrId});
 
     const cards = A();
     for (let block of blocks) {
       if (block.text) {
         if (this.hasApplicableContext(block)) {
-          const matchList = this.extractData(block);
-          for (const data of matchList) {
-            cards.pushObject(this.createCardForMatch(data, hrId, hintsRegistry, editor));
+          const matches = this.getMatches(block);
+          for (const match of matches) {
+            const card = this.createCardForMatch(match, hrId, hintsRegistry, editor);
+            cards.pushObject(card);
           }
         }
       }
     }
-    hintsRegistry.addHints(hrId, this.who, cards);
-  }),
 
-  async fetchResources(words, type, page = 0) {
-    // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
-    // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
-    // as range.(see AP https://data.vlaanderen.be/doc/applicatieprofiel/besluit-publicatie/#Rechtsgrond)
-    // But I currently don't think in the editor you'll ever directly work on a LegalResource.
-    let decisions = [];
-    const totalCountQuery = `
-      PREFIX eli: <http://data.europa.eu/eli/ontology#>
+    hintsRegistry.addHints(hrId, EDITOR_CARD_NAME, cards);
+  })
 
-      SELECT COUNT(?expressionUri) as ?count
-      WHERE {
-          ?uri eli:is_realized_by ?expressionUri;
-               eli:type_document <${type}>.
-        ?expressionUri eli:title ?title .
-        ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
-        ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
-      }`;
-    const encodedTotalCountQuery = escape(totalCountQuery);
-    const endpointTotalCount = `https://codex.opendata.api.vlaanderen.be:8888/sparql?query=${encodedTotalCountQuery}`;
-    const rawTotalCount = await fetch(endpointTotalCount, {headers: {'Accept': 'application/sparql-results+json'}});
-    const totalCount = parseInt((await rawTotalCount.json()).results.bindings[0].count.value);
-
-    if (totalCount > 0) {
-      const pageSize = 5;
-      const query = `
-        PREFIX eli: <http://data.europa.eu/eli/ontology#>
-
-        SELECT DISTINCT ?expressionUri as ?uri ?title
-        WHERE {
-          ?legalResourceUri eli:is_realized_by ?expressionUri;
-               eli:type_document <${type}>.
-          ?expressionUri eli:title ?title .
-          ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
-          ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
-        }
-        LIMIT ${pageSize}
-        OFFSET ${page}`;
-
-      const encodedQuery = escape(query);
-      const endpoint = `https://codex.opendata.api.vlaanderen.be:8888/sparql?query=${encodedQuery}`;
-      const rawDecisions = await fetch(endpoint, {headers: {'Accept': 'application/sparql-results+json'}});
-      decisions = await rawDecisions.json();
+  /**
+   * Whether the given snippet is in the correct context to show a citation hint
+   *
+   * @method hasApplicableContext
+   *
+   * @param {RdfaBlock} snippet RdfaBlock to check for a hint
+   * @return {boolean} Whether a citation hint should be shown on the given snippet
+   *
+   * @private
+  */
+  hasApplicableContext(snippet) {
+    const triples = snippet.context;
+    if (triples.find(t => t.predicate == 'a' && DECISION_TYPES.includes(t.object)) // in decision context
+        && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') // in motivation context
+        && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) { // not in another eli:cites context
+      const text = snippet.text ? snippet.text : '';
+      return CITATION_REGEX.test(text);
+    } else {
+      return false;
     }
-
-    return EmberObject.create({
-      totalCount: totalCount,
-      decisions: totalCount > 0 ? decisions.results.bindings.map((result) => {
-        const shadowDomElement = document.createElement('textarea')
-        shadowDomElement.innerHTML = result.title.value
-        const escapedTitle = shadowDomElement.textContent
-        return {
-          uri: result.uri,
-          title: {...result.title, value: escapedTitle}
-        }
-      }) : decisions
-    });
-  },
+  }
 
   /**
    * Creates a hint for a match
@@ -158,83 +95,94 @@ export default Service.extend({
    *
    * @private
    */
-  createCardForMatch(data, hrId, hintsRegistry, editor) {
-    const match = data.match;
-    const words = data.words;
-    const type = data.type;
-    let location = [match.position, match.position + match.text.length];
+  createCardForMatch(match, hrId, hintsRegistry, editor) {
+    const words = match.words;
+    const type = match.type;
     const typeUri = type.uri;
     const card = EmberObject.create({
-      location,
+      location: match.location,
       info: {
         match: match.text,
-        typeLabel: type.omitTypeLabel ? "" : type.label,
+        typeLabel: type.label,
         typeUri,
-        fetchPage: (page = 1, type = typeUri) => this.fetchResources(words, type, page),
-        location, hrId, hintsRegistry, editor
+        location: match.location,
+        fetchPage: (page = 1, type = typeUri) => fetchLegalResources(words, type, page),
+        hrId, hintsRegistry, editor
       },
-      card: this.get('who')
+      card: EDITOR_CARD_NAME
     });
     return card;
-  },
+  }
 
-  extractData(snippet) {
+  getMatches(rdfaBlock) {
     const matches = A();
-    var quickMatch;
-    regex.lastIndex = 0;
-    while ((quickMatch = regex.exec(snippet.text)) !== null) {
+
+    let quickMatch;
+    CITATION_REGEX.lastIndex = 0;
+    while ((quickMatch = CITATION_REGEX.exec(rdfaBlock.text)) !== null) {
       /*
        * match[0] = match 1 to end
        * match[1] = "gelet op"
        * match[2] = "het|de
-       * match[3] = 4 +5
+       * match[3] = 4 + 5
        * match[4] = "decreet|beslissing|besluit|..."
        * match[5] = actual input
        */
-      const searchText = quickMatch[5] ? quickMatch[5] : quickMatch[3];
-      const artikelIndex = quickMatch[3].indexOf("artikel");
-      const text = artikelIndex >= 0 ? quickMatch[3].slice(0, artikelIndex) : quickMatch[3];
-      const updatedText = this.cleanupText(searchText);
-      const words = updatedText.split(/[\s\u00A0]+/).filter( word => ! isBlank(word) && word.length > 3 &&  ! STOP_WORDS.includes(word));
-      const index = snippet.text.indexOf(text);
-      const match = { text, position: snippet.region[0] + index };
+      const input = quickMatch[5] ? quickMatch[5] : quickMatch[3];
+      const cleanedInput = cleanupText(input);
+      const words = cleanedInput.split(/[\s\u00A0]+/).filter(word => !isBlank(word) && word.length > 3 && !STOP_WORDS.includes(word));
+
+      const articleIndex = quickMatch[3].indexOf('artikel');
+      const matchingText = articleIndex >= 0 ? quickMatch[3].slice(0, articleIndex) : quickMatch[3];
+      const matchStartIndex = rdfaBlock.region[0] + rdfaBlock.text.indexOf(matchingText);
+
       let typeLabel;
       let omitTypeLabel = false;
-      if (quickMatch[4])
-      {
-        typeLabel = quickMatch[4];
-      }
-      else {
-        if (text.includes("grondwet")) {
-          typeLabel = "grondwet";
+      if (quickMatch[4]) {
+        typeLabel = quickMatch[4].toLowerCase();
+      } else {
+        if (matchingText.includes('grondwet')) {
+          typeLabel = 'grondwet';
           omitTypeLabel = true;
-        }
-        else {
-          typeLabel = "decreet";
+        } else { // default to 'decreet' if no type can be determined
+          typeLabel = 'decreet';
         }
       }
-      const type = LEGISLATION_TYPES[typeLabel.toLowerCase()];
-      matches.pushObject({match, type: {uri: type, label: typeLabel, omitTypeLabel}, words, realMatch: quickMatch});
+      const typeUri = LEGISLATION_TYPES[typeLabel];
+
+      matches.pushObject({
+        text: matchingText,
+        location: [ matchStartIndex, matchStartIndex + matchingText.length ],
+        type: {
+          uri: typeUri,
+          label: omitTypeLabel ? null : typeLabel
+        },
+        words
+      });
     }
     return matches;
-  },
-  cleanupText(text) {
-    const { updatedText }=this.extractDates(text);
-    const textWithoutOddChars=updatedText.replace(/[,.:"()&]/g,'');
-    const indexOfArtikel=textWithoutOddChars.indexOf("artikel");
-    return indexOfArtikel >= 0 ? textWithoutOddChars.slice(0, indexOfArtikel) : textWithoutOddChars;
-  },
-  extractDates(text) {
-    var date;
-    const dateRegex = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})','g');
-    const matches=[];
-    while ((date = dateRegex.exec(text)) !== null) {
-      matches.pushObject(date);
-    }
-    var updatedText = text;
-    for (let match of matches) {
-      updatedText = updatedText.replace(match[0],'');
-    }
-    return {dates: matches, updatedText };
   }
-});
+
+}
+
+function cleanupText(text) {
+  const { textWithoutDates } = extractDates(text);
+  const textWithoutOddChars = textWithoutDates.replace(/[,.:"()&]/g,'');
+  const articleIndex = textWithoutOddChars.indexOf('artikel');
+  return articleIndex >= 0 ? textWithoutOddChars.slice(0, articleIndex) : textWithoutOddChars;
+}
+
+function extractDates(text) {
+  let date;
+  const matches = [];
+  while ((date = DATE_REGEX.exec(text)) !== null) {
+    matches.pushObject(date);
+  }
+
+  let textWithoutDates = text;
+    for (let match of matches) {
+      textWithoutDates = textWithoutDates.replace(match[0],'');
+    }
+
+  return { dates: matches, textWithoutDates };
+}
