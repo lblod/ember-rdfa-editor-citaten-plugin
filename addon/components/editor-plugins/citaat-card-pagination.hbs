@@ -6,7 +6,7 @@
   <ul class="say-pagination__list">
     {{#unless this.isFirstPage}}
       <li class="say-pagination__item">
-        <button {{on "click" @prev}} class="say-button say-button--tertiary">
+        <button class="say-button say-button--tertiary" {{on "click" @prev}}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
             <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
           </svg>
@@ -17,7 +17,7 @@
     {{/unless}}
     {{#unless this.isLastPage}}
       <li class="say-pagination__item">
-        <button {{on "click" @next}} class="say-button say-button--tertiary">
+        <button class="say-button say-button--tertiary" {{on "click" @next}}>
           volgende
           <span class="say-u-hidden-visually"> {{@pageSize}} rijen</span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">

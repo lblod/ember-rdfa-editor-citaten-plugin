@@ -16,4 +16,9 @@ const LEGISLATION_TYPES = {
   'genummerd koninklijk besluit': 'https://data.vlaanderen.be/id/concept/AardWetgeving/GenummerdKoninklijkBesluit',
   'protocol': 'https://data.vlaanderen.be/id/concept/AardWetgeving/Protocol'
 };
-export { LEGISLATION_TYPES };
+
+const LEGISLATION_TYPE_CONCEPTS = Object.keys(LEGISLATION_TYPES).map(key => {
+  return { label: key, value: LEGISLATION_TYPES[key] };
+});
+
+export { LEGISLATION_TYPES, LEGISLATION_TYPE_CONCEPTS };

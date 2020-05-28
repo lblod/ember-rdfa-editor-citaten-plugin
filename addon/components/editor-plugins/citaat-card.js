@@ -11,6 +11,8 @@ export default class CitaatCardComponent extends Component {
   @tracked totalSize
   @tracked decisions = []
   @tracked error
+  @tracked showModal = false
+  @tracked decision = decision
 
   constructor() {
     super(...arguments);
@@ -20,7 +22,8 @@ export default class CitaatCardComponent extends Component {
   @(task(function * () {
     this.error = null;
     try {
-      const results = yield this.fetchPage(this.pageNumber, this.legislationType.uri);
+      const filter = { type: this.legislationType.uri };
+      const results = yield this.fetchPage(filter, this.pageNumber, this.pageSize);
       this.totalSize = results.totalCount;
       this.decisions = results.decisions;
     }
@@ -33,22 +36,30 @@ export default class CitaatCardComponent extends Component {
   })) search
 
   @action
-  openInsertionModal() {
-    console.log('not implemented');
+  openDecisionDetailModal(decision) {
+    this.decision = decision;
+    this.showModal = true;
   }
 
   @action
   openSearchModal() {
-    console.log('not implemented');
+    this.decision = null;
+    this.showModal = true;
   }
 
   @action
-  insertCitation(uri, title) {
+  closeModal() {
+    this.showModal = false;
+    this.decision = null;
+  }
+
+  @action
+  insertCitation(type, uri, title) {
     const updatedLocation = this.hintsRegistry.updateLocationToCurrentIndex(this.hrId, this.location);
     this.hintsRegistry.removeHintsAtLocation(this.location, this.hrId, EDITOR_CARD_NAME);
 
     title = title.toLowerCase();
-    const citationHtml = `${this.legislationType.label} <a class="annotation" href="${uri}" property="eli:cites">${title}</a>&nbsp;`;
+    const citationHtml = `${type} <a class="annotation" href="${uri}" property="eli:cites">${title}</a>&nbsp;`;
 
     const selection = this.editor.selectHighlight(updatedLocation);
     this.editor.update(selection, {
@@ -92,5 +103,9 @@ export default class CitaatCardComponent extends Component {
 
   get legislationType() {
     return this.args.info.type;
+  }
+
+  get words() {
+    return this.args.info.words;
   }
 }

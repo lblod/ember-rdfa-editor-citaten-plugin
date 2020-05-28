@@ -97,13 +97,13 @@ export default class RdfaEditorCitatenPlugin extends Service {
    */
   createCardForMatch(match, hrId, hintsRegistry, editor) {
     const words = match.words;
-    const type = match.type;
     const card = EmberObject.create({
       location: match.location,
       info: {
         match: match.text,
+        words: words,
         type: match.type,
-        fetchPage: function(page, type) { return fetchLegalResources(words, type, page); },
+        fetchPage: function(filter, pageNumber, pageSize) { return fetchLegalResources(words, filter, pageNumber, pageSize); },
         location: match.location,
         hrId, hintsRegistry, editor
       },
