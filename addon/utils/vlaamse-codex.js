@@ -1,5 +1,4 @@
 import fetch from 'fetch';
-import EmberObject from '@ember/object';
 import { LEGISLATION_TYPE_CONCEPTS } from './legislation-types';
 
 const SPARQL_ENDPOINT = 'https://codex.opendata.api.vlaanderen.be:8888/sparql';
@@ -18,29 +17,35 @@ class Decision {
   }
 }
 
-async function fetchLegalResources(words, { type }, pageNumber = 0, pageSize = 5) {
+class Article {
+  constructor({ uri, number, content, dateInForce, dateNoLongerInForce }) {
+    this.uri = uri;
+    this.number = number;
+    this.content = content;
+    this.dateInForce = dateInForce;
+    this.dateNoLongerInForce = dateNoLongerInForce;
+  }
+}
+
+async function fetchDecisions(words, { type }, pageNumber = 0, pageSize = 5) {
   // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
   // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
   // as range (see AP https://data.vlaanderen.be/doc/applicatieprofiel/besluit-publicatie/#Rechtsgrond),
   // but I currently don't think in the editor you'll ever directly work on a LegalResource.
-  const totalCountQuery = `
+  const totalCount = await executeCountQuery(`
       PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
-      SELECT COUNT(?expressionUri) as ?count
+      SELECT COUNT(DISTINCT(?expressionUri)) as ?count
       WHERE {
         ?legalResourceUri eli:type_document <${type}> ;
                           eli:is_realized_by ?expressionUri .
         ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
         ?expressionUri eli:title ?title .
         ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
-      }`;
-  const encodedTotalCountQuery = escape(totalCountQuery);
-  const endpointTotalCount = `https://codex.opendata.api.vlaanderen.be:8888/sparql?query=${encodedTotalCountQuery}`;
-  const rawTotalCount = await fetch(endpointTotalCount, {headers: {'Accept': 'application/sparql-results+json'}});
-  const totalCount = parseInt((await rawTotalCount.json()).results.bindings[0].count.value);
+      }`);
 
   if (totalCount > 0) {
-    const query = `
+    const response = await executeQuery(`
         PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
         SELECT DISTINCT ?expressionUri as ?uri ?title ?publicationDate ?documentDate
@@ -51,54 +56,105 @@ async function fetchLegalResources(words, { type }, pageNumber = 0, pageSize = 5
           ?expressionUri eli:title ?title .
           ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
 
-          OPTIONAL {
-            ?expressionUri eli:date_publication ?publicationDate .
-          }
+          OPTIONAL { ?expressionUri eli:date_publication ?publicationDate . }
+          OPTIONAL { ?legalResourceUri eli:date_document ?documentDate . }
+        } ORDER BY ?title LIMIT ${pageSize} OFFSET ${pageNumber * pageSize}`);
 
-          OPTIONAL {
-            ?legalResourceUri eli:date_document ?documentDate .
-          }
-        }
-        LIMIT ${pageSize} OFFSET ${pageNumber}`;
-
-    const encodedQuery = escape(query);
-    const endpoint = `${SPARQL_ENDPOINT}?query=${encodedQuery}`;
-    const response = await fetch(endpoint, { headers: {'Accept': 'application/sparql-results+json' } });
-
-    if (response.ok) {
-      const jsonResponse = await response.json();
-      const decisions = jsonResponse.results.bindings.map((binding) => {
-        const escapedTitle = escapeValue(binding.title.value);
-        const publicationDate = dateValue(binding.publicationDate && binding.publicationDate.value);
-        const documentDate = dateValue(binding.documentDate && binding.documentDate.value);
-        return new Decision({
-          uri: binding.uri.value,
-          title: escapedTitle,
-          legislationTypeUri: type,
-          publicationDate,
-          documentDate
-        });
+    const decisions = response.results.bindings.map((binding) => {
+      const escapedTitle = escapeValue(binding.title.value);
+      const publicationDate = dateValue(binding.publicationDate && binding.publicationDate.value);
+      const documentDate = dateValue(binding.documentDate && binding.documentDate.value);
+      return new Decision({
+        uri: binding.uri.value,
+        title: escapedTitle,
+        legislationTypeUri: type,
+        publicationDate,
+        documentDate
       });
+    });
 
-      return EmberObject.create({
-        totalCount,
-        decisions
-      });
-    } else {
-      throw new Error(`Request to Vlaamse Codex was unsuccessful: [${response.status}] ${response.statusText}`);
-    }
+    return {
+      totalCount,
+      decisions
+    };
   } else {
-    return EmberObject.create({
+    return {
       totalCount,
       decisions: []
+    };
+  }
+}
+
+async function fetchArticles(legalExpression, pageNumber = 0, pageSize = 10) {
+  const totalCount = await executeCountQuery(`
+    PREFIX eli: <http://data.europa.eu/eli/ontology#>
+
+    SELECT COUNT(DISTINCT(?article)) as ?count
+    WHERE {
+        ?legalResource eli:is_realized_by <${legalExpression}> ;
+                       eli:has_part ?articleResource .
+        ?articleResource eli:is_realized_by ?article .
+        ?article eli:first_date_entry_in_force ?dateInForce .
+        FILTER (?dateInForce <= NOW() )
+        OPTIONAL { ?article eli:date_no_longer_in_force ?dateNoLongerInForce }
+        FILTER( !BOUND(?dateNoLongerInForce) || ?dateNoLongerInForce > NOW() )
+    }`);
+
+  if (totalCount > 0) {
+    // ?number has format like "Artikel 12." We parse the number from the string for ordering
+    // Second degree ordering on ?numberStr to make sure "Artikel 3/1." comes after "Artikel 3."
+    const response = await executeQuery(`
+    PREFIX eli: <http://data.europa.eu/eli/ontology#>
+    PREFIX prov: <http://www.w3.org/ns/prov#>
+
+    SELECT DISTINCT ?article ?dateInForce ?dateNoLongerInForce ?number ?content WHERE {
+        ?legalResource eli:is_realized_by <${legalExpression}> ;
+                       eli:has_part ?articleResource .
+        ?articleResource eli:is_realized_by ?article .
+        ?article eli:first_date_entry_in_force ?dateInForce .
+        FILTER (?dateInForce <= NOW() )
+        OPTIONAL { ?article eli:date_no_longer_in_force ?dateNoLongerInForce }
+        FILTER( !BOUND(?dateNoLongerInForce) || ?dateNoLongerInForce > NOW() )
+        OPTIONAL { ?article eli:number ?number . }
+        OPTIONAL { ?article prov:value ?content . }
+
+        BIND(REPLACE(?number, "Artikel ", "") as ?numberStr)
+        BIND(STRDT(?numberStr, xsd:integer) as ?numberInt)
+    } ORDER BY ?numberInt ?numberStr LIMIT ${pageSize} OFFSET ${pageNumber * pageSize}`);
+
+    const articles = response.results.bindings.map((binding) => {
+      const escapedContent = escapeValue(binding.content && binding.content.value);
+      const dateInForce = dateValue(binding.dateInForce.value);
+      const dateNoLongerInForce = dateValue(binding.dateNoLongerInForce && binding.dateNoLongerInForce.value);
+      return new Article({
+        uri: binding.article.value,
+        number: binding.number && binding.number.value,
+        content: escapedContent,
+        dateInForce,
+        dateNoLongerInForce
+      });
     });
+
+    return {
+      totalCount,
+      articles
+    };
+  } else {
+    return {
+      totalCount,
+      articles: []
+    };
   }
 }
 
 function escapeValue(value) {
-  const shadowDomElement = document.createElement('textarea');
-  shadowDomElement.innerHTML = value;
-  return shadowDomElement.textContent;
+  if (value) {
+    const shadowDomElement = document.createElement('textarea');
+    shadowDomElement.innerHTML = value;
+    return shadowDomElement.textContent;
+  } else {
+    return null;
+  }
 }
 
 function dateValue(value) {
@@ -114,6 +170,24 @@ function dateValue(value) {
   }
 }
 
+async function executeCountQuery(query) {
+  const response = await executeQuery(query);
+  return parseInt(response.results.bindings[0].count.value);
+}
+
+async function executeQuery(query) {
+  const encodedQuery = escape(query);
+  const endpoint = `${SPARQL_ENDPOINT}?query=${encodedQuery}`;
+  const response = await fetch(endpoint, { headers: {'Accept': 'application/sparql-results+json' } });
+
+  if (response.ok) {
+    return response.json();
+  } else {
+    throw new Error(`Request to Vlaamse Codex was unsuccessful: [${response.status}] ${response.statusText}`);
+  }
+}
+
 export {
-  fetchLegalResources
+  fetchDecisions,
+  fetchArticles
 }

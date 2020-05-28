@@ -4,7 +4,7 @@ import { isBlank } from '@ember/utils';
 import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 import { LEGISLATION_TYPES } from '../utils/legislation-types';
-import { fetchLegalResources } from '../utils/vlaamse-codex';
+import { fetchDecisions } from '../utils/vlaamse-codex';
 
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const CITATION_REGEX = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet|grondwet)','ig');
@@ -103,7 +103,7 @@ export default class RdfaEditorCitatenPlugin extends Service {
         match: match.text,
         words: words,
         type: match.type,
-        fetchPage: function(filter, pageNumber, pageSize) { return fetchLegalResources(words, filter, pageNumber, pageSize); },
+        fetchPage: function(filter, pageNumber, pageSize) { return fetchDecisions(words, filter, pageNumber, pageSize); },
         location: match.location,
         hrId, hintsRegistry, editor
       },

@@ -28,7 +28,8 @@
     </div>
     {{#if this.selectedDecision}}
       <EditorPlugins::Citations::DecisionDetail
-        @insertCitation={{this.insertCitation}}
+        @insertDecisionCitation={{this.insertDecisionCitation}}
+        @insertArticleCitation={{this.insertArticleCitation}}
         @close={{this.closeDecisionDetail}}
         @decision={{this.selectedDecision}}
       />
@@ -95,58 +96,65 @@
           </form>
         </div>
         <div class="say-modal__content">
-          {{#if this.decisions.length}}
-            <ul class="say-link-list say-link-list--large">
-              {{#each this.decisions as |decision|}}
-                <li class="say-link-list__item say-link-list__item--insert">
-                  <button class="say-link-list__link say-link-list__link--arrow" {{on "click" (fn this.openDecisionDetail decision)}}>
-                    {{capitalize decision.fullTitle}}
-                    <br>
-                    <strong>{{moment-format decision.publicationDate "DD/MM/YYYY"}}</strong>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left say-icon--large" aria-hidden="true">
-                      <g class="nav-right">
-                        <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
-                      </g>
-                    </svg>
-                  </button>
-                  <button type="button" class="say-link-list__insert" {{on "click" (fn this.insertCitation decision)}}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large" aria-hidden="true">
-                      <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
-                    </svg>
-                    <span class="say-u-hidden-visually">Voeg citaat in</span>
-                  </button>
-                </li>
-              {{/each}}
-            </ul>
-            <div class="say-pagination say-pagination--large">
-              <p class="say-pagination__info">
-                <span class="say-u-hidden-visually">Rij</span> <strong>Besluiten {{this.rangeStart}} tot en met {{this.rangeEnd}}</strong> van {{this.totalCount}} besluiten
-              </p>
-              <ul class="say-pagination__list">
-                {{#unless this.isFirstPage}}
-                  <li class="say-pagination__item">
-                    <button class="say-button say-button--tertiary" {{on "click" this.previousPage}}>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
-                        <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
-                      </svg>
-                      vorige <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
-                    </button>
-                  </li>
-                {{/unless}}
-                {{#unless this.isLastPage}}
-                  <li class="say-pagination__item">
-                    <button class="say-button say-button--tertiary" {{on "click" this.nextPage}}>
-                      volgende <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
-                        <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
-                      </svg>
-                    </button>
-                  </li>
-                {{/unless}}
-              </ul>
-            </div>
+          {{#if this.search.isRunning}}
+            Aan het laden...  {{!-- TODO designer --}}
           {{else}}
-            Geen besluiten gevonden {{!-- TODO designer --}}
+            {{#if this.error}} {{!-- TODO designer --}}
+              <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
+              <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
+            {{else if this.decisions.length}}
+              <ul class="say-link-list say-link-list--large">
+                {{#each this.decisions as |decision|}}
+                  <li class="say-link-list__item say-link-list__item--insert">
+                    <button class="say-link-list__link say-link-list__link--arrow" {{on "click" (fn this.openDecisionDetail decision)}}>
+                      {{capitalize decision.fullTitle}}
+                      <br>
+                      <strong>{{moment-format decision.publicationDate "DD/MM/YYYY"}}</strong>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left say-icon--large" aria-hidden="true">
+                        <g class="nav-right">
+                          <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
+                        </g>
+                      </svg>
+                    </button>
+                    <button type="button" class="say-link-list__insert" {{on "click" (fn this.insertDecisionCitation decision)}}>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large" aria-hidden="true">
+                        <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
+                      </svg>
+                      <span class="say-u-hidden-visually">Voeg citaat in</span>
+                    </button>
+                  </li>
+                {{/each}}
+              </ul>
+              <div class="say-pagination say-pagination--large">
+                <p class="say-pagination__info">
+                  <span class="say-u-hidden-visually">Rij</span> <strong>Besluiten {{this.rangeStart}} tot en met {{this.rangeEnd}}</strong> van {{this.totalCount}} besluiten
+                </p>
+                <ul class="say-pagination__list">
+                  {{#unless this.isFirstPage}}
+                    <li class="say-pagination__item">
+                      <button class="say-button say-button--tertiary" {{on "click" this.previousPage}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
+                          <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
+                        </svg>
+                        vorige <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
+                      </button>
+                    </li>
+                  {{/unless}}
+                  {{#unless this.isLastPage}}
+                    <li class="say-pagination__item">
+                      <button class="say-button say-button--tertiary" {{on "click" this.nextPage}}>
+                        volgende <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
+                          <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
+                        </svg>
+                      </button>
+                    </li>
+                  {{/unless}}
+                </ul>
+              </div>
+            {{else}}
+              Geen besluiten gevonden {{!-- TODO designer --}}
+            {{/if}}
           {{/if}}
         </div>
       </div>

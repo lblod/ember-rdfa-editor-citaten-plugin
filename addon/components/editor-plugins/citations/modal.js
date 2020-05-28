@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { task, timeout } from 'ember-concurrency';
 import { LEGISLATION_TYPES, LEGISLATION_TYPE_CONCEPTS } from '../../../utils/legislation-types';
-import { fetchLegalResources } from '../../../utils/vlaamse-codex';
+import { fetchDecisions } from '../../../utils/vlaamse-codex';
 
 export default class EditorPluginsCitationsModalComponent extends Component {
   @tracked text
@@ -42,7 +42,7 @@ export default class EditorPluginsCitationsModalComponent extends Component {
       // This probably needs to be more complex to search on group of words
       const words = (this.text || '').match(/\S+/g) || [];
       const filter = { type: this.legislationTypeUri };
-      const results = yield fetchLegalResources(words, filter, this.pageNumber, this.pageSize);
+      const results = yield fetchDecisions(words, filter, this.pageNumber, this.pageSize);
       this.totalCount = results.totalCount;
       this.decisions = results.decisions;
     }
@@ -61,9 +61,16 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   }
 
   @action
-  insertCitation(decision) {
-    this.args.closeModal();
+  insertDecisionCitation(decision) {
     this.args.insertCitation(decision.legislationType.label, decision.uri, decision.title);
+    this.args.closeModal();
+  }
+
+  @action
+  insertArticleCitation(decision, article) {
+    const title = `${decision.title}, ${article.number}`;
+    this.args.insertCitation(decision.legislationType.label, article.uri, title);
+    this.args.closeModal();
   }
 
   @action

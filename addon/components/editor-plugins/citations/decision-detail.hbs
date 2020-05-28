@@ -2,7 +2,7 @@
   <article class="say-article">
     <section class="say-article__section say-article__section--highlight">
       <div class="say-article__action">
-        <button type="button" class="say-article__insert" {{on "click" (fn @insertCitation @decision)}}>
+        <button type="button" class="say-article__insert" {{on "click" (fn @insertDecisionCitation @decision)}}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large say-icon--left">
             <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
           </svg>
@@ -15,7 +15,7 @@
           <strong>{{moment-format @decision.publicationDate "DD/MM/YYYY"}}</strong>
         </p>
         <p>
-          <a href="#" class="say-link say-link--secondary" target="_blank" rel="noopener">
+          <a href={{@decision.uri}} class="say-link say-link--secondary" target="_blank" rel="noopener">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left" aria-hidden="true">
               <g class="manual">
                 <path d="M4 6H2v14a2 2 0 002 2h14v-2H4V6zm16-4H8a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z" class="Vector"/>
@@ -25,173 +25,39 @@
         </p>
       </div>
     </section>
-    <section class="say-article__section">
-      <div class="say-article__action">
-        <button href="#" class="say-article__insert">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large say-icon--left">
-            <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
-          </svg>
-          Verwijs naar onderdeel
-        </button>
-      </div>
-      <div class="say-article__content">
-        <h3>Artikel 1. (01/01/2019- ...)</h3>
-        <p>
-          § 1. De gemeenteraad wordt om de zes jaar volledig vernieuwd.
-          <br>
-          De leden van de gemeenteraad worden rechtstreeks verkozen door de gemeenteraadskiezers.
-          <br>
-          De leden van de gemeenteraad zijn herverkiesbaar.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-        <p>
-          § 2. Na een volledige vernieuwing van de gemeenteraad blijven de uittredende gemeenteraadsleden in functie tot de geloofsbrieven van de nieuw verkozen gemeenteraadsleden onderzocht zijn en tot de meerderheid van de gemeenteraadsleden geïnstalleerd is.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-        <p>
-          § 3. De gemeenteraad wordt om de zes jaar volledig vernieuwd.
-          <br>
-          De leden van de gemeenteraad worden rechtstreeks verkozen door de gemeenteraadskiezers.
-          <br>
-          De leden van de gemeenteraad zijn herverkiesbaar.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-      </div>
-    </section>
-    <section class="say-article__section">
-      <div class="say-article__action">
-        <button href="#" class="say-article__insert">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large say-icon--left">
-            <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
-          </svg>
-          Verwijs naar onderdeel
-        </button>
-      </div>
-      <div class="say-article__content">
-        <h3>Artikel 2. (01/01/2019- ...)</h3>
-        <p>
-          § 1. De gemeenteraad wordt om de zes jaar volledig vernieuwd.
-          <br>
-          De leden van de gemeenteraad worden rechtstreeks verkozen door de gemeenteraadskiezers.
-          <br>
-          De leden van de gemeenteraad zijn herverkiesbaar.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-        <p>
-          § 2. Na een volledige vernieuwing van de gemeenteraad blijven de uittredende gemeenteraadsleden in functie tot de geloofsbrieven van de nieuw verkozen gemeenteraadsleden onderzocht zijn en tot de meerderheid van de gemeenteraadsleden geïnstalleerd is.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-        <p>
-          § 3. De gemeenteraad wordt om de zes jaar volledig vernieuwd.
-          <br>
-          De leden van de gemeenteraad worden rechtstreeks verkozen door de gemeenteraadskiezers.
-          <br>
-          De leden van de gemeenteraad zijn herverkiesbaar.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-      </div>
-    </section>
-    <section class="say-article__section">
-      <div class="say-article__action">
-        <button href="#" class="say-article__insert">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large say-icon--left">
-            <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
-          </svg>
-          Verwijs naar onderdeel
-        </button>
-      </div>
-      <div class="say-article__content">
-        <h3>Artikel 3. (01/01/2019- ...)</h3>
-        <p>
-          § 1. De gemeenteraad wordt om de zes jaar volledig vernieuwd.
-          <br>
-          De leden van de gemeenteraad worden rechtstreeks verkozen door de gemeenteraadskiezers.
-          <br>
-          De leden van de gemeenteraad zijn herverkiesbaar.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-        <p>
-          § 2. Na een volledige vernieuwing van de gemeenteraad blijven de uittredende gemeenteraadsleden in functie tot de geloofsbrieven van de nieuw verkozen gemeenteraadsleden onderzocht zijn en tot de meerderheid van de gemeenteraadsleden geïnstalleerd is.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-        <p>
-          § 3. De gemeenteraad wordt om de zes jaar volledig vernieuwd.
-          <br>
-          De leden van de gemeenteraad worden rechtstreeks verkozen door de gemeenteraadskiezers.
-          <br>
-          De leden van de gemeenteraad zijn herverkiesbaar.
-          <a href="#" class="say-button say-button--tertiary say-button--tooltip">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon">
-              <g id="link">
-                <path d="m3.9 12c0-1.71 1.39-3.1 3.1-3.1h4v-1.9h-4c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9h-4c-1.71 0-3.1-1.39-3.1-3.1zm4.1 1h8v-2h-8zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4v1.9h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-              </g>
-            </svg>
-            <span class="say-button__tooltip-text">Verwijs naar paragraaf</span>
-          </a>
-        </p>
-      </div>
-    </section>
+    {{#if this.search.isRunning}}
+      Aan het laden...  {{!-- TODO designer --}}
+    {{else}}
+      {{#if this.error}}
+        {{!-- TODO designer --}}
+        <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
+        <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
+      {{else}}
+        {{#each this.articles as |article|}}
+          <section class="say-article__section">
+            <div class="say-article__action">
+              <button type="button" class="say-article__insert" {{on "click" (fn @insertArticleCitation @decision article)}}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large say-icon--left">
+                  <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
+                </svg>
+                Verwijs naar onderdeel
+              </button>
+            </div>
+            <div class="say-article__content">
+              <h3>{{article.number}} ({{moment-format article.dateInForce "DD/MM/YYYY"}} - {{#if article.dateNoLongerInForce}}{{moment-format article.dateNoLongerInForce "DD/MM/YYYY"}}{{else}}...{{/if}})</h3>
+              {{{article.content}}}
+            </div>
+          </section>
+        {{else}}
+          Geen artikels gevonden {{!-- TODO designer --}}
+        {{/each}}
+      {{/if}}
+    {{/if}}
   </article>
 </div>
 <div class="say-pagination say-pagination--large">
   <div class="say-pagination__group">
-    <p class="say-pagination__info"><span class="say-u-hidden-visually">Rij</span> <strong>Artikels 5 tot en met 10</strong> van 59 artikels</p>
+    <p class="say-pagination__info"><span class="say-u-hidden-visually">Rij</span> <strong>Artikels {{this.rangeStart}} tot en met {{this.rangeEnd}}</strong> van {{this.totalCount}} artikels</p>
     <p>
       <button role="button" class="say-button say-button--tertiary" {{on "click" @close}}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="au-c-icon au-c-icon--left" aria-hidden="true">
@@ -204,21 +70,25 @@
     </p>
   </div>
   <ul class="say-pagination__list">
-    <li class="say-pagination__item">
-      <button class="say-button say-button--tertiary">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
-          <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
-        </svg>
-        vorige <span class="say-u-hidden-visually"> 5 rijen</span>
-      </button>
-    </li>
-    <li class="say-pagination__item">
-      <button class="say-button say-button--tertiary">
-        volgende <span class="say-u-hidden-visually"> 5 rijen</span>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
-          <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
-        </svg>
-      </button>
-    </li>
+    {{#unless this.isFirstPage}}
+      <li class="say-pagination__item">
+        <button class="say-button say-button--tertiary" {{on "click" this.previousPage}}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
+            <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
+          </svg>
+          vorige <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
+        </button>
+      </li>
+    {{/unless}}
+    {{#unless this.isLastPage}}
+      <li class="say-pagination__item">
+        <button class="say-button say-button--tertiary" {{on "click" this.nextPage}}>
+          volgende <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
+            <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
+          </svg>
+        </button>
+      </li>
+    {{/unless}}
   </ul>
 </div>
