@@ -5,6 +5,19 @@ import { task, timeout } from 'ember-concurrency';
 import { LEGISLATION_TYPES, LEGISLATION_TYPE_CONCEPTS } from '../../../utils/legislation-types';
 import { fetchDecisions } from '../../../utils/vlaamse-codex';
 
+function getISODate(date) {
+  if (date) {
+    // Flatpickr captures the date in local time. Hence date.toISOString() may return the day before the selected date
+    // E.g. selected date 2020-04-15 00:00:00 GMT+0200 will become 2020-04-14 22:00:00 UTC
+    // We will pretend the selected date is UTC because that's what's meant as date for filtering
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `${date.getFullYear()}-${month}-${day}`;
+  } else {
+    return null;
+  }
+}
+
 export default class EditorPluginsCitationsModalComponent extends Component {
   @tracked text
   // Vlaamse Codex currently doesn't contain captions and content of decisions
@@ -17,6 +30,10 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   @tracked decisions = []
   @tracked error
   @tracked selectedDecision
+  @tracked documentDateFrom = null
+  @tracked documentDateTo = null
+  @tracked publicationDateFrom = null
+  @tracked publicationDateTo = null
 
   constructor() {
     super(...arguments);
@@ -41,7 +58,13 @@ export default class EditorPluginsCitationsModalComponent extends Component {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
       const words = (this.text || '').match(/\S+/g) || [];
-      const filter = { type: this.legislationTypeUri };
+      const filter = {
+        type: this.legislationTypeUri,
+        documentDateFrom: getISODate(this.documentDateFrom),
+        documentDateTo: getISODate(this.documentDateTo),
+        publicationDateFrom: getISODate(this.publicationDateFrom),
+        publicationDateTo: getISODate(this.publicationDateTo)
+      };
       const results = yield fetchDecisions(words, filter, this.pageNumber, this.pageSize);
       this.totalCount = results.totalCount;
       this.decisions = results.decisions;
@@ -57,6 +80,30 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   @action
   selectLegislationType(event) {
     this.legislationTypeUri = event.target.value;
+    this.search.perform();
+  }
+
+  @action
+  updateDocumentDateFrom(dates) {
+    this.documentDateFrom = dates.firstObject || null;
+    this.search.perform();
+  }
+
+  @action
+  updateDocumentDateTo(dates) {
+    this.documentDateTo = dates.firstObject || null;
+    this.search.perform();
+  }
+
+  @action
+  updatePublicationDateFrom(dates) {
+    this.publicationDateFrom = dates.firstObject || null;
+    this.search.perform();
+  }
+
+  @action
+  updatePublicationDateTo(dates) {
+    this.publicationDateTo = dates.firstObject || null;
     this.search.perform();
   }
 

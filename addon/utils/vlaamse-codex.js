@@ -27,11 +27,31 @@ class Article {
   }
 }
 
-async function fetchDecisions(words, { type }, pageNumber = 0, pageSize = 5) {
+async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
   // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
   // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
   // as range (see AP https://data.vlaanderen.be/doc/applicatieprofiel/besluit-publicatie/#Rechtsgrond),
   // but I currently don't think in the editor you'll ever directly work on a LegalResource.
+  const { type, documentDateFrom, documentDateTo, publicationDateFrom, publicationDateTo } = filter || {};
+
+  let documentDateFilter = 'OPTIONAL { ?legalResourceUri eli:date_document ?documentDate . }';
+  if (documentDateFrom || documentDateTo) {
+    documentDateFilter = '?legalResourceUri eli:date_document ?documentDate . ';
+    if (documentDateFrom)
+      documentDateFilter += `FILTER (?documentDate >= "${documentDateFrom}"^^xsd:date) `;
+    if (documentDateTo)
+      documentDateFilter += `FILTER (?documentDate <= "${documentDateTo}"^^xsd:date) `;
+  }
+
+  let publicationDateFilter = 'OPTIONAL { ?expressionUri eli:date_publication ?publicationDate . }';
+  if (publicationDateFrom || publicationDateTo) {
+    publicationDateFilter = '?expressionUri eli:date_publication ?publicationDate . ';
+    if (publicationDateFrom)
+      publicationDateFilter += `FILTER (?publicationDate >= "${publicationDateFrom}"^^xsd:date) `;
+    if (publicationDateTo)
+      publicationDateFilter += `FILTER (?publicationDate <= "${publicationDateTo}"^^xsd:date) `;
+  }
+
   const totalCount = await executeCountQuery(`
       PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
@@ -42,6 +62,8 @@ async function fetchDecisions(words, { type }, pageNumber = 0, pageSize = 5) {
         ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
         ?expressionUri eli:title ?title .
         ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
+        ${documentDateFilter}
+        ${publicationDateFilter}
       }`);
 
   if (totalCount > 0) {
@@ -57,7 +79,8 @@ async function fetchDecisions(words, { type }, pageNumber = 0, pageSize = 5) {
           ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
 
           OPTIONAL { ?expressionUri eli:date_publication ?publicationDate . }
-          OPTIONAL { ?legalResourceUri eli:date_document ?documentDate . }
+          ${documentDateFilter}
+          ${publicationDateFilter}
         } ORDER BY ?title LIMIT ${pageSize} OFFSET ${pageNumber * pageSize}`);
 
     const decisions = response.results.bindings.map((binding) => {

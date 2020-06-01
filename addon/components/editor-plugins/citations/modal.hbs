@@ -71,12 +71,22 @@
                 <div class="form__row">
                   <label class="say-label say-u-hidden-visually" for="search-codex-datum-document-van">Filter op datum document vanaf datum:</label>
                   <input class="say-input say-input--pre" aria-hidden="true" type="text" name="" value="van">
-                  <input class="say-input" type="date" name="" id="search-codex-datum-document-van">
+                  <EmberFlatpickr
+                    id="search-codex-datum-document-van"
+                    class="say-input"
+                    @date={{readonly this.documentDateFrom}}
+                    @dateFormat="d/m/Y"
+                    @onChange={{this.updateDocumentDateFrom}} />
                 </div>
                 <div class="form__row">
                   <label class="say-label say-u-hidden-visually" for="search-codex-datum-document-tot">Filter op datum document tot datum:</label>
                   <input class="say-input say-input--pre" aria-hidden="true" type="text" name="" value="tot">
-                  <input class="say-input" type="date" name="" id="search-codex-datum-document-tot">
+                  <EmberFlatpickr
+                    id="search-codex-datum-document-tot"
+                    class="say-input"
+                    @date={{readonly this.documentDateTo}}
+                    @dateFormat="d/m/Y"
+                    @onChange={{this.updateDocumentDateTo}} />
                 </div>
               </div>
               <div class="say-form__row">
@@ -84,12 +94,22 @@
                 <div class="form__row">
                   <label class="say-label say-u-hidden-visually" for="search-codex-datum-staatsblad-van">Filter op datum staatsblad vanaf datum:</label>
                   <input class="say-input say-input--pre" aria-hidden="true" type="text" name="" value="van">
-                  <input class="say-input" type="date" name="" id="search-codex-datum-staatsblad-van">
+                  <EmberFlatpickr
+                    id="search-codex-datum-staatsblad-van"
+                    class="say-input"
+                    @date={{readonly this.publicationDateFrom}}
+                    @dateFormat="d/m/Y"
+                    @onChange={{this.updatePublicationDateFrom}} />
                 </div>
                 <div class="form__row">
                   <label class="say-label say-u-hidden-visually" for="search-codex-datum-staatsblad-tot">Filter op datum staatsblad tot datum:</label>
                   <input class="say-input say-input--pre" aria-hidden="true" type="text" name="" value="tot">
-                  <input class="say-input" type="date" name="" id="search-codex-datum-staatsblad-tot">
+                  <EmberFlatpickr
+                    id="search-codex-datum-staatsblad-tot"
+                    class="say-input"
+                    @date={{readonly this.publicationDateTo}}
+                    @dateFormat="d/m/Y"
+                    @onChange={{this.updatePublicationDateTo}} />
                 </div>
               </div>
             </fieldset>
