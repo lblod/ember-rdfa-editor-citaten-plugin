@@ -57,7 +57,9 @@
 </div>
 <div class="say-pagination say-pagination--large">
   <div class="say-pagination__group">
-    <p class="say-pagination__info"><span class="say-u-hidden-visually">Rij</span> <strong>Artikels {{this.rangeStart}} tot en met {{this.rangeEnd}}</strong> van {{this.totalCount}} artikels</p>
+    {{#if this.articles.length}}
+      <p class="say-pagination__info"><span class="say-u-hidden-visually">Rij</span> <strong>Artikels {{this.rangeStart}} tot en met {{this.rangeEnd}}</strong> van {{this.totalCount}} artikels</p>
+    {{/if}}
     <p>
       <button role="button" class="say-button say-button--tertiary" {{on "click" @close}}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="au-c-icon au-c-icon--left" aria-hidden="true">
@@ -69,26 +71,28 @@
       </button>
     </p>
   </div>
-  <ul class="say-pagination__list">
-    {{#unless this.isFirstPage}}
-      <li class="say-pagination__item">
-        <button class="say-button say-button--tertiary" {{on "click" this.previousPage}}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
-            <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
-          </svg>
-          vorige <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
-        </button>
-      </li>
-    {{/unless}}
-    {{#unless this.isLastPage}}
-      <li class="say-pagination__item">
-        <button class="say-button say-button--tertiary" {{on "click" this.nextPage}}>
-          volgende <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
-            <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
-          </svg>
-        </button>
-      </li>
-    {{/unless}}
-  </ul>
+  {{#if this.articles.length}}
+    <ul class="say-pagination__list">
+      {{#unless this.isFirstPage}}
+        <li class="say-pagination__item">
+          <button class="say-button say-button--tertiary" {{on "click" this.previousPage}}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
+              <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
+            </svg>
+            vorige <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
+          </button>
+        </li>
+      {{/unless}}
+      {{#unless this.isLastPage}}
+        <li class="say-pagination__item">
+          <button class="say-button say-button--tertiary" {{on "click" this.nextPage}}>
+            volgende <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
+              <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>
+            </svg>
+          </button>
+        </li>
+      {{/unless}}
+    </ul>
+  {{/if}}
 </div>
