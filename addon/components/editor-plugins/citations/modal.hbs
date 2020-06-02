@@ -3,16 +3,6 @@
   <div class="say-modal say-modal--fullscreen is-visible" tabindex="-1" role="document">
     <div class="say-modal__header">
       <div>
-        <p class="say-modal__prefix">
-          <LinkTo @route="inbox.index" class="say-link say-link--secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="say-icon say-icon--left">
-              <g class="arrow-left">
-                <path d="M8.11 15l-1.42 1.41L2 11.69 6.69 7l1.42 1.41-2.3 2.28H22v2H5.81L8.11 15z" class="Vector"/>
-              </g>
-            </svg>
-            Terug naar ontwerp
-          </LinkTo>
-        </p>
         <h1 class="say-modal__title" tabindex="-1">
           Voeg een verwijzing toe
         </h1>
@@ -117,11 +107,26 @@
         </div>
         <div class="say-modal__content">
           {{#if this.search.isRunning}}
-            Aan het laden...  {{!-- TODO designer --}}
+            <div class="say-modal__info">
+              <p class="say-loader"><span class="say-u-hidden-visually">Aan het laden...</span></p>
+            </div>
           {{else}}
-            {{#if this.error}} {{!-- TODO designer --}}
-              <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
-              <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
+            {{#if this.error}}
+              <div class="say-modal__info">
+                <div class="say-alert">
+                  <div class="say-alert__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true" class="say-icon">
+                      <g class="info-circle">
+                        <path d="M12 22C6.486 22 2 17.515 2 12 2 6.487 6.486 2 12 2s10 4.486 10 10c0 5.515-4.486 10-10 10zm0-18c-4.411 0-8 3.589-8 8s3.589 8 8 8 8-3.589 8-8-3.589-8-8-8zm1 11h2v2H9v-2h2v-3h-1v-2h2a1 1 0 011 1v4zm-1-5.75a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z" class="Vector"/>
+                      </g>
+                    </svg>
+                  </div>
+                  <div class="say-alert__content">
+                    <p class="say-alert__title">Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
+                    <div class="say-alert__message">Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</div>
+                  </div>
+                </div>
+              </div>
             {{else if this.decisions.length}}
               <ul class="say-link-list say-link-list--large">
                 {{#each this.decisions as |decision|}}
@@ -173,7 +178,9 @@
                 </ul>
               </div>
             {{else}}
-              Geen besluiten gevonden {{!-- TODO designer --}}
+              <div class="say-modal__info">
+                <p>Geen besluiten gevonden</p>
+              </div>
             {{/if}}
           {{/if}}
         </div>
