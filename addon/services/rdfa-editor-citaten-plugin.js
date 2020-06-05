@@ -7,7 +7,7 @@ import { LEGISLATION_TYPES } from '../utils/legislation-types';
 import { fetchDecisions } from '../utils/vlaamse-codex';
 
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const CITATION_REGEX = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,})[\\w\\d]+|[a-z]+decreet|grondwet)','ig');
+const CITATION_REGEX = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,}[\\w\\d]+)|[a-z]+decreet|grondwet)','ig');
 const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})','g');
 const DECISION_TYPES = [
       'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',
