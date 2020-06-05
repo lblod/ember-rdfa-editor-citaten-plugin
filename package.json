@@ -68,7 +68,7 @@
     "qunit-dom": "^1.2.0"
   },
   "peerDependencies": {
-    "@lblod/ember-vo-webuniversum": "^0.16.3"
+    "@lblod/ember-vo-webuniversum": "^0.22.8"
   },
   "engines": {
     "node": "10.* || >= 12"
