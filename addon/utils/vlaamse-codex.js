@@ -61,7 +61,7 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
                           eli:is_realized_by ?expressionUri .
         ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
         ?expressionUri eli:title ?title .
-        ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
+        ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${word.toLowerCase()}"))`).join("\n")}
         ${documentDateFilter}
         ${publicationDateFilter}
       }`);
@@ -76,7 +76,7 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
                             eli:is_realized_by ?expressionUri .
           ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
           ?expressionUri eli:title ?title .
-          ${words.map((word) => `FILTER (CONTAINS(?title, "${word}"))`).join("\n")}
+          ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${word.toLowerCase()}"))`).join("\n")}
 
           OPTIONAL { ?expressionUri eli:date_publication ?publicationDate . }
           ${documentDateFilter}
