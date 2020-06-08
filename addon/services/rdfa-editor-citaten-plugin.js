@@ -39,7 +39,7 @@ export default class RdfaEditorCitatenPlugin extends Service {
    *
    * @public
    */
-  @(task(function * (hrId, blocks, hintsRegistry, editor) { //eslint-disable-line require-yield
+  execute(hrId, blocks, hintsRegistry, editor) { //eslint-disable-line require-yield
     hintsRegistry.removeHints({rdfaBlocks: blocks, scope: EDITOR_CARD_NAME, hrId});
 
     const cards = A();
@@ -56,7 +56,7 @@ export default class RdfaEditorCitatenPlugin extends Service {
     }
 
     hintsRegistry.addHints(hrId, EDITOR_CARD_NAME, cards);
-  })) execute
+  }
 
   /**
    * Whether the given snippet is in the correct context to show a citation hint
