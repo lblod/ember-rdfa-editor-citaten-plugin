@@ -199,9 +199,13 @@ async function executeCountQuery(query) {
 }
 
 async function executeQuery(query) {
-  const encodedQuery = escape(query);
-  const endpoint = `${SPARQL_ENDPOINT}?query=${encodedQuery}`;
-  const response = await fetch(endpoint, { headers: {'Accept': 'application/sparql-results+json' } });
+  const encodedQuery = escape(query.trim());
+  const endpoint = `${SPARQL_ENDPOINT}`;
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {'Accept': 'application/sparql-results+json', 'Content-Type': "application/x-www-form-urlencoded; charset=UTF-8" },
+    body: `query=${encodedQuery}`
+  });
 
   if (response.ok) {
     return response.json();
