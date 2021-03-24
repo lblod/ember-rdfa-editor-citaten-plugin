@@ -30,8 +30,7 @@
     "ember-cli-htmlbars": "^5.2.0",
     "ember-cli-string-helpers": "^4.0.5",
     "ember-flatpickr": "^2.16.2",
-    "ember-moment": "^8.0.0",
-    "ember-mu-transform-helpers": "^2.0.0"
+    "ember-moment": "^8.0.0"
   },
   "devDependencies": {
     "@ember/optional-features": "^1.3.0",
