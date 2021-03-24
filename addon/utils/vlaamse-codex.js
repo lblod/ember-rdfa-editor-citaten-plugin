@@ -1,7 +1,7 @@
 import fetch from 'fetch';
 import { LEGISLATION_TYPE_CONCEPTS } from './legislation-types';
-
-const SPARQL_ENDPOINT = 'https://codex.opendata.api.vlaanderen.be:8888/sparql';
+const SPARQL_ENDPOINT = '/codex/sparql/';
+//const SPARQL_ENDPOINT = 'https://codex.opendata.api.vlaanderen.be:8888/sparql';
 
 class Decision {
   constructor({ uri, legislationTypeUri, title, publicationDate, documentDate }) {
