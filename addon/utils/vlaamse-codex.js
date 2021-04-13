@@ -110,12 +110,14 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
 async function fetchArticles(legalExpression, pageNumber = 0, pageSize = 10) {
   const totalCount = await executeCountQuery(`
     PREFIX eli: <http://data.europa.eu/eli/ontology#>
+    PREFIX dct: <http://purl.org/dc/terms/>
 
     SELECT COUNT(DISTINCT(?article)) as ?count
     WHERE {
         ?legalResource eli:is_realized_by <${legalExpression}> ;
                        eli:has_part ?articleResource .
-        ?articleResource eli:is_realized_by ?article .
+        ?articleResource eli:is_realized_by ?article ;
+                         dct:type <https://data.vlaanderen.be/id/concept/TypeRechtsbrononderdeel/Artikel>.
         OPTIONAL {
            ?article eli:first_date_entry_in_force ?dateInForce .
            FILTER (?dateInForce <= NOW() )
@@ -130,11 +132,13 @@ async function fetchArticles(legalExpression, pageNumber = 0, pageSize = 10) {
     const response = await executeQuery(`
     PREFIX eli: <http://data.europa.eu/eli/ontology#>
     PREFIX prov: <http://www.w3.org/ns/prov#>
+    PREFIX dct: <http://purl.org/dc/terms/>
 
     SELECT DISTINCT ?article ?dateInForce ?dateNoLongerInForce ?number ?content WHERE {
         ?legalResource eli:is_realized_by <${legalExpression}> ;
                        eli:has_part ?articleResource .
-        ?articleResource eli:is_realized_by ?article .
+        ?articleResource eli:is_realized_by ?article ;
+                         dct:type <https://data.vlaanderen.be/id/concept/TypeRechtsbrononderdeel/Artikel>.
         OPTIONAL {
           ?article eli:first_date_entry_in_force ?dateInForce .
           FILTER (?dateInForce <= NOW() )
