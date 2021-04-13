@@ -26,6 +26,7 @@ const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
 */
 export default class RdfaEditorCitatenPlugin extends Service {
   @service store;
+  editorApi = "0.1";
 
   /**
    * Restartable task to handle the incoming events from the editor dispatcher
@@ -39,23 +40,23 @@ export default class RdfaEditorCitatenPlugin extends Service {
    *
    * @public
    */
-  execute(hrId, blocks, hintsRegistry, editor) { //eslint-disable-line require-yield
-    hintsRegistry.removeHints({rdfaBlocks: blocks, scope: EDITOR_CARD_NAME, hrId});
+  execute(rdfaBlocks, hintsRegistry, editor) { //eslint-disable-line require-yield
+    hintsRegistry.removeHints({rdfaBlocks, scope: EDITOR_CARD_NAME});
 
     const cards = A();
-    for (let block of blocks) {
+    for (let block of rdfaBlocks) {
       if (block.text) {
         if (this.hasApplicableContext(block)) {
           const matches = this.getMatches(block);
           for (const match of matches) {
-            const card = this.createCardForMatch(match, hrId, hintsRegistry, editor);
+            const card = this.createCardForMatch(match,hintsRegistry, editor);
             cards.pushObject(card);
           }
         }
       }
     }
 
-    hintsRegistry.addHints(hrId, EDITOR_CARD_NAME, cards);
+    hintsRegistry.addHints(EDITOR_CARD_NAME, cards);
   }
 
   /**
@@ -95,7 +96,7 @@ export default class RdfaEditorCitatenPlugin extends Service {
    *
    * @private
    */
-  createCardForMatch(match, hrId, hintsRegistry, editor) {
+  createCardForMatch(match, hintsRegistry, editor) {
     const words = match.words;
     const card = EmberObject.create({
       location: match.location,
@@ -105,7 +106,7 @@ export default class RdfaEditorCitatenPlugin extends Service {
         type: match.type,
         fetchPage: function(filter, pageNumber, pageSize) { return fetchDecisions(words, filter, pageNumber, pageSize); },
         location: match.location,
-        hrId, hintsRegistry, editor
+        hintsRegistry, editor
       },
       card: EDITOR_CARD_NAME
     });
