@@ -60,6 +60,17 @@ export default class RdfaEditorCitatenPlugin extends Service {
   }
 
   /**
+   * @method suggestHint
+   *
+   */
+  async suggestHints(rdfaBlock, editor) {
+    const motiveringContext = rdfaBlock.context.find(t => t.predicate == 'http://data.vlaanderen.be/ns/besluit#motivering');
+    if (motiveringContext) {
+      return [{ component: 'editor-plugins/citaten-plugin/interactive-card', info: { rdfaBlock, editor }}];
+    }
+  }
+
+  /**
    * Whether the given snippet is in the correct context to show a citation hint
    *
    * @method hasApplicableContext
