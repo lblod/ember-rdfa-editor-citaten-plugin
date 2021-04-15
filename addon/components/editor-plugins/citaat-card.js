@@ -56,7 +56,7 @@ export default class CitaatCardComponent extends Component {
   @action
   insertCitation(type, uri, title) {
     this.hintsRegistry.removeHintsAtLocation(this.location, this.hrId, EDITOR_CARD_NAME);
-    const citationHtml = `${type ? type : ''} <a class="annotation" href="${uri}" property="eli:cites">${title}</a>&nbsp;`;
+    const citationHtml = `${type ? type : ''} <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
     const selection = this.editor.selectHighlight(this.location);
     this.editor.update(selection, {
       set: {
