@@ -1,6 +1,8 @@
 import fetch from 'fetch';
 import { LEGISLATION_TYPE_CONCEPTS } from './legislation-types';
 const SPARQL_ENDPOINT = '/codex/sparql/';
+import { warn } from '@ember/debug';
+
 //const SPARQL_ENDPOINT = 'https://codex.opendata.api.vlaanderen.be:8888/sparql';
 
 class Decision {
@@ -52,6 +54,13 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
       publicationDateFilter += `FILTER (?publicationDate <= "${publicationDateTo}"^^xsd:date) `;
   }
 
+  const excludeAdaptationFilters = [];
+  if (! words.includes('houdende')) {
+    excludeAdaptationFilters.push('FILTER(! STRSTARTS(LCASE(?title),"houdende"))');
+  }
+  if (! words.includes('wijziging')) {
+    excludeAdaptationFilters.push('FILTER(! STRSTARTS(LCASE(?title),"tot wijziging"))');
+  }
   const totalCount = await executeCountQuery(`
       PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
@@ -62,6 +71,7 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
         ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
         ?expressionUri eli:title ?title .
         ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${word.toLowerCase()}"))`).join("\n")}
+        ${excludeAdaptationFilters.join("\n")}
         ${documentDateFilter}
         ${publicationDateFilter}
       }`);
@@ -78,6 +88,7 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
           ?expressionUri eli:title ?title .
           ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${word.toLowerCase()}"))`).join("\n")}
           OPTIONAL { ?expressionUri eli:date_publication ?publicationDate . }
+          ${excludeAdaptationFilters.join("\n")}
           ${documentDateFilter}
           ${publicationDateFilter}
         } ORDER BY ?title LIMIT ${pageSize} OFFSET ${pageNumber * pageSize}`);

@@ -1,7 +1,25 @@
 <article class="say-card">
   <header class="say-card__header">
-    <h2 class="say-card__title">Voeg verwijzing naar een {{this.legislationType.label}} toe:</h2>
+    <h2 class="say-card__title">Voeg verwijzing toe:</h2>
   </header>
+  <div class="say-card__content say-card__content--fixed">
+    <form class="say-form">
+      <fieldset class="say-form__fieldset">
+        <div class="say-form__row">
+          <label class="say-label say-label--block" for="search-codex-type">Type document</label>
+          <select class="say-input say-input--select" name="" id="search-codex-type" {{on "change" this.selectLegislationType}}>
+            {{#each this.legislationTypes as |type|}}
+              <option value={{type.value}} selected={{eq this.legislationTypeUri type.value}}>{{capitalize type.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="say-form__row">
+          <label class="say-label say-label--block" for="search-codex">Zoekterm</label>
+          <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} @key-up={{perform this.updateSearch}} />
+        </div>
+      </fieldset>
+    </form>
+  </div>
   {{#if this.search.isRunning}}
     <div class="say-card__content say-card__content--fixed">
       <p class="say-loader"><span class="say-u-hidden-visually">Aan het zoeken</span></p>
@@ -11,6 +29,7 @@
       <div class="say-card__content say-card__content--fixed">
         <div class="say-card__info">
           <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
+          <code>{{this.error}}</code>
         </div>
       </div>
       <footer class="say-card__footer">
@@ -22,12 +41,12 @@
           <ul class="say-link-list">
             {{#each this.decisions as |decision|}}
               <li class="say-link-list__item say-link-list__item--insert">
-                <button {{on "click" (fn this.openDecisionDetailModal decision)}} class="say-link-list__link">
+                <button type="button" {{on "click" (fn this.openDecisionDetailModal decision)}} class="say-link-list__link">
                   <span class="say-link-list__content say-link-list__content--capped">
                     {{capitalize decision.title}}
                   </span>
                 </button>
-                <button type="submit" class="say-link-list__insert" {{on "click" (fn this.insertCitation this.legislationType.label decision.uri decision.title)}}>
+                <button type="submit" class="say-link-list__insert" {{on "click" (fn this.insertCitation this.legislationType decision.uri decision.title)}}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large" aria-hidden="true">
                     <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
                   </svg>
@@ -43,14 +62,6 @@
         {{/if}}
       </div>
     {{/if}}
-  {{/if}}
-  {{#if this.decisions.length}}
-    <EditorPlugins::CitaatCardPagination
-      @prev={{this.prevPage}}
-      @next={{this.nextPage}}
-      @pageNumber={{this.pageNumber}}
-      @pageSize={{this.pageSize}}
-      @total={{this.totalSize}} />
   {{/if}}
   <footer class="say-card__footer">
     <button type="button" {{on "click" this.openSearchModal}} class="say-button say-button--tertiary">

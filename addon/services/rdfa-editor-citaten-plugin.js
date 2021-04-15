@@ -1,11 +1,8 @@
 import EmberObject from '@ember/object';
 import Service, { inject as service } from '@ember/service';
 import { isBlank } from '@ember/utils';
-import { task } from 'ember-concurrency';
 import { A } from '@ember/array';
 import { LEGISLATION_TYPES } from '../utils/legislation-types';
-import { fetchDecisions } from '../utils/vlaamse-codex';
-
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const CITATION_REGEX = new RegExp('(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)([\\s\\w\\dd;:\'"()&-_]{3,}[\\w\\d]+)|[a-z]+decreet|grondwet)','ig');
 const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})','g');
@@ -115,7 +112,6 @@ export default class RdfaEditorCitatenPlugin extends Service {
         match: match.text,
         words: words,
         type: match.type,
-        fetchPage: function(filter, pageNumber, pageSize) { return fetchDecisions(words, filter, pageNumber, pageSize); },
         location: match.location,
         hintsRegistry, editor
       },
