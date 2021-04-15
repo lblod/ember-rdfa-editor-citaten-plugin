@@ -1,6 +1,8 @@
 import fetch from 'fetch';
 import { LEGISLATION_TYPE_CONCEPTS } from './legislation-types';
 const SPARQL_ENDPOINT = '/codex/sparql/';
+import { warn } from '@ember/debug';
+
 //const SPARQL_ENDPOINT = 'https://codex.opendata.api.vlaanderen.be:8888/sparql';
 
 class Decision {

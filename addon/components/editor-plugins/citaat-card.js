@@ -1,8 +1,9 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency-decorators';
+import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
-import { LEGISLATION_TYPES, LEGISLATION_TYPE_CONCEPTS } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/legislation-types';
+import { LEGISLATION_TYPE_CONCEPTS } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/legislation-types';
 import { fetchDecisions } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/vlaamse-codex';
 
 const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
@@ -14,7 +15,7 @@ export default class CitaatCardComponent extends Component {
   @tracked decisions = [];
   @tracked error;
   @tracked showModal = false;
-  @tracked decision = decision;
+  @tracked decision;
   @tracked legislationTypeUri;
   @tracked text;
 
@@ -61,8 +62,8 @@ export default class CitaatCardComponent extends Component {
 
   @task({restartable: true})
   * updateSearch() {
-    timeout(200);
-    this.search.perform();
+    yield timeout(200);
+    yield this.search.perform();
   }
 
   @action

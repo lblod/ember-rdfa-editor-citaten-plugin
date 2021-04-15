@@ -41,7 +41,7 @@
           <ul class="say-link-list">
             {{#each this.decisions as |decision|}}
               <li class="say-link-list__item say-link-list__item--insert">
-                <button {{on "click" (fn this.openDecisionDetailModal decision)}} class="say-link-list__link">
+                <button type="button" {{on "click" (fn this.openDecisionDetailModal decision)}} class="say-link-list__link">
                   <span class="say-link-list__content say-link-list__content--capped">
                     {{capitalize decision.title}}
                   </span>
