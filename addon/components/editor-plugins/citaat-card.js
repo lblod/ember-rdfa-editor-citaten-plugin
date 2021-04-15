@@ -85,8 +85,7 @@ export default class CitaatCardComponent extends Component {
   }
 
   @action
-  insertCitation(uri, title) {
-    const type = this.legislationTypes.find((type) => type.value === this.legislationTypeUri).label;
+  insertCitation(type, uri, title) {
     this.hintsRegistry.removeHints({region: this.location, scope: EDITOR_CARD_NAME});
     const citationHtml = `${type ? type : ''} <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
     const selection = this.editor.selectHighlight(this.location);
@@ -119,6 +118,14 @@ export default class CitaatCardComponent extends Component {
 
   get location() {
     return this.args.info.location;
+  }
+
+  get legislationType() {
+    const type = this.legislationTypes.find((type) => type.value === this.legislationTypeUri);
+    if (type)
+      return type.label;
+    else
+      return "";
   }
 
 }
