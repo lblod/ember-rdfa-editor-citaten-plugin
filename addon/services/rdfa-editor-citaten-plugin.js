@@ -104,7 +104,6 @@ export default class RdfaEditorCitatenPlugin extends Service {
         match: match.text,
         words: words,
         type: match.type,
-        fetchPage: function(filter, pageNumber, pageSize) { return fetchDecisions(words, filter, pageNumber, pageSize); },
         location: match.location,
         hintsRegistry, editor
       },
