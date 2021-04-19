@@ -25,6 +25,14 @@
         </p>
       </div>
     </section>
+    <section class="say-article__section">
+      <div class="say-article__action">
+      </div>
+      <div class="say-article__content">
+        <h3>Zoek artikel</h3>
+        <Input class="say-input say-input--search say-input--block" @type="text" placeholder="Artikel nummer" name="" id="search-codex" @value={{this.articleFilter}} @key-up={{perform this.updateArticleFilter}} />
+      </div>
+    </section>
     {{#if this.search.isRunning}}
       <div class="say-modal__info">
         <p class="say-loader"><span class="say-u-hidden-visually">Aan het laden...</span></p>

@@ -118,7 +118,8 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
   }
 }
 
-async function fetchArticles(legalExpression, pageNumber = 0, pageSize = 10) {
+async function fetchArticles(legalExpression, pageNumber = 0, pageSize = 10, articleFilter) {
+  const numberFilter = articleFilter ? `FILTER( !BOUND(?number) || CONTAINS(?number, "${articleFilter}"))` : '';
   const totalCount = await executeCountQuery(`
     PREFIX eli: <http://data.europa.eu/eli/ontology#>
     PREFIX dct: <http://purl.org/dc/terms/>
@@ -135,6 +136,8 @@ async function fetchArticles(legalExpression, pageNumber = 0, pageSize = 10) {
         }
         OPTIONAL { ?article eli:date_no_longer_in_force ?dateNoLongerInForce }
         FILTER( !BOUND(?dateNoLongerInForce) || ?dateNoLongerInForce > NOW() )
+        OPTIONAL { ?article eli:number ?number . }
+        ${numberFilter}
     }`);
 
   if (totalCount > 0) {
@@ -156,8 +159,9 @@ async function fetchArticles(legalExpression, pageNumber = 0, pageSize = 10) {
         }
         OPTIONAL { ?article eli:date_no_longer_in_force ?dateNoLongerInForce }
         FILTER( !BOUND(?dateNoLongerInForce) || ?dateNoLongerInForce > NOW() )
-        OPTIONAL { ?article eli:number ?number . }
         OPTIONAL { ?article prov:value ?content . }
+        OPTIONAL { ?article eli:number ?number . }
+        ${numberFilter}
         BIND(REPLACE(?number, "Artikel ", "") as ?numberStr)
         BIND(STRDT(?numberStr, xsd:integer) as ?numberInt)
     } ORDER BY ?numberInt ?numberStr LIMIT ${pageSize} OFFSET ${pageNumber * pageSize}`);
