@@ -1,39 +1,70 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
-import { task } from 'ember-concurrency';
+import { task } from 'ember-concurrency-decorators';
+import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
+import { LEGISLATION_TYPE_CONCEPTS } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/legislation-types';
+import { fetchDecisions } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/vlaamse-codex';
 
 const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
 
 export default class CitaatCardComponent extends Component {
-  @tracked pageNumber = 0
-  @tracked pageSize = 5
-  @tracked totalSize
-  @tracked decisions = []
-  @tracked error
-  @tracked showModal = false
-  @tracked decision = decision
+  @tracked pageNumber = 0;
+  @tracked pageSize = 5;
+  @tracked totalSize;
+  @tracked decisions = [];
+  @tracked error;
+  @tracked showModal = false;
+  @tracked decision;
+  @tracked legislationTypeUri;
+  @tracked text;
 
   constructor() {
     super(...arguments);
-    this.search.perform();
+    if (this.args.info?.words) {
+      this.text = this.args.info.words.join(" ");
+      this.legislationTypeUri = this.args.info.type?.uri;
+      this.search.perform();
+    }
   }
 
-  @(task(function * () {
+  get legislationTypes() {
+    return LEGISLATION_TYPE_CONCEPTS;
+  }
+
+  @task({restartable: true})
+  * search() {
     this.error = null;
     try {
-      const filter = { type: this.legislationType.uri };
-      const results = yield this.fetchPage(filter, this.pageNumber, this.pageSize);
-      this.totalSize = results.totalCount;
+      // Split search string by grouping on non-whitespace characters
+      // This probably needs to be more complex to search on group of words
+      const words = (this.text || '').match(/\S+/g) || [];
+      const filter = {
+        type: this.legislationTypeUri,
+      };
+      const results = yield fetchDecisions(words, filter, this.pageNumber, this.pageSize);
+      this.totalCount = results.totalCount;
       this.decisions = results.decisions;
     }
     catch(e) {
       console.warn(e); // eslint-ignore-line no-console
-      this.totalSize = 0;
+      this.totalCount = 0;
       this.decisions = [];
       this.error = e;
     }
-  })) search
+  }
+
+  @action
+  selectLegislationType(event) {
+    this.legislationTypeUri = event.target.value;
+    this.search.perform();
+  }
+
+  @task({restartable: true})
+  * updateSearch() {
+    yield timeout(200);
+    yield this.search.perform();
+  }
 
   @action
   openDecisionDetailModal(decision) {
@@ -89,19 +120,12 @@ export default class CitaatCardComponent extends Component {
     return this.args.info.location;
   }
 
-  get hrId() {
-    return this.args.info.hrId;
-  }
-
-  get fetchPage() {
-    return this.args.info.fetchPage;
-  }
-
   get legislationType() {
-    return this.args.info.type;
+    const type = this.legislationTypes.find((type) => type.value === this.legislationTypeUri);
+    if (type)
+      return type.label;
+    else
+      return "";
   }
 
-  get words() {
-    return this.args.info.words;
-  }
 }
