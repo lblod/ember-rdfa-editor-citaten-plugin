@@ -1,8 +1,9 @@
 import Component from '@glimmer/component';
-import { task, timeout } from 'ember-concurrency';
+import { timeout } from 'ember-concurrency';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { fetchArticles } from '../../../utils/vlaamse-codex';
+import { task } from 'ember-concurrency-decorators';
 
 export default class EditorPluginsCitationsDecisionDetailComponent extends Component {
   @tracked error
@@ -10,17 +11,25 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
   @tracked pageSize = 5
   @tracked totalCount
   @tracked articles = []
+  @tracked articleFilter
 
   constructor() {
     super(...arguments);
     this.search.perform();
   }
 
-  @(task(function * (pageNumber) {
+  @task({restartable: true})
+  *updateArticleFilter() {
+      yield timeout(200);
+    yield this.search.perform(this.pageNumber);
+  }
+
+  @task({restartable: true})
+  *search (pageNumber) {
     this.pageNumber = pageNumber || 0;
     this.error = null;
     try {
-      const results = yield fetchArticles(this.args.decision.uri, this.pageNumber, this.pageSize);
+      const results = yield fetchArticles(this.args.decision.uri, this.pageNumber, this.pageSize, this.articleFilter);
       this.totalCount = results.totalCount;
       this.articles = results.articles;
     }
@@ -30,7 +39,7 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
       this.articles = [];
       this.error = e;
     }
-  }).keepLatest()) search
+  }
 
 
   // Pagination
