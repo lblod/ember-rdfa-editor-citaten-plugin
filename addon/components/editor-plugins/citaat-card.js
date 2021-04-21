@@ -86,14 +86,21 @@ export default class CitaatCardComponent extends Component {
 
   @action
   insertCitation(type, uri, title) {
-    this.hintsRegistry.removeHints({region: this.location, scope: EDITOR_CARD_NAME});
     const citationHtml = `${type ? type : ''} <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
-    const selection = this.editor.selectHighlight(this.location);
-    this.editor.update(selection, {
-      set: {
-        innerHTML: citationHtml
-      }
-    });
+    let selection;
+    if (this.location) {
+      this.hintsRegistry.removeHints({region: this.location, scope: EDITOR_CARD_NAME});
+      selection = this.editor.selectHighlight(this.location);
+      this.editor.update(selection, {
+        set: {
+          innerHTML: citationHtml
+        }
+      });
+    }
+    else {
+      this.editor.executeCommand('insert-html', citationHtml);
+    }
+
   }
 
   @action

@@ -56,6 +56,14 @@ export default class RdfaEditorCitatenPlugin extends Service {
     hintsRegistry.addHints(EDITOR_CARD_NAME, cards);
   }
 
+  suggestHints(rdfaBlock, editor) {
+    const motiveringContext = rdfaBlock.context.find(t => t.predicate == 'http://data.vlaanderen.be/ns/besluit#motivering');
+    if (motiveringContext) {
+      const type = { uri: LEGISLATION_TYPES['decreet'], label: 'decreet' };
+      return [{ component: EDITOR_CARD_NAME, info: { rdfaBlock, editor, type }}];
+    }
+  }
+
   /**
    * Whether the given snippet is in the correct context to show a citation hint
    *
