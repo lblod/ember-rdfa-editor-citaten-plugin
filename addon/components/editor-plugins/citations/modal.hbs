@@ -131,7 +131,7 @@
               <ul class="say-link-list say-link-list--large">
                 {{#each this.decisions as |decision|}}
                   <li class="say-link-list__item say-link-list__item--insert">
-                    <button class="say-link-list__link say-link-list__link--arrow" {{on "click" (fn this.insertDecisionCitation decision)}}>
+                    <button type="button" class="say-link-list__link say-link-list__link--arrow" {{on "click" (fn this.insertDecisionCitation decision)}}>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large" aria-hidden="true">
                         <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
                       </svg>
@@ -154,7 +154,7 @@
                 <ul class="say-pagination__list">
                   {{#unless this.isFirstPage}}
                     <li class="say-pagination__item">
-                      <button class="say-button say-button--tertiary" {{on "click" this.previousPage}}>
+                      <button type="button" class="say-button say-button--tertiary" {{on "click" this.previousPage}}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left">
                           <path d="M15.429 21L6 12l9.429-9L17 4.5 9.143 12 17 19.5 15.429 21z" class="Vector"/>
                         </svg>
@@ -164,7 +164,7 @@
                   {{/unless}}
                   {{#unless this.isLastPage}}
                     <li class="say-pagination__item">
-                      <button class="say-button say-button--tertiary" {{on "click" this.nextPage}}>
+                      <button type="button" class="say-button say-button--tertiary" {{on "click" this.nextPage}}>
                         volgende <span class="say-u-hidden-visually"> {{this.pageSize}} rijen</span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--right">
                           <path d="M8.429 21L7 19.5l7.143-7.5L7 4.5 8.429 3 17 12l-8.571 9z" class="Vector"/>

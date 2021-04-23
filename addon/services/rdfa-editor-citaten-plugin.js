@@ -5,7 +5,7 @@ import { A } from '@ember/array';
 import { LEGISLATION_TYPES } from '../utils/legislation-types';
 const STOP_WORDS=['het', 'de', 'van', 'tot'];
 const BASIC_MULTIPLANE_CHARACTER='\u0000-\u0019\u0021-\uFFFF'; // most of the characters used around the world
-const CITATION_REGEX = new RegExp(`(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)(\\s+[\\s${BASIC_MULTIPLANE_CHARACTER}\\d;:\'"()&-_]{3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,'uig');
+const CITATION_REGEX = new RegExp(`(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)(\\s+[\\s${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]{3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,'uig');
 const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})','g');
 const DECISION_TYPES = [
       'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',

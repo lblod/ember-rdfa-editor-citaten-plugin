@@ -2,6 +2,7 @@ import fetch from 'fetch';
 import { LEGISLATION_TYPE_CONCEPTS } from './legislation-types';
 const SPARQL_ENDPOINT = '/codex/sparql/';
 import { warn } from '@ember/debug';
+import { htmlSafe } from '@ember/template';
 
 //const SPARQL_ENDPOINT = 'https://codex.opendata.api.vlaanderen.be:8888/sparql';
 
@@ -23,7 +24,7 @@ class Article {
   constructor({ uri, number, content, dateInForce, dateNoLongerInForce }) {
     this.uri = uri;
     this.number = number;
-    this.content = content;
+    this.content = htmlSafe(content);
     this.dateInForce = dateInForce;
     this.dateNoLongerInForce = dateNoLongerInForce;
   }
