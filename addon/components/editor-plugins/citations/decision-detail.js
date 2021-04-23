@@ -20,7 +20,8 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
 
   @task({restartable: true})
   *updateArticleFilter() {
-      yield timeout(200);
+    yield timeout(200);
+    this.pageNumber = 0;
     yield this.search.perform(this.pageNumber);
   }
 
