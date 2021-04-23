@@ -220,7 +220,7 @@ async function executeCountQuery(query) {
 }
 
 async function executeQuery(query) {
-  const encodedQuery = escape(query.trim());
+  const encodedQuery = encodeURIComponent(query.trim());
   const endpoint = `${SPARQL_ENDPOINT}`;
   const response = await fetch(endpoint, {
     method: 'POST',
