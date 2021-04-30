@@ -164,7 +164,7 @@ export default class RdfaEditorCitatenPlugin extends Service {
 
 function cleanupText(text) {
   const { textWithoutDates } = extractDates(text);
-  const textWithoutOddChars = textWithoutDates.replace(new RegExp(`[,.:"()&${INVISIBLE_SPACE}]`,'g',''));
+  const textWithoutOddChars = textWithoutDates.replace(new RegExp(`[,.:"()&${INVISIBLE_SPACE}]`,'g'),'');
   const articleIndex = textWithoutOddChars.indexOf('artikel');
   return articleIndex >= 0 ? textWithoutOddChars.slice(0, articleIndex) : textWithoutOddChars;
 }
