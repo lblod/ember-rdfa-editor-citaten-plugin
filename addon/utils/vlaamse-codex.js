@@ -30,6 +30,19 @@ class Article {
   }
 }
 
+
+/*
+ * flemish codex encodes certain characters as a html character, which breaks our search
+ * this is an ugly work around
+ */
+function replaceDiacriticsInWord(word) {
+  const characters= 'Ë À Ì Â Í Ã Î Ä Ï Ç Ò È Ó É Ô Ê Õ Ö ê Ù ë Ú î Û ï Ü ô Ý õ â û ã ÿ ç'.split(" ");
+  for (let char of characters) {
+    word = word.replace(new RegExp(`${char}`, 'g'), `&#${char.charCodeAt(0)};`);
+  }
+  return word;
+}
+
 async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
   // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
   // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
@@ -71,7 +84,7 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
                           eli:is_realized_by ?expressionUri .
         ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
         ?expressionUri eli:title ?title .
-        ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${word.toLowerCase()}"))`).join("\n")}
+        ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${replaceDiacriticsInWord(word).toLowerCase()}"))`).join("\n")}
         ${excludeAdaptationFilters.join("\n")}
         ${documentDateFilter}
         ${publicationDateFilter}
@@ -87,7 +100,7 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
                             eli:is_realized_by ?expressionUri .
           ?expressionUri a <http://data.europa.eu/eli/ontology#LegalExpression> .
           ?expressionUri eli:title ?title .
-          ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${word.toLowerCase()}"))`).join("\n")}
+          ${words.map((word) => `FILTER (CONTAINS(LCASE(?title), "${replaceDiacriticsInWord(word).toLowerCase()}"))`).join("\n")}
           OPTIONAL { ?expressionUri eli:date_publication ?publicationDate . }
           ${excludeAdaptationFilters.join("\n")}
           ${documentDateFilter}
