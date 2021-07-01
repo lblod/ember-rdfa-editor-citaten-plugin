@@ -1,5 +1,5 @@
 import EmberObject from '@ember/object';
-import Service, { inject as service } from '@ember/service';
+import Service from '@ember/service';
 import { isBlank } from '@ember/utils';
 import { A } from '@ember/array';
 import { LEGISLATION_TYPES } from '../utils/legislation-types';
@@ -24,7 +24,6 @@ const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
 *
 */
 export default class RdfaEditorCitatenPlugin extends Service {
-  @service store;
   editorApi = "0.1";
 
   /**
