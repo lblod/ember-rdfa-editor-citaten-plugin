@@ -26,7 +26,7 @@
       </div>
     </section>
     <section class="say-article__section say-article__section--highlight">
-      <div style="flex-grow:1">
+      <div style="flex-grow: 1;" {{!-- template-lint-configure no-inline-styles "warn" --}}>
         <label for="searchCodex" class="say-label say-label--block">Zoek artikel</label>
         <Input class="say-input say-input--search" @type="text" placeholder="Artikel nummer" name="" id="searchCodex" @value={{this.articleFilter}} @key-up={{perform this.updateArticleFilter}} />
       </div>
