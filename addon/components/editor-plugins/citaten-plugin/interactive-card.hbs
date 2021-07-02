@@ -1,0 +1,70 @@
+<div class="modal-dialog__header" {{on-rich-selection-update (perform this.updateSelection)}}>
+  <div class="grid">
+    <div class="col--10-12">
+      <p>
+        <strong>Voeg een verwijzing toe</strong>
+      </p>
+    </div>
+  </div>
+</div>
+<div class="modal-dialog__content modal-dialog__content--sectioned">
+  <form class="say-form">
+    <fieldset class="say-form__fieldset">
+      <div class="say-form__row">
+        <label class="say-label say-label--block" for="search-codex-type">Type document</label>
+        <select class="say-input say-input--select" name="" id="search-codex-type" {{on "change" this.selectLegislationType}}>
+          {{#each this.legislationTypes as |type|}}
+            <option value={{type.value}} selected={{eq this.legislationTypeUri type.value}}>{{capitalize type.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="say-form__row">
+        <label class="say-label say-label--block" for="search-codex">Zoekterm</label>
+        <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} @key-up={{perform this.searchText}} />
+      </div>
+    </fieldset>
+  </form>
+  {{#if this.search.isRunning}}
+    <div class="say-card__content say-card__content--fixed">
+      <p class="say-loader"><span class="say-u-hidden-visually">Aan het zoeken</span></p>
+    </div>
+  {{else}}
+    {{#if this.error}}
+      <div class="say-card__content say-card__content--fixed">
+        <div class="say-card__info">
+          <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
+        </div>
+      </div>
+      <footer class="say-card__footer">
+        <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
+      </footer>
+    {{else}}
+      <div class="say-card__content say-card__content--fixed">
+        {{#if this.decisions.length}}
+          <ul class="say-link-list">
+            {{#each this.decisions as |decision|}}
+              <li class="say-link-list__item say-link-list__item--insert">
+                <button class="say-link-list__link">
+                  <span class="say-link-list__content say-link-list__content--capped">
+                    {{capitalize decision.title}}
+                  </span>
+                </button>
+                <button type="submit" class="say-link-list__insert" {{on "click" (fn this.insertCitation decision.uri decision.title)}}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large" aria-hidden="true">
+                    <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
+                  </svg>
+                  <span class="say-u-hidden-visually">Voeg citaat in</span>
+                </button>
+              </li>
+            {{/each}}
+          </ul>
+        {{else}}
+          <div class="say-card__info">
+            <p>Geen besluiten gevonden.</p>
+          </div>
+        {{/if}}
+      </div>
+    {{/if}}
+    {{/if}}
+
+</div>
