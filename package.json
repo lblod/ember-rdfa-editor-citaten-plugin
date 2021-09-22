@@ -25,6 +25,10 @@
     "test:ember": "ember test",
     "test:ember-compatibility": "ember try:each"
   },
+  "peerDependencies": {
+    "ember-concurrency": "^1.0.0 || ^2.0.0-rc.1",
+    "ember-concurrency-decorators": "^2.0.3"
+  },
   "dependencies": {
     "ember-cli-babel": "^7.21.0",
     "ember-cli-htmlbars": "^5.2.0",
