@@ -218,7 +218,7 @@ function escapeValue(value) {
 function dateValue(value) {
   if (value) {
     try {
-      return new Date(Date.parse(value));
+      return new Intl.DateTimeFormat('nl-BE').format(new Date(Date.parse(value)));
     } catch (e) {
       warn(`Error parsing date ${value}: ${e.message}`, { id: 'date-parsing-error' });
       return null;

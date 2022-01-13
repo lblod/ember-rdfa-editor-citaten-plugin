@@ -12,7 +12,7 @@
       <div class="say-article__content">
         <h2>{{capitalize @decision.fullTitle}}</h2>
         <p>
-          <strong>{{moment-format @decision.publicationDate "DD/MM/YYYY"}}</strong>
+          <strong>{{@decision.publicationDate}}</strong>
         </p>
         <p>
           <a href={{@decision.uri}} class="say-link say-link--secondary" target="_blank" rel="noreferrer noopener">
@@ -64,7 +64,7 @@
               </button>
             </div>
             <div class="say-article__content">
-              <h3>{{article.number}} ({{moment-format article.dateInForce "DD/MM/YYYY"}} - {{#if article.dateNoLongerInForce}}{{moment-format article.dateNoLongerInForce "DD/MM/YYYY"}}{{else}}...{{/if}})</h3>
+              <h3>{{article.number}} ({{article.dateInForce}} - {{#if article.dateNoLongerInForce}}{{article.dateNoLongerInForce}}{{else}}...{{/if}})</h3>
               {{article.content}}
             </div>
           </section>
