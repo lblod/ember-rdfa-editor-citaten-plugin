@@ -26,15 +26,13 @@
     "test:ember-compatibility": "ember try:each"
   },
   "peerDependencies": {
-    "ember-concurrency": "^1.0.0 || ^2.0.0-rc.1",
-    "ember-concurrency-decorators": "^2.0.3",
     "@lblod/ember-rdfa-editor": "^0.50.0-beta.6"
   },
   "dependencies": {
     "ember-cli-babel": "^7.23.0",
     "ember-cli-htmlbars": "^5.3.1",
-    "ember-cli-string-helpers": "^4.0.5",
-    "ember-flatpickr": "^2.16.2",
+    "ember-cli-string-helpers": "^6.1.0",
+    "ember-flatpickr": "^3.2.2",
     "ember-fetch": "^8.1.1"
   },
   "devDependencies": {
@@ -50,7 +48,6 @@
     "ember-cli-inject-live-reload": "^2.0.2",
     "ember-cli-sri": "^2.1.1",
     "ember-cli-terser": "^4.0.1",
-    "ember-cli-update": "^0.34.10",
     "ember-disable-prototype-extensions": "^1.1.3",
     "ember-export-application-global": "^2.0.1",
     "ember-load-initializers": "^2.1.2",
@@ -66,11 +63,15 @@
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-ember": "^10.1.1",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-qunit": "^6.2.0",
     "loader.js": "^4.7.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "qunit": "^2.13.0",
     "qunit-dom": "^1.6.0",
+    "ember-concurrency": "^2.2.0",
+    "ember-concurrency-decorators": "^2.0.3",
     "@lblod/ember-rdfa-editor": "^0.50.0-beta.6",
     "webpack": "^5.68.0",
     "xml-formatter": "^2.6.0",
@@ -80,7 +81,8 @@
     "@appuniversum/appuniversum": "^0.2.1",
     "@appuniversum/ember-appuniversum": "^0.7.2",
     "sass": "^1.49.4",
-    "ember-cli-sass": "^10.0.1"
+    "ember-cli-sass": "^10.0.1",
+    "ember-cli-update": "^0.34.10"
   },
   "engines": {
     "node": "10.* || >= 12"
