@@ -1,0 +1,196 @@
+@import "g-reset";
+@import "appuniversum/g-font";
+@import "appuniversum/e-page";
+@import "ember-rdfa-editor";
+
+// Appuniversum theme
+@import "appuniversum/s-colors.scss";
+@import "appuniversum/s-global";
+@import "appuniversum/s-utilities";
+@import "appuniversum/s-root";
+// End appuniversum theme
+
+// This partial is missing in ember-rdfa-editor
+@import "ember-appuniversum/p-ember-power-select";
+
+/* ==========================================================================
+   #DUMMY STYLES
+   ========================================================================== */
+.c-dummy {
+  display: flex; /* [3] */
+  flex-direction: column;
+  justify-content: stretch;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.c-dummy__header {
+  position: relative;
+
+  > h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+  }
+
+  > h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  > p {
+    font-size: 1.6rem;
+  }
+
+  > a,
+  > p > a {
+    transition: color .3s ease-in-out, text-decoration 3s ease-in-out;
+    font-weight: 500;
+    text-decoration-color: $say-primary-300;
+  }
+
+  > a,
+  > p > a,
+  > a:visited,
+  > p > a:visited {
+    color: $say-primary-700;
+  }
+
+  > a:hover,
+  > p > a:hover,
+  > a:focus,
+  > p > a:focus {
+    color: $say-primary-700;
+    text-decoration-color: $say-primary-300;
+  }
+
+  > a:focus,
+  > p > a:focus {
+    outline: .2rem dashed $say-primary-300;
+    outline-offset: .2rem;
+  }
+
+  > hr {
+    border: 0;
+    padding: 0;
+    border-bottom: 1px dotted #CBD2DA;
+  }
+}
+
+.c-dummy__header {
+  position: relative;
+  z-index: 1;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba($say-primary-900, .1), 0 4px 20px rgba($say-primary-900, .035), 0 1px 1px rgba($say-primary-900, .025);
+}
+
+// Fix scroll
+.c-dummy__content {
+  &,
+  > div,
+  > div > div,
+  .rdfa-playground {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+  }
+}
+
+.navigation-link {
+  color: black;
+  padding: 0.5em;
+}
+
+.navbar {
+  height: 3vh;
+}
+
+.navigation-link.active {
+  color: #ff7f00;
+}
+
+.vendor-iframe-container {
+  position: relative;
+  width: 100%;
+  height: 95vh;
+  display: flex;
+}
+
+.vendor-iframe {
+  border: black solid 5px;
+  width: 95%;
+  height: 95%;
+  margin: auto;
+}
+
+.rdfa-debugger-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  height: 80%;
+  overflow: auto;
+}
+
+.rdfa-debugger-panel-wrapper {
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: none;
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.rdfa-debugger-textarea-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+
+// To port to ember-appuniversum
+.au-c-modal--flush {
+  .au-c-modal__body {
+    padding: 0;
+  }
+}
+
+.au-c-pagination {
+  width: 100%;
+}
+
+.au-c-data-table__table {
+  tbody, tr, td {
+    vertical-align: middle;
+  }
+}
+
+.au-c-data-table__image {
+  max-width: 44px;
+  max-height: 44px;
+  display: block;
+}
+
+.au-c-data-table__clickable-row {
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--au-gray-200) !important;
+  }
+}
+
+.au-c-data-table__clickable-row-icon {
+  color: var(--au-blue-600);
+}
+
+.au-c-data-table__detail {
+  background-color: var(--au-white) !important;
+  border-bottom: .1rem solid var(--au-gray-200) !important;
+
+  td {
+    padding-top: $au-unit !important;
+    padding-bottom: $au-unit !important;
+  }
+}
