@@ -15,7 +15,7 @@
         </div>
         <div class="say-form__row">
           <label class="say-label say-label--block" for="search-codex">Zoekterm</label>
-          <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} @key-up={{perform this.updateSearch}} />
+          <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} {{on "keyup" (perform this.updateSearch)}} />
         </div>
         <div class="say-form__row">
           <button type="button" {{on "click" this.openSearchModal}} class="say-button say-button--tertiary">

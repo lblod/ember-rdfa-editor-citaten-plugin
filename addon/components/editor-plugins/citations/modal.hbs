@@ -30,7 +30,7 @@
             <fieldset class="say-form__fieldset">
               <div class="say-form__row">
                 <label class="say-label say-label--block" for="search-codex">Zoekterm</label>
-                <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} @key-up={{perform this.searchText}} />
+                <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} {{on "keyup" (perform this.searchText)}} />
               </div>
               {{!-- Vlaamse Codex currently doesn't contain captions
                                                                                          <div class="say-form__row">
