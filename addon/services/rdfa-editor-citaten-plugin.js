@@ -70,8 +70,8 @@ export default class RdfaEditorCitatenPlugin extends Service {
   hasApplicableContext(snippet) {
     const triples = snippet.context;
     if (triples.find(t => t.predicate == 'a' && DECISION_TYPES.includes(t.object)) // in decision context
-        && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') // in motivation context
-        && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) { // not in another eli:cites context
+        && triples.some(s => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') // in motivation context
+        && ! triples.some(s => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) { // not in another eli:cites context
       const text = snippet.text ? snippet.text : '';
       return CITATION_REGEX.test(text);
     } else {
