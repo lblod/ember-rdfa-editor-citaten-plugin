@@ -6,42 +6,45 @@ import { fetchArticles } from '../../../utils/vlaamse-codex';
 import { task } from 'ember-concurrency-decorators';
 
 export default class EditorPluginsCitationsDecisionDetailComponent extends Component {
-  @tracked error
-  @tracked pageNumber = 0
-  @tracked pageSize = 5
-  @tracked totalCount
-  @tracked articles = []
-  @tracked articleFilter
+  @tracked error;
+  @tracked pageNumber = 0;
+  @tracked pageSize = 5;
+  @tracked totalCount;
+  @tracked articles = [];
+  @tracked articleFilter;
 
   constructor() {
     super(...arguments);
     this.search.perform();
   }
 
-  @task({restartable: true})
+  @task({ restartable: true })
   *updateArticleFilter() {
     yield timeout(200);
     this.pageNumber = 0;
     yield this.search.perform(this.pageNumber);
   }
 
-  @task({restartable: true})
-  *search (pageNumber) {
+  @task({ restartable: true })
+  *search(pageNumber) {
     this.pageNumber = pageNumber || 0;
     this.error = null;
     try {
-      const results = yield fetchArticles(this.args.decision.uri, this.pageNumber, this.pageSize, this.articleFilter);
+      const results = yield fetchArticles(
+        this.args.decision.uri,
+        this.pageNumber,
+        this.pageSize,
+        this.articleFilter
+      );
       this.totalCount = results.totalCount;
       this.articles = results.articles;
-    }
-    catch(e) {
+    } catch (e) {
       console.warn(e); // eslint-ignore-line no-console
       this.totalCount = 0;
       this.articles = [];
       this.error = e;
     }
   }
-
 
   // Pagination
 
@@ -71,5 +74,4 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
   get isLastPage() {
     return this.rangeEnd == this.totalCount;
   }
-
 }

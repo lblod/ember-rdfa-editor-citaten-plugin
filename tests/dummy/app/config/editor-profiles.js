@@ -1,5 +1,3 @@
 export default {
-  default: [
-    "rdfa-editor-citaten-plugin"
-  ],
+  default: ['rdfa-editor-citaten-plugin'],
 };

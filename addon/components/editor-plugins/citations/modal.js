@@ -2,7 +2,10 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { task, timeout } from 'ember-concurrency';
-import { LEGISLATION_TYPES, LEGISLATION_TYPE_CONCEPTS } from '../../../utils/legislation-types';
+import {
+  LEGISLATION_TYPES,
+  LEGISLATION_TYPE_CONCEPTS,
+} from '../../../utils/legislation-types';
 import { fetchDecisions } from '../../../utils/vlaamse-codex';
 
 function getISODate(date) {
@@ -19,26 +22,27 @@ function getISODate(date) {
 }
 
 export default class EditorPluginsCitationsModalComponent extends Component {
-  @tracked text
+  @tracked text;
   // Vlaamse Codex currently doesn't contain captions and content of decisions
   // @tracked isEnabledSearchCaption = false
   // @tracked isEnabledSearchContent = false
-  @tracked legislationTypeUri
-  @tracked pageNumber = 0
-  @tracked pageSize = 5
-  @tracked totalCount
-  @tracked decisions = []
-  @tracked error
-  @tracked selectedDecision
-  @tracked documentDateFrom = null
-  @tracked documentDateTo = null
-  @tracked publicationDateFrom = null
-  @tracked publicationDateTo = null
+  @tracked legislationTypeUri;
+  @tracked pageNumber = 0;
+  @tracked pageSize = 5;
+  @tracked totalCount;
+  @tracked decisions = [];
+  @tracked error;
+  @tracked selectedDecision;
+  @tracked documentDateFrom = null;
+  @tracked documentDateTo = null;
+  @tracked publicationDateFrom = null;
+  @tracked publicationDateTo = null;
 
   constructor() {
     super(...arguments);
     this.selectedDecision = this.args.selectedDecision;
-    this.legislationTypeUri = this.args.legislationTypeUri || LEGISLATION_TYPES['decreet'];
+    this.legislationTypeUri =
+      this.args.legislationTypeUri || LEGISLATION_TYPES['decreet'];
     this.text = (this.args.words || []).join(' ');
     this.search.perform();
   }
@@ -46,12 +50,13 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   get legislationTypes() {
     return LEGISLATION_TYPE_CONCEPTS;
   }
-  @(task(function * () {
+  @(task(function* () {
     yield timeout(500);
     yield this.search.perform();
-  }).keepLatest()) searchText
+  }).keepLatest())
+  searchText;
 
-  @(task(function * (pageNumber) {
+  @(task(function* (pageNumber) {
     this.pageNumber = pageNumber || 0; // reset page to 0 for a new search task
     this.error = null;
     try {
@@ -63,19 +68,24 @@ export default class EditorPluginsCitationsModalComponent extends Component {
         documentDateFrom: getISODate(this.documentDateFrom),
         documentDateTo: getISODate(this.documentDateTo),
         publicationDateFrom: getISODate(this.publicationDateFrom),
-        publicationDateTo: getISODate(this.publicationDateTo)
+        publicationDateTo: getISODate(this.publicationDateTo),
       };
-      const results = yield fetchDecisions(words, filter, this.pageNumber, this.pageSize);
+      const results = yield fetchDecisions(
+        words,
+        filter,
+        this.pageNumber,
+        this.pageSize
+      );
       this.totalCount = results.totalCount;
       this.decisions = results.decisions;
-    }
-    catch(e) {
+    } catch (e) {
       console.warn(e); // eslint-ignore-line no-console
       this.totalCount = 0;
       this.decisions = [];
       this.error = e;
     }
-  }).keepLatest()) search
+  }).keepLatest())
+  search;
 
   @action
   selectLegislationType(event) {
@@ -109,14 +119,22 @@ export default class EditorPluginsCitationsModalComponent extends Component {
 
   @action
   insertDecisionCitation(decision) {
-    this.args.insertCitation(decision.legislationType.label, decision.uri, decision.title);
+    this.args.insertCitation(
+      decision.legislationType.label,
+      decision.uri,
+      decision.title
+    );
     this.args.closeModal();
   }
 
   @action
   insertArticleCitation(decision, article) {
     const title = `${decision.title}, ${article.number}`;
-    this.args.insertCitation(decision.legislationType.label, article.uri, title);
+    this.args.insertCitation(
+      decision.legislationType.label,
+      article.uri,
+      title
+    );
     this.args.closeModal();
   }
 
@@ -129,7 +147,6 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   openDecisionDetail(decision) {
     this.selectedDecision = decision;
   }
-
 
   // Pagination
 
@@ -159,5 +176,4 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   get isLastPage() {
     return this.rangeEnd == this.totalCount;
   }
-
 }

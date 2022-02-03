@@ -3,7 +3,7 @@ import { action } from '@ember/object';
 
 export default class ApplicationController extends Controller {
   plugins = ['rdfa-editor-citaten-plugin'];
-  
+
   @action
   rdfaEditorInit(controller) {
     const presetContent = `
