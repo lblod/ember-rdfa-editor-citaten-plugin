@@ -36,7 +36,6 @@
     "ember-cli-htmlbars": "^5.7.2",
     "ember-cli-string-helpers": "^6.1.0",
     "ember-fetch": "^8.1.1",
-    "ember-flatpickr": "^2.16.4",
     "ember-intl": "^5.7.2"
   },
   "devDependencies": {
