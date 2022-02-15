@@ -1,4 +1,12 @@
 
+## 0.14.0 (2022-02-15)
+
+#### :rocket: Enhancement
+* [#19](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/19) Ember upgrades and dummy app ([@benjay10](https://github.com/benjay10))
+
+#### Committers: 1
+- Ben ([@benjay10](https://github.com/benjay10))
+
 ## 0.13.4 (2022-01-13)
 
 #### :house: Internal
