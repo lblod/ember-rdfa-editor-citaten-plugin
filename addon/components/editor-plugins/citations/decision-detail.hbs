@@ -28,7 +28,7 @@
     <section class="say-article__section say-article__section--highlight">
       <div style="flex-grow: 1;" {{!-- template-lint-configure no-inline-styles "warn" --}}>
         <label for="searchCodex" class="say-label say-label--block">Zoek artikel</label>
-        <Input class="say-input say-input--search" @type="text" placeholder="Artikel nummer" name="" id="searchCodex" @value={{this.articleFilter}} @key-up={{perform this.updateArticleFilter}} />
+        <Input class="say-input say-input--search" @type="text" placeholder="Artikel nummer" name="" id="searchCodex" @value={{this.articleFilter}} {{on "keyup" (perform this.updateArticleFilter)}} />
       </div>
     </section>
     {{#if this.search.isRunning}}
@@ -48,7 +48,7 @@
             </div>
             <div class="say-alert__content">
               <p class="say-alert__title">Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
-              <div class="say-alert__message">Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</div>
+              <div class="say-alert__message">Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be" class="au-c-link">Gelinkt-Notuleren@vlaanderen.be</a>.</div>
             </div>
           </div>
         </div>

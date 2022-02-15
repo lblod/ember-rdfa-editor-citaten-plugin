@@ -15,7 +15,7 @@
         </div>
         <div class="say-form__row">
           <label class="say-label say-label--block" for="search-codex">Zoekterm</label>
-          <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} @key-up={{perform this.updateSearch}} />
+          <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} {{on "keyup" (perform this.updateSearch)}} />
         </div>
         <div class="say-form__row">
           <button type="button" {{on "click" this.openSearchModal}} class="say-button say-button--tertiary">
@@ -41,7 +41,7 @@
         </div>
       </div>
       <footer class="say-card__footer">
-        <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
+        <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be" class="au-c-link">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
       </footer>
     {{else}}
       <div class="say-card__content say-card__content--padding say-card__content--fixed">

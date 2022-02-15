@@ -1,3 +1,22 @@
-<h2 id="title">Welcome to Ember</h2>
+{{page-title "rdfa-editor-citaten-plugin"}}
 
-{{outlet}}
+<Rdfa::RdfaEditorWithDebug
+  @rdfaEditorInit={{this.rdfaEditorInit}}
+  @plugins={{this.plugins}}
+  @editorOptions={{hash
+    showToggleRdfaAnnotations="true"
+    showInsertButton=null
+    showRdfa="true"
+    showRdfaHighlight="true"
+    showRdfaHover="true"
+    showPaper="true"
+    showSidebar="true"
+    showToolbarBottom=null
+  }}
+  @toolbarOptions={{hash
+    showTextStyleButtons="true"
+    showListButtons="true"
+    showIndentButtons="true"
+  }}>
+  <h1>Dummy app - rdfa-editor-citaten-plugin</h1>
+</Rdfa::RdfaEditorWithDebug>

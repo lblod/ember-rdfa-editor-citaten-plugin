@@ -3,28 +3,31 @@ import Service from '@ember/service';
 import { isBlank } from '@ember/utils';
 import { A } from '@ember/array';
 import { LEGISLATION_TYPES } from '../utils/legislation-types';
-const STOP_WORDS=['het', 'de', 'van', 'tot'];
-const BASIC_MULTIPLANE_CHARACTER='\u0000-\u0019\u0021-\uFFFF'; // most of the characters used around the world
-const CITATION_REGEX = new RegExp(`(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)(\\s+[\\s${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]{3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,'uig');
-const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})','g');
+const STOP_WORDS = ['het', 'de', 'van', 'tot'];
+const BASIC_MULTIPLANE_CHARACTER = '\u0000-\u0019\u0021-\uFFFF'; // most of the characters used around the world
+const CITATION_REGEX = new RegExp(
+  `(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)(\\s+[\\s${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]{3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,
+  'uig'
+);
+const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})', 'g');
 const DECISION_TYPES = [
-      'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',
-      'http://data.vlaanderen.be/ns/mandaat#AanstellingsBesluit',
-      'http://data.vlaanderen.be/ns/besluit#Besluit'
+  'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',
+  'http://data.vlaanderen.be/ns/mandaat#AanstellingsBesluit',
+  'http://data.vlaanderen.be/ns/besluit#Besluit',
 ];
-const INVISIBLE_SPACE='\u200B';
+const INVISIBLE_SPACE = '\u200B';
 const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
 
 /**
-* RDFa Editor plugin that hints references to existing Besluiten en Artikels.
-*
-* @module editor-citaten-plugin
-* @class RdfaEditorCitatenPlugin
-* @extends Ember.Service
-*
-*/
+ * RDFa Editor plugin that hints references to existing Besluiten en Artikels.
+ *
+ * @module editor-citaten-plugin
+ * @class RdfaEditorCitatenPlugin
+ * @extends Ember.Service
+ *
+ */
 export default class RdfaEditorCitatenPlugin extends Service {
-  editorApi = "0.1";
+  editorApi = '0.1';
 
   /**
    * Restartable task to handle the incoming events from the editor dispatcher
@@ -38,8 +41,8 @@ export default class RdfaEditorCitatenPlugin extends Service {
    *
    * @public
    */
-  execute(rdfaBlocks, hintsRegistry, editor) { //eslint-disable-line require-yield
-    hintsRegistry.removeHints({rdfaBlocks, scope: EDITOR_CARD_NAME});
+  execute(rdfaBlocks, hintsRegistry, editor) {
+    hintsRegistry.removeHints({ rdfaBlocks, scope: EDITOR_CARD_NAME });
 
     const cards = A();
     for (let block of rdfaBlocks) {
@@ -47,7 +50,7 @@ export default class RdfaEditorCitatenPlugin extends Service {
         if (this.hasApplicableContext(block)) {
           const matches = this.getMatches(block);
           for (const match of matches) {
-            const card = this.createCardForMatch(match,hintsRegistry, editor);
+            const card = this.createCardForMatch(match, hintsRegistry, editor);
             cards.pushObject(card);
           }
         }
@@ -66,12 +69,23 @@ export default class RdfaEditorCitatenPlugin extends Service {
    * @return {boolean} Whether a citation hint should be shown on the given snippet
    *
    * @private
-  */
+   */
   hasApplicableContext(snippet) {
     const triples = snippet.context;
-    if (triples.find(t => t.predicate == 'a' && DECISION_TYPES.includes(t.object)) // in decision context
-        && triples.any((s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering') // in motivation context
-        && ! triples.any((s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites')) { // not in another eli:cites context
+    if (
+      triples.find(
+        // in decision context
+        (t) => t.predicate == 'a' && DECISION_TYPES.includes(t.object)
+      ) &&
+      triples.some(
+        // in motivation context
+        (s) => s.predicate === 'http://data.vlaanderen.be/ns/besluit#motivering'
+      ) &&
+      !triples.some(
+        // not in another eli:cites context
+        (s) => s.predicate === 'http://data.europa.eu/eli/ontology#cites'
+      )
+    ) {
       const text = snippet.text ? snippet.text : '';
       return CITATION_REGEX.test(text);
     } else {
@@ -103,9 +117,10 @@ export default class RdfaEditorCitatenPlugin extends Service {
         words: words,
         type: match.type,
         location: match.location,
-        hintsRegistry, editor
+        hintsRegistry,
+        editor,
       },
-      card: EDITOR_CARD_NAME
+      card: EDITOR_CARD_NAME,
     });
     return card;
   }
@@ -126,11 +141,20 @@ export default class RdfaEditorCitatenPlugin extends Service {
        */
       const input = quickMatch[5] ? quickMatch[5] : quickMatch[3];
       const cleanedInput = cleanupText(input);
-      const words = cleanedInput.split(/[\s\u00A0]+/).filter(word => !isBlank(word) && word.length > 3 && !STOP_WORDS.includes(word));
+      const words = cleanedInput
+        .split(/[\s\u00A0]+/)
+        .filter(
+          (word) =>
+            !isBlank(word) && word.length > 3 && !STOP_WORDS.includes(word)
+        );
 
       const articleIndex = quickMatch[3].indexOf('artikel');
-      const matchingText = articleIndex >= 0 ? quickMatch[3].slice(0, articleIndex) : quickMatch[3];
-      const matchStartIndex = rdfaBlock.region[0] + rdfaBlock.text.indexOf(matchingText);
+      const matchingText =
+        articleIndex >= 0
+          ? quickMatch[3].slice(0, articleIndex)
+          : quickMatch[3];
+      const matchStartIndex =
+        rdfaBlock.region[0] + rdfaBlock.text.indexOf(matchingText);
 
       let typeLabel;
       let omitTypeLabel = false;
@@ -140,7 +164,8 @@ export default class RdfaEditorCitatenPlugin extends Service {
         if (matchingText.includes('grondwet')) {
           typeLabel = 'grondwet';
           omitTypeLabel = true;
-        } else { // default to 'decreet' if no type can be determined
+        } else {
+          // default to 'decreet' if no type can be determined
           typeLabel = 'decreet';
         }
       }
@@ -148,24 +173,28 @@ export default class RdfaEditorCitatenPlugin extends Service {
 
       matches.pushObject({
         text: matchingText,
-        location: [ matchStartIndex, matchStartIndex + matchingText.length ],
+        location: [matchStartIndex, matchStartIndex + matchingText.length],
         type: {
           uri: typeUri,
-          label: omitTypeLabel ? null : typeLabel
+          label: omitTypeLabel ? null : typeLabel,
         },
-        words
+        words,
       });
     }
     return matches;
   }
-
 }
 
 function cleanupText(text) {
   const { textWithoutDates } = extractDates(text);
-  const textWithoutOddChars = textWithoutDates.replace(new RegExp(`[,.:"()&${INVISIBLE_SPACE}]`,'g'),'');
+  const textWithoutOddChars = textWithoutDates.replace(
+    new RegExp(`[,.:"()&${INVISIBLE_SPACE}]`, 'g'),
+    ''
+  );
   const articleIndex = textWithoutOddChars.indexOf('artikel');
-  return articleIndex >= 0 ? textWithoutOddChars.slice(0, articleIndex) : textWithoutOddChars;
+  return articleIndex >= 0
+    ? textWithoutOddChars.slice(0, articleIndex)
+    : textWithoutOddChars;
 }
 
 function extractDates(text) {
@@ -176,9 +205,9 @@ function extractDates(text) {
   }
 
   let textWithoutDates = text;
-    for (let match of matches) {
-      textWithoutDates = textWithoutDates.replace(match[0],'');
-    }
+  for (let match of matches) {
+    textWithoutDates = textWithoutDates.replace(match[0], '');
+  }
 
   return { dates: matches, textWithoutDates };
 }
