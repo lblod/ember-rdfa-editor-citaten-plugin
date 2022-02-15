@@ -72,7 +72,7 @@
                   <label class="say-label say-u-hidden-visually" for="search-codex-datum-document-tot">Filter op datum document tot datum:</label>
                   <label class="say-input say-input--pre au-u-padding-top-tiny au-u-padding-bottom-tiny" aria-hidden="true" for="search-codex-datum-document-tot">tot</label>
                   <AuDatePicker
-                    @id="search-codex-datum-document-van"
+                    @id="search-codex-datum-document-tot"
                     @onChange={{this.updateDocumentDateTo}}
                     @value={{this.documentDateTo}}
                     @localization={{this.datePickerLocalization}}
@@ -85,7 +85,7 @@
                   <label class="say-label say-u-hidden-visually" for="search-codex-datum-staatsblad-van">Filter op datum staatsblad vanaf datum:</label>
                   <label class="say-input say-input--pre au-u-padding-top-tiny au-u-padding-bottom-tiny" aria-hidden="true" for="search-codex-datum-staatsblad-van">van</label>
                   <AuDatePicker
-                    @id="search-codex-datum-document-van"
+                    @id="search-codex-datum-staatsblad-van"
                     @onChange={{this.updatePublicationDateFrom}}
                     @value={{this.publicationDateFrom}}
                     @localization={{this.datePickerLocalization}}
@@ -95,7 +95,7 @@
                   <label class="say-label say-u-hidden-visually" for="search-codex-datum-staatsblad-tot">Filter op datum staatsblad tot datum:</label>
                   <label class="say-input say-input--pre au-u-padding-top-tiny au-u-padding-bottom-tiny" aria-hidden="true" for="search-codex-datum-staatsblad-tot">tot</label>
                   <AuDatePicker
-                    @id="search-codex-datum-document-van"
+                    @id="search-codex-datum-staatsblad-tot"
                     @onChange={{this.updatePublicationDateTo}}
                     @value={{this.publicationDateTo}}
                     @localization={{this.datePickerLocalization}}
