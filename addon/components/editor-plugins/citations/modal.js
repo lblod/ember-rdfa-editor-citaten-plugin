@@ -2,6 +2,8 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { task, timeout } from 'ember-concurrency';
+import { inject as service } from '@ember/service';
+
 import {
   LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
@@ -22,6 +24,7 @@ function getISODate(date) {
 }
 
 export default class EditorPluginsCitationsModalComponent extends Component {
+  @service intl;
   @tracked text;
   // Vlaamse Codex currently doesn't contain captions and content of decisions
   // @tracked isEnabledSearchCaption = false
@@ -37,6 +40,23 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   @tracked documentDateTo = null;
   @tracked publicationDateFrom = null;
   @tracked publicationDateTo = null;
+
+  get datePickerLocalization() {
+    return {
+      buttonLabel: this.intl.t('auDatePicker.buttonLabel'),
+      selectedDateMessage: this.intl.t('auDatePicker.selectedDateMessage'),
+      prevMonthLabel: this.intl.t('auDatePicker.prevMonthLabel'),
+      nextMonthLabel: this.intl.t('auDatePicker.nextMonthLabel'),
+      monthSelectLabel: this.intl.t('auDatePicker.monthSelectLabel'),
+      yearSelectLabel: this.intl.t('auDatePicker.yearSelectLabel'),
+      closeLabel: this.intl.t('auDatePicker.closeLabel'),
+      keyboardInstruction: this.intl.t('auDatePicker.keyboardInstruction'),
+      calendarHeading: this.intl.t('auDatePicker.calendarHeading'),
+      dayNames: getLocalizedDays(this.intl),
+      monthNames: getLocalizedMonths(this.intl),
+      monthNamesShort: getLocalizedMonths(this.intl, 'short'),
+    };
+  }
 
   constructor() {
     super(...arguments);
@@ -94,26 +114,27 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   }
 
   @action
-  updateDocumentDateFrom(dates) {
-    this.documentDateFrom = dates.firstObject || null;
+  updateDocumentDateFrom(isoDate, date) {
+    console.log(isoDate);
+    this.documentDateFrom = date;
     this.search.perform();
   }
 
   @action
-  updateDocumentDateTo(dates) {
-    this.documentDateTo = dates.firstObject || null;
+  updateDocumentDateTo(isoDate, date) {
+    this.documentDateTo = date;
     this.search.perform();
   }
 
   @action
-  updatePublicationDateFrom(dates) {
-    this.publicationDateFrom = dates.firstObject || null;
+  updatePublicationDateFrom(isoDate, date) {
+    this.publicationDateFrom = date;
     this.search.perform();
   }
 
   @action
-  updatePublicationDateTo(dates) {
-    this.publicationDateTo = dates.firstObject || null;
+  updatePublicationDateTo(isoDate, date) {
+    this.publicationDateTo = date;
     this.search.perform();
   }
 
@@ -176,4 +197,21 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   get isLastPage() {
     return this.rangeEnd == this.totalCount;
   }
+}
+
+function getLocalizedMonths(intl, monthFormat = 'long') {
+  let someYear = 2021;
+  return [...Array(12).keys()].map((monthIndex) => {
+    let date = new Date(someYear, monthIndex);
+    return intl.formatDate(date, { month: monthFormat });
+  });
+}
+
+function getLocalizedDays(intl, weekdayFormat = 'long') {
+  let someSunday = new Date('2021-01-03');
+  return [...Array(7).keys()].map((index) => {
+    let weekday = new Date(someSunday.getTime());
+    weekday.setDate(someSunday.getDate() + index);
+    return intl.formatDate(weekday, { weekday: weekdayFormat });
+  });
 }
