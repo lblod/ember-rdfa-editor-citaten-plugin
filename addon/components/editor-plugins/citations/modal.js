@@ -115,7 +115,6 @@ export default class EditorPluginsCitationsModalComponent extends Component {
 
   @action
   updateDocumentDateFrom(isoDate, date) {
-    console.log(isoDate);
     this.documentDateFrom = date;
     this.search.perform();
   }
