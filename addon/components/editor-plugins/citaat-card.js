@@ -6,7 +6,14 @@ import { action } from '@ember/object';
 import { LEGISLATION_TYPE_CONCEPTS } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/legislation-types';
 import { fetchDecisions } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/vlaamse-codex';
 
+import matchRegex from '../../utils/matchRegex';
+
 const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
+const DECISION_TYPES = [
+  'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',
+  'http://data.vlaanderen.be/ns/mandaat#AanstellingsBesluit',
+  'http://data.vlaanderen.be/ns/besluit#Besluit',
+];
 
 export default class CitaatCardComponent extends Component {
   @tracked pageNumber = 0;
@@ -15,16 +22,71 @@ export default class CitaatCardComponent extends Component {
   @tracked decisions = [];
   @tracked error;
   @tracked showModal = false;
+  @tracked showCard = false;
   @tracked decision;
   @tracked legislationTypeUri;
   @tracked text;
 
   constructor() {
     super(...arguments);
-    if (this.args.info?.words) {
+    this.args.controller.onEvent(
+      'contentChanged',
+      this.onContentChange.bind(this)
+    );
+    /*if (this.args.info?.words) {
       this.text = this.args.info.words.join(' ');
       this.legislationTypeUri = this.args.info.type?.uri;
       this.search.perform();
+    }*/
+  }
+
+  get controller() {
+    return this.args.controller;
+  }
+
+  onContentChange(event) {
+    console.log('content change');
+    const selectedRange = this.controller.selection.lastRange;
+    const rangeStore = this.controller.datastore.limitToRange(
+      selectedRange,
+      'rangeIsInside'
+    );
+    const besluitSubjectNodes = rangeStore
+      .match(null, 'a', null)
+      .transformDataset((dataset) => {
+        return dataset.filter((quad) =>
+          DECISION_TYPES.includes(quad.object.value)
+        );
+      })
+      .asSubjectNodes()
+      .next().value;
+    const besluit = [...besluitSubjectNodes.nodes][0];
+    console.log(besluit);
+    if (besluit) {
+      const insertedTextNode = event.payload.insertedNodes[0].parentNode;
+      const text = insertedTextNode.boundNode.innerText;
+      console.log(text);
+      const result = matchRegex(text);
+      if (result) {
+        this.controller.executeCommand(
+          'add-mark-to-range',
+          this.controller.rangeFactory.fromInElement(insertedTextNode),
+          'highlighted',
+          { setBy: 'citaten-plugin' }
+        );
+        this.showCard = true;
+        this.text = result.text;
+        this.legislationTypeUri = result.legislationTypeUri;
+        this.search.perform();
+      } else {
+        this.showCard = false;
+        this.controller.executeCommand(
+          'remove-mark-from-range',
+          this.controller.rangeFactory.fromInElement(insertedTextNode),
+          'highlighted',
+          { setBy: 'citaten-plugin' }
+        );
+      }
     }
   }
 
