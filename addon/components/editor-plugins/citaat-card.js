@@ -58,9 +58,12 @@ export default class CitaatCardComponent extends Component {
       }
     }
     if (selectionMark) {
+      this.showCard = true;
       this.text = selectionMark.attributes.text;
       this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
       this.search.perform();
+    } else {
+      this.showCard = false;
     }
   }
 
@@ -85,6 +88,7 @@ export default class CitaatCardComponent extends Component {
       .next().value;
     const besluit = [...besluitSubjectNodes.nodes][0];
     if (besluit) {
+      if (!event.payload.insertedNodes[0]) return;
       const insertedTextNode = event.payload.insertedNodes[0].parentNode;
       const text = insertedTextNode.boundNode.innerText;
       const result = matchRegex(text);
