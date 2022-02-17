@@ -45,21 +45,19 @@ export default class CitaatCardComponent extends Component {
   }
 
   onSelectionChanged() {
-    console.log('selectionChanged');
     const marks = this.controller.getMarksFor('citaten-plugin');
     const node =
       this.controller.selection.anchor &&
       this.controller.selection.anchor.parent;
     if (!node) return;
     let selectionMark;
-    console.log(node);
     for (let mark of marks) {
       if (mark.name === 'citaten' && mark.node.parent === node) {
         selectionMark = mark;
         break;
       }
     }
-    if(selectionMark) {
+    if (selectionMark) {
       this.text = selectionMark.attributes.text;
       this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
       this.search.perform();
@@ -71,7 +69,6 @@ export default class CitaatCardComponent extends Component {
   }
 
   onContentChange(event) {
-    console.log('content change');
     const selectedRange = this.controller.selection.lastRange;
     const rangeStore = this.controller.datastore.limitToRange(
       selectedRange,
@@ -87,11 +84,9 @@ export default class CitaatCardComponent extends Component {
       .asSubjectNodes()
       .next().value;
     const besluit = [...besluitSubjectNodes.nodes][0];
-    console.log(besluit);
     if (besluit) {
       const insertedTextNode = event.payload.insertedNodes[0].parentNode;
       const text = insertedTextNode.boundNode.innerText;
-      console.log(text);
       const result = matchRegex(text);
       if (result) {
         this.controller.executeCommand(
