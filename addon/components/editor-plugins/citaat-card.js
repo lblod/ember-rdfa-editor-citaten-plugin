@@ -33,11 +33,37 @@ export default class CitaatCardComponent extends Component {
       'contentChanged',
       this.onContentChange.bind(this)
     );
+    this.args.controller.onEvent(
+      'selectionChanged',
+      this.onSelectionChanged.bind(this)
+    );
     /*if (this.args.info?.words) {
       this.text = this.args.info.words.join(' ');
       this.legislationTypeUri = this.args.info.type?.uri;
       this.search.perform();
     }*/
+  }
+
+  onSelectionChanged() {
+    console.log('selectionChanged');
+    const marks = this.controller.getMarksFor('citaten-plugin');
+    const node =
+      this.controller.selection.anchor &&
+      this.controller.selection.anchor.parent;
+    if (!node) return;
+    let selectionMark;
+    console.log(node);
+    for (let mark of marks) {
+      if (mark.name === 'citaten' && mark.node.parent === node) {
+        selectionMark = mark;
+        break;
+      }
+    }
+    if(selectionMark) {
+      this.text = selectionMark.attributes.text;
+      this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+      this.search.perform();
+    }
   }
 
   get controller() {
@@ -72,7 +98,19 @@ export default class CitaatCardComponent extends Component {
           'add-mark-to-range',
           this.controller.rangeFactory.fromInElement(insertedTextNode),
           'highlighted',
-          { setBy: 'citaten-plugin' }
+          {
+            setBy: 'citaten-plugin',
+          }
+        );
+        this.controller.executeCommand(
+          'add-mark-to-range',
+          this.controller.rangeFactory.fromInElement(insertedTextNode),
+          'citaten',
+          {
+            setBy: 'citaten-plugin',
+            text: result.text,
+            legislationTypeUri: result.legislationTypeUri,
+          }
         );
         this.showCard = true;
         this.text = result.text;
