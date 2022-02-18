@@ -18,8 +18,6 @@ const LEGISLATION_TYPES = {
   wetboek: 'https://data.vlaanderen.be/id/concept/AardWetgeving/Wetboek',
   'gecoordineerde wetten':
     'https://data.vlaanderen.be/id/concept/AardWetgeving/GecoordineerdeWetten',
-  'gecoördineerde wetten':
-    'https://data.vlaanderen.be/id/concept/AardWetgeving/GecoordineerdeWetten',
   'bijzondere wet':
     'https://data.vlaanderen.be/id/concept/AardWetgeving/BijzondereWet',
   'genummerd koninklijk besluit':
