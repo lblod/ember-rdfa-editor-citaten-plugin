@@ -88,6 +88,17 @@ export default class CitaatCardComponent extends Component {
       .next().value;
     const besluit = [...besluitSubjectNodes.nodes][0];
     if (besluit) {
+      const motivering = rangeStore
+        .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering', null)
+        .asQuads()
+        .next().value;
+      const cites = rangeStore
+        .match(null, '>http://data.europa.eu/eli/ontology#cites', null)
+        .asQuads()
+        .next().value;
+      console.log(motivering);
+      console.log(cites);
+      if(!motivering || cites) return;
       if (!event.payload.insertedNodes[0]) return;
       const insertedTextNode = event.payload.insertedNodes[0].parentNode;
       const range =
