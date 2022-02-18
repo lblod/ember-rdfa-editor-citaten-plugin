@@ -90,7 +90,9 @@ export default class CitaatCardComponent extends Component {
     if (besluit) {
       if (!event.payload.insertedNodes[0]) return;
       const insertedTextNode = event.payload.insertedNodes[0].parentNode;
-      const text = insertedTextNode.boundNode.innerText;
+      const range =
+        this.controller.rangeFactory.fromAroundNode(insertedTextNode);
+      const text = range.getTextContentWithMapping().textContent;
       const result = matchRegex(text);
       if (result) {
         this.controller.executeCommand(
