@@ -90,11 +90,11 @@ export default class CitaatCardComponent extends Component {
     if (besluit) {
       const motivering = rangeStore
         .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering', null)
-        .asPredicateNodes()
+        .asQuads()
         .next().value;
       const cites = rangeStore
         .match(null, '>http://data.europa.eu/eli/ontology#cites', null)
-        .asPredicateNodes()
+        .asQuads()
         .next().value;
       console.log(motivering);
       console.log(cites);
