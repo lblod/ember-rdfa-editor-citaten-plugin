@@ -56,7 +56,7 @@ function extractDates(text) {
   let date;
   const matches = [];
   while ((date = DATE_REGEX.exec(text)) !== null) {
-    matches.pushObject(date);
+    matches.push(date);
   }
 
   let textWithoutDates = text;
