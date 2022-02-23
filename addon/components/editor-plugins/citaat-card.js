@@ -6,7 +6,14 @@ import { action } from '@ember/object';
 import { LEGISLATION_TYPE_CONCEPTS } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/legislation-types';
 import { fetchDecisions } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/vlaamse-codex';
 
-import matchRegex from '../../utils/matchRegex';
+import processMatch from '../../utils/processMatch';
+
+const BASIC_MULTIPLANE_CHARACTER = '\u0000-\u0019\u0021-\uFFFF'; // most of the characters used around the world
+
+const CITATION_REGEX = new RegExp(
+  `(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)(\\s+[\\s${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]{3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,
+  'uig'
+);
 
 const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
 const DECISION_TYPES = [
@@ -103,27 +110,36 @@ export default class CitaatCardComponent extends Component {
         if (!motivering || cites) return;
         const range =
           this.controller.rangeFactory.fromAroundNode(insertedTextNode);
-        const text = range.getTextContentWithMapping().textContent;
-        const result = matchRegex(text);
-        if (result) {
-          this.controller.executeCommand(
-            'add-mark-to-range',
-            this.controller.rangeFactory.fromInElement(insertedTextNode),
-            'highlighted',
-            {
-              setBy: 'citaten-plugin',
+        const matchs = this.controller.executeCommand(
+          'match-text',
+          range,
+          CITATION_REGEX
+        );
+        if (matchs && matchs.length) {
+          for (let match of matchs) {
+            const result = processMatch(match);
+            console.log(result);
+            if (result) {
+              this.controller.executeCommand(
+                'add-mark-to-range',
+                result.range,
+                'highlighted',
+                {
+                  setBy: 'citaten-plugin',
+                }
+              );
+              this.controller.executeCommand(
+                'add-mark-to-range',
+                result.range,
+                'citaten',
+                {
+                  setBy: 'citaten-plugin',
+                  text: result.text,
+                  legislationTypeUri: result.legislationTypeUri,
+                }
+              );
             }
-          );
-          this.controller.executeCommand(
-            'add-mark-to-range',
-            this.controller.rangeFactory.fromInElement(insertedTextNode),
-            'citaten',
-            {
-              setBy: 'citaten-plugin',
-              text: result.text,
-              legislationTypeUri: result.legislationTypeUri,
-            }
-          );
+          }
         } else {
           this.controller.executeCommand(
             'remove-mark-from-range',

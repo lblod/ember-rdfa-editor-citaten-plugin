@@ -2,19 +2,13 @@ import { LEGISLATION_TYPES } from './legislation-types';
 import { isBlank } from '@ember/utils';
 
 const STOP_WORDS = ['het', 'de', 'van', 'tot'];
-
-const BASIC_MULTIPLANE_CHARACTER = '\u0000-\u0019\u0021-\uFFFF'; // most of the characters used around the world
-const CITATION_REGEX = new RegExp(
-  `(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)(\\s+[\\s${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]{3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,
-  'uig'
-);
 const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})', 'g');
 const INVISIBLE_SPACE = '\u200B';
 
-export default function matchRegex(text) {
-  const quickMatch = CITATION_REGEX.exec(text);
+export default function processMatch(match) {
+  const quickMatch = match.groups;
   if (!quickMatch) return false;
-  const input = quickMatch[5] ? quickMatch[5] : quickMatch[3];
+  const input = quickMatch[4] ? quickMatch[4] : quickMatch[2];
   const cleanedInput = cleanupText(input);
   const words = cleanedInput
     .split(/[\s\u00A0]+/)
@@ -22,12 +16,12 @@ export default function matchRegex(text) {
       (word) => !isBlank(word) && word.length > 3 && !STOP_WORDS.includes(word)
     );
 
-  const articleIndex = quickMatch[3].indexOf('artikel');
+  const articleIndex = quickMatch[2].indexOf('artikel');
   const matchingText =
-    articleIndex >= 0 ? quickMatch[3].slice(0, articleIndex) : quickMatch[3];
+    articleIndex >= 0 ? quickMatch[2].slice(0, articleIndex) : quickMatch[2];
   let typeLabel;
-  if (quickMatch[4]) {
-    typeLabel = quickMatch[4].toLowerCase();
+  if (quickMatch[3]) {
+    typeLabel = quickMatch[3].toLowerCase();
   } else {
     if (matchingText.includes('grondwet')) {
       typeLabel = 'grondwet';
@@ -37,7 +31,11 @@ export default function matchRegex(text) {
     }
   }
   const typeUri = LEGISLATION_TYPES[typeLabel];
-  return { text: words.join(' '), legislationTypeUri: typeUri };
+  return {
+    text: words.join(' '),
+    legislationTypeUri: typeUri,
+    range: match.range,
+  };
 }
 
 function cleanupText(text) {
