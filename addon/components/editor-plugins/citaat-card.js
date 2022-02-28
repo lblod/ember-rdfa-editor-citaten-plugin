@@ -33,6 +33,7 @@ export default class CitaatCardComponent extends Component {
   @tracked decision;
   @tracked legislationTypeUri;
   @tracked text;
+  @tracked markSelected;
 
   constructor() {
     super(...arguments);
@@ -44,11 +45,6 @@ export default class CitaatCardComponent extends Component {
       'selectionChanged',
       this.onSelectionChanged.bind(this)
     );
-    /*if (this.args.info?.words) {
-      this.text = this.args.info.words.join(' ');
-      this.legislationTypeUri = this.args.info.type?.uri;
-      this.search.perform();
-    }*/
   }
 
   onSelectionChanged() {
@@ -68,6 +64,7 @@ export default class CitaatCardComponent extends Component {
       this.showCard = true;
       this.text = selectionMark.attributes.text;
       this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+      this.markSelected = selectionMark;
       this.search.perform();
     } else {
       this.showCard = false;
@@ -81,7 +78,8 @@ export default class CitaatCardComponent extends Component {
   onContentChange(event) {
     const insertedNodes = event.payload.insertedNodes;
     for (let node of insertedNodes) {
-      const insertedTextNode = node.parentNode;
+      const insertedTextNode =
+        node.modelNodeType === 'ELEMENT' ? node : node.parentNode;
       const selectedRange =
         this.controller.rangeFactory.fromInElement(insertedTextNode);
       const rangeStore = this.controller.datastore.limitToRange(
@@ -108,8 +106,11 @@ export default class CitaatCardComponent extends Component {
           .asQuads()
           .next().value;
         if (!motivering || cites) return;
-        const range =
-          this.controller.rangeFactory.fromAroundNode(insertedTextNode);
+        const range = this.controller.rangeFactory.fromInElement(
+          insertedTextNode,
+          0,
+          insertedTextNode.getMaxOffset()
+        );
         const matchs = this.controller.executeCommand(
           'match-text',
           range,
@@ -118,7 +119,6 @@ export default class CitaatCardComponent extends Component {
         if (matchs && matchs.length) {
           for (let match of matchs) {
             const result = processMatch(match);
-            console.log(result);
             if (result) {
               this.controller.executeCommand(
                 'add-mark-to-range',
@@ -145,6 +145,12 @@ export default class CitaatCardComponent extends Component {
             'remove-mark-from-range',
             this.controller.rangeFactory.fromInElement(insertedTextNode),
             'highlighted',
+            { setBy: 'citaten-plugin' }
+          );
+          this.controller.executeCommand(
+            'remove-mark-from-range',
+            this.controller.rangeFactory.fromInElement(insertedTextNode),
+            'citaten',
             { setBy: 'citaten-plugin' }
           );
         }
@@ -214,15 +220,22 @@ export default class CitaatCardComponent extends Component {
 
   @action
   insertCitation(type, uri, title) {
-    this.hintsRegistry.removeHints({
-      region: this.location,
-      scope: EDITOR_CARD_NAME,
+    const range = this.controller.rangeFactory.fromAroundNode(
+      this.markSelected.node
+    );
+    this.controller.executeCommand(
+      'remove-mark-from-range',
+      range,
+      'highlighted',
+      { setBy: 'citaten-plugin' }
+    );
+    this.controller.executeCommand('remove-mark-from-range', range, 'citaten', {
+      setBy: 'citaten-plugin',
     });
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
-    const range = this.editor.createModelRangeFromTextRegion(this.location);
-    this.editor.executeCommand('insert-html', citationHtml, range);
+    this.controller.executeCommand('insert-html', citationHtml, range);
   }
 
   @action
@@ -235,18 +248,6 @@ export default class CitaatCardComponent extends Component {
   nextPage() {
     this.pageNumber = this.pageNumber + 1;
     this.search.perform();
-  }
-
-  get editor() {
-    return this.args.info.editor;
-  }
-
-  get hintsRegistry() {
-    return this.args.info.hintsRegistry;
-  }
-
-  get location() {
-    return this.args.info.location;
   }
 
   get legislationType() {
