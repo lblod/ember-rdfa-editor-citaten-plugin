@@ -1,4 +1,14 @@
 
+## 0.14.1 (2022-03-18)
+
+#### :bug: Bug Fix
+* [#23](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/23) Fix pre labels ([@Dietr](https://github.com/Dietr))
+* [#20](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/20) Explicit import of the debug component ([@benjay10](https://github.com/benjay10))
+
+#### Committers: 2
+- Ben ([@benjay10](https://github.com/benjay10))
+- Dieter Peirs ([@Dietr](https://github.com/Dietr))
+
 ## 0.14.0 (2022-02-15)
 
 #### :rocket: Enhancement
