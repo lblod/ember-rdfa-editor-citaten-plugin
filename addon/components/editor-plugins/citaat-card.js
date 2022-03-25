@@ -3,15 +3,15 @@ import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency-decorators';
 import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
-import { LEGISLATION_TYPE_CONCEPTS } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/legislation-types';
-import { fetchDecisions } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/vlaamse-codex';
-
 import processMatch from '../../utils/processMatch';
+import { fetchDecisions } from '../../utils/vlaamse-codex';
+import { LEGISLATION_TYPE_CONCEPTS } from '../../utils/legislation-types';
 
-const BASIC_MULTIPLANE_CHARACTER = '\u0000-\u0019\u0021-\uFFFF'; // most of the characters used around the world
+const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
 
+const NNWS = '[^\\S\\n]';
 const CITATION_REGEX = new RegExp(
-  `(gelet\\sop)?\\s?(het|de)?\\s?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*\\s?wetboek|protocol|besluit\\svan\\sde\\svlaamse\\sregering|geco[öo]rdineerde wetten|[a-z]*\\s?wet|[a-z]+\\s?besluit)(\\s+[\\s${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]{3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,
+  `(gelet${NNWS}op)?${NNWS}?(het|de)?${NNWS}?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*${NNWS}?wetboek|protocol|besluit${NNWS}van${NNWS}de${NNWS}vlaamse${NNWS}regering|geco[öo]rdineerde wetten|[a-z]*${NNWS}?wet|[a-z]+${NNWS}?besluit)(${NNWS}+(${NNWS}|[${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]){3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,
   'uig'
 );
 
@@ -34,28 +34,53 @@ export default class CitaatCardComponent extends Component {
   @tracked legislationTypeUri;
   @tracked text;
   @tracked markSelected;
+  liveHighlights;
 
   constructor() {
     super(...arguments);
-    this.args.controller.onEvent(
-      'contentChanged',
-      this.onContentChange.bind(this)
-    );
-    this.args.controller.onEvent(
+    this.liveHighlights = this.args.controller.createLiveMarkSet({
+      datastoreQuery: (datastore) => {
+        const matches = datastore
+          .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
+          .searchTextIn('predicate', CITATION_REGEX);
+        const resultMatches = matches.filter((match) => {
+          return (
+            datastore
+              .limitToRange(match.range, 'rangeTouches')
+              .match(null, '>http://data.europa.eu/eli/ontology#cites').size ===
+            0
+          );
+        });
+        console.log('RESULT', resultMatches);
+        return resultMatches;
+      },
+
+      liveMarkSpecs: [
+        {
+          name: 'citaten',
+          attributesBuilder: (textMatch) => {
+            const result = processMatch(textMatch);
+
+            return {
+              setby: 'citaten-plugin',
+              text: result.text,
+              legislationTypeUri: result.legislationTypeUri,
+            };
+          },
+        },
+      ],
+    });
+    this.controller.onEvent(
       'selectionChanged',
       this.onSelectionChanged.bind(this)
     );
   }
 
   onSelectionChanged() {
-    const marks = this.controller.getMarksFor('citaten-plugin');
-    const node =
-      this.controller.selection.anchor &&
-      this.controller.selection.anchor.parent;
-    if (!node) return;
+    const marks = this.controller.selection.lastRange.getMarks();
     let selectionMark;
     for (let mark of marks) {
-      if (mark.name === 'citaten' && mark.node.parent === node) {
+      if (mark.name === 'citaten') {
         selectionMark = mark;
         break;
       }
@@ -73,89 +98,6 @@ export default class CitaatCardComponent extends Component {
 
   get controller() {
     return this.args.controller;
-  }
-
-  onContentChange(event) {
-    const insertedNodes = event.payload.insertedNodes;
-    for (let node of insertedNodes) {
-      const insertedTextNode =
-        node.modelNodeType === 'ELEMENT' ? node : node.parentNode;
-      const selectedRange =
-        this.controller.rangeFactory.fromInElement(insertedTextNode);
-      const rangeStore = this.controller.datastore.limitToRange(
-        selectedRange,
-        'rangeIsInside'
-      );
-      const besluitSubjectNodes = rangeStore
-        .match(null, 'a', null)
-        .transformDataset((dataset) => {
-          return dataset.filter((quad) =>
-            DECISION_TYPES.includes(quad.object.value)
-          );
-        })
-        .asSubjectNodes()
-        .next().value;
-      const besluit = [...besluitSubjectNodes.nodes][0];
-      if (besluit) {
-        const motivering = rangeStore
-          .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering', null)
-          .asQuads()
-          .next().value;
-        const cites = rangeStore
-          .match(null, '>http://data.europa.eu/eli/ontology#cites', null)
-          .asQuads()
-          .next().value;
-        if (!motivering || cites) return;
-        const range = this.controller.rangeFactory.fromInElement(
-          insertedTextNode,
-          0,
-          insertedTextNode.getMaxOffset()
-        );
-        const matchs = this.controller.executeCommand(
-          'match-text',
-          range,
-          CITATION_REGEX
-        );
-        if (matchs && matchs.length) {
-          for (let match of matchs) {
-            const result = processMatch(match);
-            if (result) {
-              this.controller.executeCommand(
-                'add-mark-to-range',
-                result.range,
-                'highlighted',
-                {
-                  setBy: 'citaten-plugin',
-                }
-              );
-              this.controller.executeCommand(
-                'add-mark-to-range',
-                result.range,
-                'citaten',
-                {
-                  setBy: 'citaten-plugin',
-                  text: result.text,
-                  legislationTypeUri: result.legislationTypeUri,
-                }
-              );
-            }
-          }
-        } else {
-          this.controller.executeCommand(
-            'remove-mark-from-range',
-            this.controller.rangeFactory.fromInElement(insertedTextNode),
-            'highlighted',
-            { setBy: 'citaten-plugin' }
-          );
-          this.controller.executeCommand(
-            'remove-mark-from-range',
-            this.controller.rangeFactory.fromInElement(insertedTextNode),
-            'citaten',
-            { setBy: 'citaten-plugin' }
-          );
-        }
-      }
-    }
   }
 
   get legislationTypes() {
@@ -256,5 +198,10 @@ export default class CitaatCardComponent extends Component {
     );
     if (type) return type.label;
     else return '';
+  }
+
+  willDestroy() {
+    super.willDestroy();
+    this.liveHighlights.destroy();
   }
 }
