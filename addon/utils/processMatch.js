@@ -21,17 +21,15 @@ export default function processMatch(match) {
     articleIndex >= 0 ? quickMatch[2].slice(0, articleIndex) : quickMatch[2];
   let typeLabel;
   if (quickMatch[3]) {
-    if (quickMatch[3].toLowerCase().startsWith("gecoordineerde wetten")) {
-      typeLabel="gecoördineerde wetten";
-    }
-    else {
+    if (quickMatch[3].toLowerCase().startsWith('gecoordineerde wetten')) {
+      typeLabel = 'gecoördineerde wetten';
+    } else {
       typeLabel = quickMatch[3].toLowerCase().trim();
     }
   } else {
     if (matchingText.includes('grondwet')) {
       typeLabel = 'grondwet';
-    }
-    else {
+    } else {
       // default to 'decreet' if no type can be determined
       typeLabel = 'decreet';
     }
