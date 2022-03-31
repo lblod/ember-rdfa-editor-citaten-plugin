@@ -161,17 +161,6 @@ export default class CitaatCardComponent extends Component {
     const range = this.controller.rangeFactory.fromAroundNode(
       this.markSelected.node
     );
-    this.controller.executeCommand('remove-mark-from-range', {
-      ranges: [range],
-      markConfigs: [
-        {
-          name: 'citaten',
-          attributes: {
-            setBy: 'citaten-plugin',
-          },
-        },
-      ],
-    });
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
