@@ -25,3 +25,7 @@ steps:
 trigger:
   event:
     - tag
+---
+kind: secret
+name: npm_access_token
+data: P69W9Ln4k9/82yP1oLB/vuqid3XV4ZsbmRS1AfGvQ+q9eZ52PQdBYg4jg1/BmWCwXwjX8nIQPEs1caKHg40Q3rC4jJU=
