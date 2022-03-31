@@ -15,13 +15,6 @@ const CITATION_REGEX = new RegExp(
   'uig'
 );
 
-const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
-const DECISION_TYPES = [
-  'http://data.vlaanderen.be/ns/mandaat#OntslagBesluit',
-  'http://data.vlaanderen.be/ns/mandaat#AanstellingsBesluit',
-  'http://data.vlaanderen.be/ns/besluit#Besluit',
-];
-
 export default class CitaatCardComponent extends Component {
   @tracked pageNumber = 0;
   @tracked pageSize = 5;
