@@ -24,7 +24,6 @@ const citatenMarkSpec = {
         attributes: {
           'data-citaten-text': mark.attributes.text,
           'data-legislation-type-uri': mark.attributes.legislationTypeUri,
-          'data-editor-highlight': true,
         },
       },
       [0],

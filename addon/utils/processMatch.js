@@ -6,7 +6,6 @@ const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})', 'g');
 const INVISIBLE_SPACE = '\u200B';
 
 export default function processMatch(match) {
-  console.log("PROCESSING", match)
   const quickMatch = match.groups;
   if (!quickMatch) return false;
   const input = quickMatch[4] ? quickMatch[4] : quickMatch[2];
@@ -31,7 +30,6 @@ export default function processMatch(match) {
       typeLabel = 'decreet';
     }
   }
-  console.log("FOUND TYPELABEL", typeLabel);
   const typeUri = LEGISLATION_TYPES[typeLabel];
   return {
     text: words.join(' '),

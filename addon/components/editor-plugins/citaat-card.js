@@ -46,12 +46,14 @@ export default class CitaatCardComponent extends Component {
         const resultMatches = matches.filter((match) => {
           return (
             datastore
-              .limitToRange(match.range, 'rangeTouches')
+              .limitToRange(match.range, {
+                type: 'rangeTouches',
+                includeEndTags: true,
+              })
               .match(null, '>http://data.europa.eu/eli/ontology#cites').size ===
             0
           );
         });
-        console.log('RESULT', resultMatches);
         return resultMatches;
       },
 
@@ -62,12 +64,13 @@ export default class CitaatCardComponent extends Component {
             const result = processMatch(textMatch);
 
             return {
-              setby: 'citaten-plugin',
+              setBy: 'citaten-plugin',
               text: result.text,
               legislationTypeUri: result.legislationTypeUri,
             };
           },
         },
+        'highlighted',
       ],
     });
     this.controller.onEvent(
@@ -165,14 +168,16 @@ export default class CitaatCardComponent extends Component {
     const range = this.controller.rangeFactory.fromAroundNode(
       this.markSelected.node
     );
-    this.controller.executeCommand(
-      'remove-mark-from-range',
-      range,
-      'highlighted',
-      { setBy: 'citaten-plugin' }
-    );
-    this.controller.executeCommand('remove-mark-from-range', range, 'citaten', {
-      setBy: 'citaten-plugin',
+    this.controller.executeCommand('remove-mark-from-range', {
+      ranges: [range],
+      markConfigs: [
+        {
+          name: 'citaten',
+          attributes: {
+            setBy: 'citaten-plugin',
+          },
+        },
+      ],
     });
     const citationHtml = `${
       type ? type : ''
