@@ -1,4 +1,19 @@
 
+
+## 0.15.0 (2022-04-07)
+
+#### :rocket: Enhancement
+* [#21](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/21) Enhacement/use editor api ([@lagartoverde](https://github.com/lagartoverde))
+* [#22](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/22) Enhancement/trigger with more context ([@lagartoverde](https://github.com/lagartoverde))
+
+#### :bug: Bug Fix
+* [#24](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/24) Added ember-concurrency as a peerDependency ([@benjay10](https://github.com/benjay10))
+
+#### Committers: 2
+- Ben ([@benjay10](https://github.com/benjay10))
+- Oscar Rodriguez Villalobos ([@lagartoverde](https://github.com/lagartoverde))
+
+
 ## 0.14.1 (2022-03-18)
 
 #### :bug: Bug Fix
