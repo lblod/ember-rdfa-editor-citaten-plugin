@@ -8,7 +8,7 @@ const INVISIBLE_SPACE = '\u200B';
 export default function processMatch(match) {
   const quickMatch = match.groups;
   if (!quickMatch) return false;
-  const input = quickMatch[4] ? quickMatch[4] : quickMatch[2];
+  const input = quickMatch[5] ? quickMatch[5] : quickMatch[3];
   const cleanedInput = cleanupText(input);
   const words = cleanedInput
     .split(/[\s\u00A0]+/)
@@ -16,12 +16,12 @@ export default function processMatch(match) {
       (word) => !isBlank(word) && word.length > 3 && !STOP_WORDS.includes(word)
     );
 
-  const articleIndex = quickMatch[2].indexOf('artikel');
+  const articleIndex = quickMatch[3].indexOf('artikel');
   const matchingText =
-    articleIndex >= 0 ? quickMatch[2].slice(0, articleIndex) : quickMatch[2];
+    articleIndex >= 0 ? quickMatch[3].slice(0, articleIndex) : quickMatch[3];
   let typeLabel;
-  if (quickMatch[3]) {
-    if (quickMatch[3].toLowerCase().startsWith('gecoordineerde wetten')) {
+  if (quickMatch[4]) {
+    if (quickMatch[4].toLowerCase().startsWith('gecoordineerde wetten')) {
       typeLabel = 'gecoördineerde wetten';
     } else {
       typeLabel = quickMatch[3].toLowerCase().trim();
@@ -38,7 +38,7 @@ export default function processMatch(match) {
   return {
     text: words.join(' '),
     legislationTypeUri: typeUri,
-    range: match.range,
+    range: match.groupRanges[3],
   };
 }
 

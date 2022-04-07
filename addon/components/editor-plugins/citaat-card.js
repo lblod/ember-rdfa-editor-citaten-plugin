@@ -37,6 +37,7 @@ export default class CitaatCardComponent extends Component {
           .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
           .searchTextIn('predicate', CITATION_REGEX);
         const resultMatches = matches.filter((match) => {
+          console.log('MATCH', match);
           return (
             datastore
               .limitToRange(match.range, {
@@ -47,6 +48,7 @@ export default class CitaatCardComponent extends Component {
             0
           );
         });
+        resultMatches.forEach((match) => (match.range = match.groupRanges[3]));
         return resultMatches;
       },
 
