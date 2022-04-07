@@ -1,5 +1,15 @@
 
 
+
+## 0.16.0 (2022-04-07)
+
+#### :bug: Bug Fix
+* [#26](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/26) Use the correct capture group range for highlighting ([@abeforgit](https://github.com/abeforgit))
+
+#### Committers: 1
+- Arne Bertrand ([@abeforgit](https://github.com/abeforgit))
+
+
 ## 0.15.0 (2022-04-07)
 
 #### :rocket: Enhancement
