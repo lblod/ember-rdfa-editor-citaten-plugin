@@ -16,8 +16,6 @@ const LEGISLATION_TYPES = {
   samenwerkingsakkoord:
     'https://data.vlaanderen.be/id/concept/AardWetgeving/Samenwerkingsakkoord',
   wetboek: 'https://data.vlaanderen.be/id/concept/AardWetgeving/Wetboek',
-  'gecoordineerde wetten':
-    'https://data.vlaanderen.be/id/concept/AardWetgeving/GecoordineerdeWetten',
   'gecoördineerde wetten':
     'https://data.vlaanderen.be/id/concept/AardWetgeving/GecoordineerdeWetten',
   'bijzondere wet':

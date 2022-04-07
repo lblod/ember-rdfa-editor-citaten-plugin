@@ -3,10 +3,17 @@ import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency-decorators';
 import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
-import { LEGISLATION_TYPE_CONCEPTS } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/legislation-types';
-import { fetchDecisions } from '@lblod/ember-rdfa-editor-citaten-plugin/utils/vlaamse-codex';
+import processMatch from '../../utils/processMatch';
+import { fetchDecisions } from '../../utils/vlaamse-codex';
+import { LEGISLATION_TYPE_CONCEPTS } from '../../utils/legislation-types';
 
-const EDITOR_CARD_NAME = 'editor-plugins/citaat-card';
+const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
+
+const NNWS = '[^\\S\\n]';
+const CITATION_REGEX = new RegExp(
+  `(gelet${NNWS}op)?${NNWS}?(het|de)?${NNWS}?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*${NNWS}?wetboek|protocol|besluit${NNWS}van${NNWS}de${NNWS}vlaamse${NNWS}regering|geco[öo]rdineerde wetten|[a-z]*${NNWS}?wet|[a-z]+${NNWS}?besluit)(${NNWS}+(${NNWS}|[${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]){3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,
+  'uig'
+);
 
 export default class CitaatCardComponent extends Component {
   @tracked pageNumber = 0;
@@ -15,17 +22,78 @@ export default class CitaatCardComponent extends Component {
   @tracked decisions = [];
   @tracked error;
   @tracked showModal = false;
+  @tracked showCard = false;
   @tracked decision;
   @tracked legislationTypeUri;
   @tracked text;
+  @tracked markSelected;
+  liveHighlights;
 
   constructor() {
     super(...arguments);
-    if (this.args.info?.words) {
-      this.text = this.args.info.words.join(' ');
-      this.legislationTypeUri = this.args.info.type?.uri;
-      this.search.perform();
+    this.liveHighlights = this.args.controller.createLiveMarkSet({
+      datastoreQuery: (datastore) => {
+        const matches = datastore
+          .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
+          .searchTextIn('predicate', CITATION_REGEX);
+        const resultMatches = matches.filter((match) => {
+          return (
+            datastore
+              .limitToRange(match.range, {
+                type: 'rangeTouches',
+                includeEndTags: true,
+              })
+              .match(null, '>http://data.europa.eu/eli/ontology#cites').size ===
+            0
+          );
+        });
+        return resultMatches;
+      },
+
+      liveMarkSpecs: [
+        {
+          name: 'citaten',
+          attributesBuilder: (textMatch) => {
+            const result = processMatch(textMatch);
+
+            return {
+              setBy: 'citaten-plugin',
+              text: result.text,
+              legislationTypeUri: result.legislationTypeUri,
+            };
+          },
+        },
+        'highlighted',
+      ],
+    });
+    this.controller.onEvent(
+      'selectionChanged',
+      this.onSelectionChanged.bind(this)
+    );
+  }
+
+  onSelectionChanged() {
+    const marks = this.controller.selection.lastRange.getMarks();
+    let selectionMark;
+    for (let mark of marks) {
+      if (mark.name === 'citaten') {
+        selectionMark = mark;
+        break;
+      }
     }
+    if (selectionMark) {
+      this.showCard = true;
+      this.text = selectionMark.attributes.text;
+      this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+      this.markSelected = selectionMark;
+      this.search.perform();
+    } else {
+      this.showCard = false;
+    }
+  }
+
+  get controller() {
+    return this.args.controller;
   }
 
   get legislationTypes() {
@@ -90,15 +158,13 @@ export default class CitaatCardComponent extends Component {
 
   @action
   insertCitation(type, uri, title) {
-    this.hintsRegistry.removeHints({
-      region: this.location,
-      scope: EDITOR_CARD_NAME,
-    });
+    const range = this.controller.rangeFactory.fromAroundNode(
+      this.markSelected.node
+    );
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
-    const range = this.editor.createModelRangeFromTextRegion(this.location);
-    this.editor.executeCommand('insert-html', citationHtml, range);
+    this.controller.executeCommand('insert-html', citationHtml, range);
   }
 
   @action
@@ -113,23 +179,16 @@ export default class CitaatCardComponent extends Component {
     this.search.perform();
   }
 
-  get editor() {
-    return this.args.info.editor;
-  }
-
-  get hintsRegistry() {
-    return this.args.info.hintsRegistry;
-  }
-
-  get location() {
-    return this.args.info.location;
-  }
-
   get legislationType() {
     const type = this.legislationTypes.find(
       (type) => type.value === this.legislationTypeUri
     );
     if (type) return type.label;
     else return '';
+  }
+
+  willDestroy() {
+    super.willDestroy();
+    this.liveHighlights.destroy();
   }
 }

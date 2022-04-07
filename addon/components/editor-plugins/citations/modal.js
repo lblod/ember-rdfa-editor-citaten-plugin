@@ -63,7 +63,7 @@ export default class EditorPluginsCitationsModalComponent extends Component {
     this.selectedDecision = this.args.selectedDecision;
     this.legislationTypeUri =
       this.args.legislationTypeUri || LEGISLATION_TYPES['decreet'];
-    this.text = (this.args.words || []).join(' ');
+    this.text = this.args.text;
     this.search.perform();
   }
 

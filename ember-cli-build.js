@@ -7,10 +7,6 @@ module.exports = function (defaults) {
     // Add options here
     sassOptions: {
       sourceMapEmbed: true,
-      includePaths: [
-        'node_modules/@appuniversum/appuniversum',
-        'node_modules/@appuniversum/ember-appuniversum/app/styles',
-      ],
     },
   });
 
