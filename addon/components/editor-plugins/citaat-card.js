@@ -47,6 +47,7 @@ export default class CitaatCardComponent extends Component {
             0
           );
         });
+        resultMatches.forEach((match) => (match.range = match.groupRanges[3]));
         return resultMatches;
       },
 
