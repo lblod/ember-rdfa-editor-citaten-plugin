@@ -24,7 +24,7 @@ export default function processMatch(match) {
     if (quickMatch[4].toLowerCase().startsWith('gecoordineerde wetten')) {
       typeLabel = 'gecoördineerde wetten';
     } else {
-      typeLabel = quickMatch[3].toLowerCase().trim();
+      typeLabel = quickMatch[4].toLowerCase().trim();
     }
   } else {
     if (matchingText.includes('grondwet')) {
