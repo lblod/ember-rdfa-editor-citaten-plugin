@@ -3,9 +3,10 @@ import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency-decorators';
 import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
+import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
 import { fetchDecisions } from '../../utils/vlaamse-codex';
-import { LEGISLATION_TYPE_CONCEPTS } from '../../utils/legislation-types';
+import { LEGISLATION_TYPES, LEGISLATION_TYPE_CONCEPTS } from '../../utils/legislation-types';
 
 const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
 
@@ -97,8 +98,17 @@ export default class CitaatCardComponent extends Component {
     return this.args.controller;
   }
 
+  //TODO clean up duplicates
   get legislationTypes() {
     return LEGISLATION_TYPE_CONCEPTS;
+  }
+  get legislationTypes2() {
+    return Object.keys(LEGISLATION_TYPES).map(capitalize);
+  }
+
+  get legislationSelected() {
+    const found = LEGISLATION_TYPE_CONCEPTS.find((c) => c.value === this.legislationTypeUri);
+    return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
   }
 
   @task({ restartable: true })
@@ -127,10 +137,17 @@ export default class CitaatCardComponent extends Component {
     }
   }
 
+  //TODO
   @action
   selectLegislationType(event) {
     this.legislationTypeUri = event.target.value;
     this.search.perform();
+  }
+  @action
+  selectLegislationType2(type) {
+    type = type.toLowerCase();
+    const found = LEGISLATION_TYPE_CONCEPTS.find((c) => c.label.toLowerCase() === type);
+    this.legislationTypeUri = (found ? found.value : LEGISLATION_TYPE_CONCEPTS[0].value);
   }
 
   @task({ restartable: true })

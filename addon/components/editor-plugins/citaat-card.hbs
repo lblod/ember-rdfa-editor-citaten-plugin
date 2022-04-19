@@ -1,81 +1,84 @@
 {{#if this.showCard}}
-  <article class="say-card">
-    <header class="say-card__header">
-      <h2 class="say-card__title">Voeg verwijzing toe:</h2>
-    </header>
-    <div class="say-card__content say-card__content--padding say-card__content--tint say-card__content--fixed">
-      <form class="say-form">
-        <fieldset class="say-form__fieldset">
-          <div class="say-form__row">
-            <label class="say-label say-label--block" for="search-codex-type">Type document</label>
-            <select class="say-input say-input--select" name="" id="search-codex-type" {{on "change" this.selectLegislationType}}>
-              {{#each this.legislationTypes as |type|}}
-                <option value={{type.value}} selected={{eq this.legislationTypeUri type.value}}>{{capitalize type.label}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="say-form__row">
-            <label class="say-label say-label--block" for="search-codex">Zoekterm</label>
-            <Input class="say-input say-input--search say-input--block" @type="text" name="" id="search-codex" @value={{this.text}} {{on "keyup" (perform this.updateSearch)}} />
-          </div>
-          <div class="say-form__row">
-            <button type="button" {{on "click" this.openSearchModal}} class="say-button say-button--tertiary">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--left" aria-hidden="true">
-                <path d="M21.701 20.301l-5.4-5.4a7.88 7.88 0 001.7-4.9 8.27 8.27 0 00-2.3-5.7 8.21 8.21 0 00-11.4 0 8.21 8.21 0 000 11.4 8.27 8.27 0 005.7 2.3 7.88 7.88 0 004.9-1.7l5.4 5.4 1.4-1.4zm-11.7-4.3a5.6 5.6 0 01-4.2-1.8 5.6 5.6 0 01-1.8-4.2 5.6 5.6 0 011.8-4.2 5.6 5.6 0 014.2-1.8 5.6 5.6 0 014.2 1.8 5.6 5.6 0 011.8 4.2 5.6 5.6 0 01-1.8 4.2 5.6 5.6 0 01-4.2 1.8z" class="Vector"></path>
-              </svg>
-              Uitgebreid zoeken
-            </button>
-          </div>
-        </fieldset>
-      </form>
-    </div>
-    {{#if this.search.isRunning}}
-      <div class="say-card__content say-card__content--padding say-card__content--fixed">
-        <p class="say-loader"><span class="say-u-hidden-visually">Aan het zoeken</span></p>
-      </div>
-    {{else}}
-      {{#if this.error}}
-        <div class="say-card__content say-card__content--fixed">
-          <div class="say-card__info">
+  <AuCard @flex={{true}} @divided={{true}} @isOpenInitially={{true}} @expandable={{true}} @shadow={{true}} @size="small" as |c|>
+    <c.header>
+      <AuHeading @level="3" @skin="6">
+        Voeg verwijzing toe:
+      </AuHeading>
+    </c.header>
+    <c.content>
+      <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Type document</AuLabel>
+      <PowerSelect
+        id="typeofdocument"
+        @allowClear={{false}}
+        @disabled={{false}}
+        @searchEnabled={{true}}
+        @loadingMessage="Laden..."
+        @noMatchesMessage="Geen resultaten gevonden"
+        @searchMessage="Typ om te zoeken"
+        @options={{this.legislationTypes2}}
+        @selected={{this.legislationSelected}}
+        @onChange={{this.selectLegislationType2}}
+        as |type|>
+        {{type}}
+      </PowerSelect>
+      <AuLabel for="searchterm" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Zoekterm</AuLabel>
+      <AuInput id="searchterm" @type="text" @width="block" @icon="search" @iconAlignment="right" @value={{this.text}} {{on "keyup" (perform this.updateSearch)}}/>
+      <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>Uitgebreid zoeken</AuButton>
+
+      {{#if this.search.isRunning}}
+        <AuLoader /><span class="au-u-hidden-visually">Aan het zoeken</span>
+      {{else}}
+        {{#if this.error}}
+          <AuAlert
+            @alertTitle="Probleem bij het laden"
+            @alertSkin="error"
+            @alertIcon="alert-triangle"
+            @alertSize="small"
+            @closable={{false}} >
             <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
             <code>{{this.error}}</code>
+            <p>Moest dit probleem aanhouden, neem contact op met <AuLinkExternal href="mailto:Gelinkt-Notuleren@vlaanderen.be" @icon="mail">Gelinkt-Notuleren@vlaanderen.be</AuLinkExternal>.</p>
+          </AuAlert>
+        {{else}}
+          <AuHeading @skin="4" @level="4">Suggesties</AuHeading>
+          <div class="citaten--decision-list au-u-flex au-u-flex--column">
+            {{#each this.decisions as |decision|}}
+              <div class="citaten--decision-list-item">
+                <div class="citaten--decision-title">
+                  {{decision.title}}
+                </div>
+                <div class="au-u-flex au-u-flex--row au-u-flex--no-wrap au-u-flex--between au-u-margin-top-tiny">
+                  <AuButton
+                    @skin="link-secondary"
+                    @icon="plus-text"
+                    @iconAlignment="left"
+                    {{on "click" (fn this.insertCitation this.legislationType decision.uri decision.title)}}>
+                    Citaat invoegen
+                  </AuButton>
+                  <AuButton
+                    @skin="link"
+                    @icon="manual"
+                    @iconAlignment="left"
+                    {{on "click" (fn this.openDecisionDetailModal decision)}}>
+                    Details
+                  </AuButton>
+                </div>
+              </div>
+              <AuHr />
+            {{else}}
+              <AuAlert
+                @alertTitle="Geen besluiten gevonden"
+                @alertSkin="warning"
+                @alertIcon="cross"
+                @alertSize="small"
+                @closable={{false}} >
+              </AuAlert>
+            {{/each}}
           </div>
-        </div>
-        <footer class="say-card__footer">
-          <p>Moest dit probleem aanhouden, neem contact op met <a href="mailto:Gelinkt-Notuleren@vlaanderen.be" class="au-c-link">Gelinkt-Notuleren@vlaanderen.be</a>.</p>
-        </footer>
-      {{else}}
-        <div class="say-card__content say-card__content--padding say-card__content--fixed">
-          <h3 class="say-card__subtitle">Suggesties</h3>
-        </div>
-        <div class="say-card__content say-card__content--fixed">
-          {{#if this.decisions.length}}
-            <ul class="say-link-list">
-              {{#each this.decisions as |decision|}}
-                <li class="say-link-list__item say-link-list__item--insert">
-                  <button type="button" {{on "click" (fn this.insertCitation this.legislationType decision.uri decision.title)}} class="say-link-list__link">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="say-icon say-icon--large" aria-hidden="true">
-                      <path d="M14.4,8.35714846 L0,8.35714846 L0,10.7857161 L14.4,10.7857161 L14.4,8.35714846 Z M14.4,3.5 L0,3.5 L0,5.92856769 L14.4,5.92856769 L14.4,3.5 Z M19.2,13.2142838 L19.2,8.35714846 L16.8,8.35714846 L16.8,13.2142838 L12,13.2142838 L12,15.6428646 L16.8,15.6428646 L16.8,20.5 L19.2,20.5 L19.2,15.6428646 L24,15.6428646 L24,13.2142838 L19.2,13.2142838 Z M0,15.6428646 L9.6,15.6428646 L9.6,13.2142838 L0,13.2142838 L0,15.6428646 Z"/>
-                    </svg>
-                    <span class="say-link-list__content say-link-list__content--capped">
-                      {{capitalize decision.title}}
-                    </span>
-                  </button>
-                  <button type="button" {{on "click" (fn this.openDecisionDetailModal decision)}} class="say-link-list__insert">
-                    Open citaat
-                  </button>
-                </li>
-              {{/each}}
-            </ul>
-          {{else}}
-            <div class="say-card__info">
-              <p>Geen besluiten gevonden.</p>
-            </div>
-          {{/if}}
-        </div>
+        {{/if}}
       {{/if}}
-    {{/if}}
-  </article>
+    </c.content>
+  </AuCard>
 {{/if}}
 
 {{#if this.showModal}}
