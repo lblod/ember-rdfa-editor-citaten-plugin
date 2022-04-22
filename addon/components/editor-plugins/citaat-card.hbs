@@ -25,7 +25,7 @@
       <AuInput id="searchterm" @type="text" @width="block" @icon="search" @iconAlignment="right" @value={{this.text}} {{on "input" (perform this.updateSearch)}}/>
       <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>Uitgebreid zoeken</AuButton>
 
-      {{#if this.search.isRunning}}
+      {{#if this.decisionResource.isRunning}}
         <AuLoader /><span class="au-u-hidden-visually">Aan het zoeken</span>
       {{else}}
         {{#if this.error}}
@@ -34,7 +34,7 @@
           <AuHeading @skin="4" @level="4">Suggesties</AuHeading>
           <div class="citaten--decision-list au-u-flex au-u-flex--column">
             <EditorPlugins::Citations::DecisionList
-              @decisions={{this.decisions}}
+              @decisions={{this.decisionResource.value}}
               @onCitationInsert={{this.insertDecisionCitation}}
               @onCitationDetails={{this.openDecisionDetailModal}} />
           </div>

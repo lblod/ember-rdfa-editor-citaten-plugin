@@ -37,7 +37,7 @@
     </div>
     {{! Search results }}
     <div>
-      {{#if this.search.isRunning}}
+      {{#if this.articleResource.isRunning}}
         <div class="au-u-margin">
           <AuLoader @padding="large" />
           <span class="au-u-hidden-visually">Aan het zoeken</span>
@@ -46,7 +46,7 @@
         {{#if this.error}}
           <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin" />
         {{else}}
-          {{#each this.articles as |article|}}
+          {{#each this.articleResource.value as |article|}}
             <EditorPlugins::Citations::ArticlePreview
               @insertArticleCitation={{(fn @insertArticleCitation @decision article)}}
               @article={{article}} />
@@ -76,7 +76,7 @@
             </AuButton>
           </div>
           {{! Pagination of articles }}
-          {{#if this.articles.length}}
+          {{#if this.articleResource.value.length}}
             <p>
               <span class="au-u-hidden-visually">Resultaten</span>
               <strong>

@@ -92,7 +92,7 @@
         </div>
         </mc.sidebar>
         <mc.content>
-          {{#if this.search.isRunning}}
+          {{#if this.decisionResource.isRunning}}
             <div class="au-u-margin">
               <AuLoader @padding="large" />
               <span class="au-u-hidden-visually">Aan het zoeken</span>
@@ -101,56 +101,58 @@
             {{#if this.error}}
               <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin"/>
             {{else}}
-              {{#if this.decisions.length}}
+              {{#if this.decisionResource.value.length}}
                 <div class="citaten--container-content">
                   <EditorPlugins::Citations::DecisionList
-                    @decisions={{this.decisions}}
+                    @decisions={{this.decisionResource.value}}
                     @onCitationInsert={{this.insertDecisionCitation}}
                     @onCitationDetails={{this.openDecisionDetail}}
                     @fullSize={{true}} />
-                </div>
-                {{! Pagination in the footer of the dialog }}
-                <div class="citaten--container-footer au-u-background-gray-100">
-                  <AuToolbar
-                    @border="top"
-                    @size="large"
-                    @nowrap={{true}}>
-                    <div class="au-c-pagination">
-                      <p>
-                        <span class="au-u-hidden-visually">Resultaten</span>
-                        <strong>
-                          {{this.rangeStart}} - {{this.rangeEnd}}
-                        </strong>
-                        van
-                        {{this.totalCount}}
-                      </p>
-                      <div class="au-c-pagination__list-item">
-                        {{#unless this.isFirstPage}}
-                          <AuButton
-                            @skin="link"
-                            @icon="nav-left"
-                            @iconAlignment="left"
-                            {{on "click" this.previousPage}}>
-                            Vorige pagina
-                          </AuButton>
-                        {{/unless}}
-                        {{#unless this.isLastPage}}
-                          <AuButton
-                            @skin="link"
-                            @icon="nav-right"
-                            @iconAlignment="right"
-                            {{on "click" this.nextPage}}>
-                            Volgende pagina
-                          </AuButton>
-                        {{/unless}}
-                      </div>
-                    </div>
-                  </AuToolbar>
                 </div>
               {{else}}
                 <EditorPlugins::Helpers::AlertNoItems @fullSize={{true}} class="au-u-margin" />
               {{/if}}
             {{/if}}
+          {{/if}}
+          {{#if this.decisionResource.value.length}}
+            {{! Pagination in the footer of the dialog }}
+            <div class="citaten--container-footer au-u-background-gray-100">
+              <AuToolbar
+                @border="top"
+                @size="large"
+                @nowrap={{true}}>
+                <div class="au-c-pagination">
+                  <p>
+                    <span class="au-u-hidden-visually">Resultaten</span>
+                    <strong>
+                      {{this.rangeStart}} - {{this.rangeEnd}}
+                    </strong>
+                    van
+                    {{this.totalCount}}
+                  </p>
+                  <div class="au-c-pagination__list-item">
+                    {{#unless this.isFirstPage}}
+                      <AuButton
+                        @skin="link"
+                        @icon="nav-left"
+                        @iconAlignment="left"
+                        {{on "click" this.previousPage}}>
+                        Vorige pagina
+                      </AuButton>
+                    {{/unless}}
+                    {{#unless this.isLastPage}}
+                      <AuButton
+                        @skin="link"
+                        @icon="nav-right"
+                        @iconAlignment="right"
+                        {{on "click" this.nextPage}}>
+                        Volgende pagina
+                      </AuButton>
+                    {{/unless}}
+                  </div>
+                </div>
+              </AuToolbar>
+            </div>
           {{/if}}
         </mc.content>
       </AuMainContainer>

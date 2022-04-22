@@ -6,6 +6,7 @@ import { action } from '@ember/object';
 import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
 import { fetchDecisions } from '../../utils/vlaamse-codex';
+import { useTask } from 'ember-resources';
 import {
   LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
@@ -29,12 +30,13 @@ export default class CitaatCardComponent extends Component {
   @tracked showCard = false;
   @tracked decision;
   @tracked legislationTypeUri;
+  @tracked legislationTypeUriAfterTimeout;
   @tracked text;
+  @tracked textAfterTimeout;
   @tracked markSelected;
   liveHighlights;
 
   constructor() {
-    console.log("In constructor for the citaat-card");
     super(...arguments);
     this.liveHighlights = this.args.controller.createLiveMarkSet({
       datastoreQuery: (datastore) => {
@@ -92,7 +94,6 @@ export default class CitaatCardComponent extends Component {
       this.text = selectionMark.attributes.text;
       this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
       this.markSelected = selectionMark;
-      console.log("onSelectionChanged in citaat-card");
       this.updateSearch.perform();
     } else {
       this.showCard = false;
@@ -114,23 +115,29 @@ export default class CitaatCardComponent extends Component {
     return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
   }
 
+  decisionResource = useTask(this, this.resourceSearch, () => [
+    this.textAfterTimeout,
+    this.legislationTypeUriAfterTimeout,
+    this.pageNumber,
+    this.pageSize,
+  ]);
+
   @task({ restartable: true })
   *updateSearch() {
-    console.log("Update search in citaat-card");
     yield timeout(500);
-    yield this.search.perform();
+    this.textAfterTimeout = this.text;
+    this.legislationTypeUriAfterTimeout = this.legislationTypeUri;
   }
 
   @task({ restartable: true })
-  *search() {
-    console.log("Search in citaat-card");
+  *resourceSearch() {
     this.error = null;
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
-      const words = (this.text || '').match(/\S+/g) || [];
+      const words = (this.textAfterTimeout || '').match(/\S+/g) || [];
       const filter = {
-        type: this.legislationTypeUri,
+        type: this.legislationTypeUriAfterTimeout,
       };
       const results = yield fetchDecisions(
         words,
@@ -139,12 +146,12 @@ export default class CitaatCardComponent extends Component {
         this.pageSize
       );
       this.totalCount = results.totalCount;
-      this.decisions = results.decisions;
+      return results.decisions;
     } catch (e) {
       console.warn(e); // eslint-ignore-line no-console
       this.totalCount = 0;
-      this.decisions = [];
       this.error = e;
+      return [];
     }
   }
 
@@ -157,8 +164,7 @@ export default class CitaatCardComponent extends Component {
     this.legislationTypeUri = found
       ? found.value
       : LEGISLATION_TYPE_CONCEPTS[0].value;
-    console.log("selectLegislationType in citaat-card");
-    this.search.perform();
+    this.legislationTypeUriAfterTimeout = this.legislationTypeUri;
   }
 
   @action
@@ -206,20 +212,6 @@ export default class CitaatCardComponent extends Component {
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
     this.controller.executeCommand('insert-html', citationHtml, range);
   }
-
-  // Pagination
-
-  //@action
-  //prevPage() {
-  //  this.pageNumber = this.pageNumber - 1;
-  //  this.search.perform();
-  //}
-
-  //@action
-  //nextPage() {
-  //  this.pageNumber = this.pageNumber + 1;
-  //  this.search.perform();
-  //}
 
   willDestroy() {
     super.willDestroy();

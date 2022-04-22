@@ -4,6 +4,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { fetchArticles } from '../../../utils/vlaamse-codex';
 import { task } from 'ember-concurrency-decorators';
+import { useTask } from 'ember-resources';
 
 export default class EditorPluginsCitationsDecisionDetailComponent extends Component {
   @tracked error;
@@ -12,38 +13,42 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
   @tracked totalCount;
   @tracked articles = [];
   @tracked articleFilter;
+  @tracked articleFilterAfterTimeout;
 
   constructor() {
-    console.log("In constructor for the decision-detail");
     super(...arguments);
-    this.search.perform();
   }
 
   @task({ restartable: true })
   *updateArticleFilter() {
     yield timeout(500);
     this.pageNumber = 0;
-    yield this.search.perform(this.pageNumber);
+    this.articleFilterAfterTimeout = this.articleFilter;
   }
 
+  articleResource = useTask(this, this.resourceSearch, () => [
+    this.pageNumber,
+    this.pageSize,
+    this.articleFilterAfterTimeout,
+  ]);
+
   @task({ restartable: true })
-  *search(pageNumber) {
-    this.pageNumber = pageNumber || 0;
+  *resourceSearch() {
     this.error = null;
     try {
       const results = yield fetchArticles(
         this.args.decision.uri,
         this.pageNumber,
         this.pageSize,
-        this.articleFilter
+        this.articleFilterAfterTimeout
       );
       this.totalCount = results.totalCount;
-      this.articles = results.articles;
+      return results.articles;
     } catch (e) {
       console.warn(e); // eslint-ignore-line no-console
       this.totalCount = 0;
-      this.articles = [];
       this.error = e;
+      return [];
     }
   }
 
@@ -51,12 +56,12 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
 
   @action
   previousPage() {
-    this.search.perform(this.pageNumber - 1);
+    --this.pageNumber;
   }
 
   @action
   nextPage() {
-    this.search.perform(this.pageNumber + 1);
+    ++this.pageNumber;
   }
 
   get rangeStart() {

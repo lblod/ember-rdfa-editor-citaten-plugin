@@ -27,6 +27,7 @@ function getISODate(date) {
 export default class EditorPluginsCitationsSearchModalComponent extends Component {
   @service intl;
   @tracked text;
+  @tracked textAfterTimeout;
   // Vlaamse Codex currently doesn't contain captions and content of decisions
   // @tracked isEnabledSearchCaption = false
   // @tracked isEnabledSearchContent = false
@@ -60,13 +61,11 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
   }
 
   constructor() {
-    console.log("In constructor for the search-modal");
     super(...arguments);
     this.selectedDecision = this.args.selectedDecision;
     this.legislationTypeUri =
       this.args.legislationTypeUri || LEGISLATION_TYPES['decreet'];
     this.text = this.args.text;
-    this.search.perform();
   }
 
   get legislationTypes() {
@@ -80,62 +79,24 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
     return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
   }
 
-  //decisionResource = useTask(this, this.resourceSearch, () => [
-  //  this.text,
-  //  this.pageNumber,
-  //  this.legislationTypeUri,
-  //  this.documentDateFrom,
-  //  this.documentDateTo,
-  //  this.publicationDateFrom,
-  //  this.publicationDateTo,
-  //  this.pageSize,
-  //]);
-
-  //@task({ restartable: true })
-  //*resourceSearch() {
-  //  yield timeout(500);
-  //  this.error = null;
-  //  try {
-  //    // Split search string by grouping on non-whitespace characters
-  //    // This probably needs to be more complex to search on group of words
-  //    const words = (this.text || '').match(/\S+/g) || [];
-  //    const filter = {
-  //      type: this.legislationTypeUri,
-  //      documentDateFrom: getISODate(this.documentDateFrom),
-  //      documentDateTo: getISODate(this.documentDateTo),
-  //      publicationDateFrom: getISODate(this.publicationDateFrom),
-  //      publicationDateTo: getISODate(this.publicationDateTo),
-  //    };
-  //    const results = yield fetchDecisions(
-  //      words,
-  //      filter,
-  //      this.pageNumber,
-  //      this.pageSize
-  //    );
-  //    this.totalCount = results.totalCount;
-  //    return results.decisions;
-  //  } catch (e) {
-  //    console.warn(e); // eslint-ignore-line no-console
-  //    this.totalCount = 0;
-  //    this.error = e;
-  //    return [];
-  //  }
-  //}
+  decisionResource = useTask(this, this.resourceSearch, () => [
+    this.textAfterTimeout,
+    this.legislationTypeUri,
+    this.pageSize,
+    this.pageNumber,
+    this.documentDateFrom,
+    this.documentDateTo,
+    this.publicationDateFrom,
+    this.publicationDateTo,
+  ]);
 
   @task({ restartable: true })
-  *updateSearch() {
-    yield timeout(500);
-    yield this.search.perform();
-  }
-
-  @task({ restartable: true })
-  *search(pageNumber) {
-    this.pageNumber = pageNumber || 0; // reset page to 0 for a new search task
+  *resourceSearch() {
     this.error = null;
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
-      const words = (this.text || '').match(/\S+/g) || [];
+      const words = (this.textAfterTimeout || '').match(/\S+/g) || [];
       const filter = {
         type: this.legislationTypeUri,
         documentDateFrom: getISODate(this.documentDateFrom),
@@ -150,13 +111,20 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
         this.pageSize
       );
       this.totalCount = results.totalCount;
-      this.decisions = results.decisions;
+      return results.decisions;
     } catch (e) {
       console.warn(e); // eslint-ignore-line no-console
       this.totalCount = 0;
-      this.decisions = [];
       this.error = e;
+      return [];
     }
+  }
+
+  @task({ restartable: true })
+  *updateSearch() {
+    yield timeout(500);
+    this.textAfterTimeout = this.text;
+    this.pageNumber = 0;
   }
 
   @action
@@ -168,31 +136,26 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
     this.legislationTypeUri = found
       ? found.value
       : LEGISLATION_TYPE_CONCEPTS[0].value;
-    this.search.perform();
   }
 
   @action
   updateDocumentDateFrom(isoDate, date) {
     this.documentDateFrom = date;
-    this.search.perform();
   }
 
   @action
   updateDocumentDateTo(isoDate, date) {
     this.documentDateTo = date;
-    this.search.perform();
   }
 
   @action
   updatePublicationDateFrom(isoDate, date) {
     this.publicationDateFrom = date;
-    this.search.perform();
   }
 
   @action
   updatePublicationDateTo(isoDate, date) {
     this.publicationDateTo = date;
-    this.search.perform();
   }
 
   @action
@@ -221,12 +184,12 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
 
   @action
   previousPage() {
-    this.search.perform(this.pageNumber - 1);
+    --this.pageNumber;
   }
 
   @action
   nextPage() {
-    this.search.perform(this.pageNumber + 1);
+    ++this.pageNumber;
   }
 
   get rangeStart() {
