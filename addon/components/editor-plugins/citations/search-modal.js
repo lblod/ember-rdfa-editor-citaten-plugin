@@ -93,10 +93,11 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
   @task({ restartable: true })
   *resourceSearch() {
     this.error = null;
+    yield undefined; //To prevent retriggering because of the use of this.text later.
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
-      const words = (this.textAfterTimeout || '').match(/\S+/g) || [];
+      const words = (this.textAfterTimeout || this.text || '').match(/\S+/g) || [];
       const filter = {
         type: this.legislationTypeUri,
         documentDateFrom: getISODate(this.documentDateFrom),

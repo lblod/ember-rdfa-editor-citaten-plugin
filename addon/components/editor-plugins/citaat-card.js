@@ -124,7 +124,7 @@ export default class CitaatCardComponent extends Component {
 
   @task({ restartable: true })
   *updateSearch() {
-    yield timeout(500);
+    yield timeout(1500);
     this.textAfterTimeout = this.text;
     this.legislationTypeUriAfterTimeout = this.legislationTypeUri;
   }
@@ -132,12 +132,13 @@ export default class CitaatCardComponent extends Component {
   @task({ restartable: true })
   *resourceSearch() {
     this.error = null;
+    yield undefined; //To prevent other variables used below (this.text and this.legislationTypeUri) to trigger a retrigger.
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
-      const words = (this.textAfterTimeout || '').match(/\S+/g) || [];
+      const words = (this.textAfterTimeout || this.text || '').match(/\S+/g) || [];
       const filter = {
-        type: this.legislationTypeUriAfterTimeout,
+        type: this.legislationTypeUriAfterTimeout || this.legislationTypeUri,
       };
       const results = yield fetchDecisions(
         words,
