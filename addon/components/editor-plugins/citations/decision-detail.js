@@ -14,13 +14,14 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
   @tracked articleFilter;
 
   constructor() {
+    console.log("In constructor for the decision-detail");
     super(...arguments);
     this.search.perform();
   }
 
   @task({ restartable: true })
   *updateArticleFilter() {
-    yield timeout(200);
+    yield timeout(500);
     this.pageNumber = 0;
     yield this.search.perform(this.pageNumber);
   }

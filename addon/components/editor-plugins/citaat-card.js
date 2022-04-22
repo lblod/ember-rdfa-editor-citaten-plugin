@@ -6,7 +6,10 @@ import { action } from '@ember/object';
 import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
 import { fetchDecisions } from '../../utils/vlaamse-codex';
-import { LEGISLATION_TYPES, LEGISLATION_TYPE_CONCEPTS } from '../../utils/legislation-types';
+import {
+  LEGISLATION_TYPES,
+  LEGISLATION_TYPE_CONCEPTS,
+} from '../../utils/legislation-types';
 
 const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
 
@@ -31,6 +34,7 @@ export default class CitaatCardComponent extends Component {
   liveHighlights;
 
   constructor() {
+    console.log("In constructor for the citaat-card");
     super(...arguments);
     this.liveHighlights = this.args.controller.createLiveMarkSet({
       datastoreQuery: (datastore) => {
@@ -88,7 +92,8 @@ export default class CitaatCardComponent extends Component {
       this.text = selectionMark.attributes.text;
       this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
       this.markSelected = selectionMark;
-      this.search.perform();
+      console.log("onSelectionChanged in citaat-card");
+      this.updateSearch.perform();
     } else {
       this.showCard = false;
     }
@@ -98,21 +103,27 @@ export default class CitaatCardComponent extends Component {
     return this.args.controller;
   }
 
-  //TODO clean up duplicates
   get legislationTypes() {
-    return LEGISLATION_TYPE_CONCEPTS;
-  }
-  get legislationTypes2() {
     return Object.keys(LEGISLATION_TYPES).map(capitalize);
   }
 
   get legislationSelected() {
-    const found = LEGISLATION_TYPE_CONCEPTS.find((c) => c.value === this.legislationTypeUri);
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.value === this.legislationTypeUri
+    );
     return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
   }
 
   @task({ restartable: true })
+  *updateSearch() {
+    console.log("Update search in citaat-card");
+    yield timeout(500);
+    yield this.search.perform();
+  }
+
+  @task({ restartable: true })
   *search() {
+    console.log("Search in citaat-card");
     this.error = null;
     try {
       // Split search string by grouping on non-whitespace characters
@@ -137,23 +148,17 @@ export default class CitaatCardComponent extends Component {
     }
   }
 
-  //TODO
   @action
-  selectLegislationType(event) {
-    this.legislationTypeUri = event.target.value;
-    this.search.perform();
-  }
-  @action
-  selectLegislationType2(type) {
+  selectLegislationType(type) {
     type = type.toLowerCase();
-    const found = LEGISLATION_TYPE_CONCEPTS.find((c) => c.label.toLowerCase() === type);
-    this.legislationTypeUri = (found ? found.value : LEGISLATION_TYPE_CONCEPTS[0].value);
-  }
-
-  @task({ restartable: true })
-  *updateSearch() {
-    yield timeout(200);
-    yield this.search.perform();
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.label.toLowerCase() === type
+    );
+    this.legislationTypeUri = found
+      ? found.value
+      : LEGISLATION_TYPE_CONCEPTS[0].value;
+    console.log("selectLegislationType in citaat-card");
+    this.search.perform();
   }
 
   @action
@@ -175,7 +180,10 @@ export default class CitaatCardComponent extends Component {
   }
 
   @action
-  insertCitation(type, uri, title) {
+  insertDecisionCitation(decision) {
+    const type = decision.legislationType.label;
+    const uri = decision.uri;
+    const title = decision.title;
     const range = this.controller.rangeFactory.fromAroundNode(
       this.markSelected.node
     );
@@ -186,24 +194,32 @@ export default class CitaatCardComponent extends Component {
   }
 
   @action
-  prevPage() {
-    this.pageNumber = this.pageNumber - 1;
-    this.search.perform();
-  }
-
-  @action
-  nextPage() {
-    this.pageNumber = this.pageNumber + 1;
-    this.search.perform();
-  }
-
-  get legislationType() {
-    const type = this.legislationTypes.find(
-      (type) => type.value === this.legislationTypeUri
+  insertArticleCitation(decision, article) {
+    const type = decision.legislationType.label;
+    const uri = article.uri;
+    const title = `${decision.title}, ${article.number}`;
+    const range = this.controller.rangeFactory.fromAroundNode(
+      this.markSelected.node
     );
-    if (type) return type.label;
-    else return '';
+    const citationHtml = `${
+      type ? type : ''
+    } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
+    this.controller.executeCommand('insert-html', citationHtml, range);
   }
+
+  // Pagination
+
+  //@action
+  //prevPage() {
+  //  this.pageNumber = this.pageNumber - 1;
+  //  this.search.perform();
+  //}
+
+  //@action
+  //nextPage() {
+  //  this.pageNumber = this.pageNumber + 1;
+  //  this.search.perform();
+  //}
 
   willDestroy() {
     super.willDestroy();

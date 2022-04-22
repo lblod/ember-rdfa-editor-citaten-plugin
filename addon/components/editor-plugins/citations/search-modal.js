@@ -3,7 +3,8 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { task, timeout } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
-
+import { capitalize } from '@ember/string';
+import { useTask } from 'ember-resources';
 import {
   LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
@@ -23,7 +24,7 @@ function getISODate(date) {
   }
 }
 
-export default class EditorPluginsCitationsModalComponent extends Component {
+export default class EditorPluginsCitationsSearchModalComponent extends Component {
   @service intl;
   @tracked text;
   // Vlaamse Codex currently doesn't contain captions and content of decisions
@@ -59,6 +60,7 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   }
 
   constructor() {
+    console.log("In constructor for the search-modal");
     super(...arguments);
     this.selectedDecision = this.args.selectedDecision;
     this.legislationTypeUri =
@@ -68,15 +70,66 @@ export default class EditorPluginsCitationsModalComponent extends Component {
   }
 
   get legislationTypes() {
-    return LEGISLATION_TYPE_CONCEPTS;
+    return Object.keys(LEGISLATION_TYPES).map(capitalize);
   }
-  @(task(function* () {
+
+  get legislationSelected() {
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.value === this.legislationTypeUri
+    );
+    return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
+  }
+
+  //decisionResource = useTask(this, this.resourceSearch, () => [
+  //  this.text,
+  //  this.pageNumber,
+  //  this.legislationTypeUri,
+  //  this.documentDateFrom,
+  //  this.documentDateTo,
+  //  this.publicationDateFrom,
+  //  this.publicationDateTo,
+  //  this.pageSize,
+  //]);
+
+  //@task({ restartable: true })
+  //*resourceSearch() {
+  //  yield timeout(500);
+  //  this.error = null;
+  //  try {
+  //    // Split search string by grouping on non-whitespace characters
+  //    // This probably needs to be more complex to search on group of words
+  //    const words = (this.text || '').match(/\S+/g) || [];
+  //    const filter = {
+  //      type: this.legislationTypeUri,
+  //      documentDateFrom: getISODate(this.documentDateFrom),
+  //      documentDateTo: getISODate(this.documentDateTo),
+  //      publicationDateFrom: getISODate(this.publicationDateFrom),
+  //      publicationDateTo: getISODate(this.publicationDateTo),
+  //    };
+  //    const results = yield fetchDecisions(
+  //      words,
+  //      filter,
+  //      this.pageNumber,
+  //      this.pageSize
+  //    );
+  //    this.totalCount = results.totalCount;
+  //    return results.decisions;
+  //  } catch (e) {
+  //    console.warn(e); // eslint-ignore-line no-console
+  //    this.totalCount = 0;
+  //    this.error = e;
+  //    return [];
+  //  }
+  //}
+
+  @task({ restartable: true })
+  *updateSearch() {
     yield timeout(500);
     yield this.search.perform();
-  }).keepLatest())
-  searchText;
+  }
 
-  @(task(function* (pageNumber) {
+  @task({ restartable: true })
+  *search(pageNumber) {
     this.pageNumber = pageNumber || 0; // reset page to 0 for a new search task
     this.error = null;
     try {
@@ -104,12 +157,17 @@ export default class EditorPluginsCitationsModalComponent extends Component {
       this.decisions = [];
       this.error = e;
     }
-  }).keepLatest())
-  search;
+  }
 
   @action
-  selectLegislationType(event) {
-    this.legislationTypeUri = event.target.value;
+  selectLegislationType(type) {
+    type = type.toLowerCase();
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.label.toLowerCase() === type
+    );
+    this.legislationTypeUri = found
+      ? found.value
+      : LEGISLATION_TYPE_CONCEPTS[0].value;
     this.search.perform();
   }
 
@@ -139,22 +197,13 @@ export default class EditorPluginsCitationsModalComponent extends Component {
 
   @action
   insertDecisionCitation(decision) {
-    this.args.insertCitation(
-      decision.legislationType.label,
-      decision.uri,
-      decision.title
-    );
+    this.args.insertDecisionCitation(decision);
     this.args.closeModal();
   }
 
   @action
   insertArticleCitation(decision, article) {
-    const title = `${decision.title}, ${article.number}`;
-    this.args.insertCitation(
-      decision.legislationType.label,
-      article.uri,
-      title
-    );
+    this.args.insertArticleCitation(decision, article);
     this.args.closeModal();
   }
 

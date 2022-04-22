@@ -1,0 +1,51 @@
+<div class="citaten--decision-list-item au-u-margin-top-small au-u-margin-bottom-small {{if @fullSize "au-u-margin-right au-u-margin-left"}}" ...attributes>
+  <p class="citaten--decision-title {{if @fullSize "au-u-medium"}}">
+    {{if @fullSize (capitalize @decision.fullTitle) @decision.title}}
+  </p>
+  {{#if (and @fullSize @decision.publicationDate)}}
+    <AuPill
+      class="au-u-margin-top-small au-u-margin-bottom-small"
+      @skin="border"
+      @icon="calendar"
+      @iconAlignment="left">
+      {{@decision.publicationDate}}
+    </AuPill>
+  {{/if}}
+  {{#if @fullSize}}
+    <div>
+      <AuButtonGroup @inline={{false}}>
+        <AuButton
+          @skin="primary"
+          @icon="plus-text"
+          @iconAlignment="left"
+          {{on "click" @onCitationInsert}}>
+          Citaat invoegen
+        </AuButton>
+        <AuButton
+          @skin="secondary"
+          @icon="manual"
+          @iconAlignment="left"
+          {{on "click" @onCitationDetails}}>
+          Details
+        </AuButton>
+      </AuButtonGroup>
+    </div>
+  {{else}}
+    <div class="au-u-flex au-u-flex--row au-u-flex--no-wrap au-u-flex--between au-u-margin-top-tiny">
+      <AuButton
+        @skin="link-secondary"
+        @icon="plus-text"
+        @iconAlignment="left"
+        {{on "click" @onCitationInsert}}>
+        Citaat invoegen
+      </AuButton>
+      <AuButton
+        @skin="link"
+        @icon="manual"
+        @iconAlignment="left"
+        {{on "click" @onCitationDetails}}>
+        Details
+      </AuButton>
+    </div>
+  {{/if}}
+</div>

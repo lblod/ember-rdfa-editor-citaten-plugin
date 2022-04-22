@@ -15,65 +15,28 @@
         @loadingMessage="Laden..."
         @noMatchesMessage="Geen resultaten gevonden"
         @searchMessage="Typ om te zoeken"
-        @options={{this.legislationTypes2}}
+        @options={{this.legislationTypes}}
         @selected={{this.legislationSelected}}
-        @onChange={{this.selectLegislationType2}}
+        @onChange={{this.selectLegislationType}}
         as |type|>
         {{type}}
       </PowerSelect>
       <AuLabel for="searchterm" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Zoekterm</AuLabel>
-      <AuInput id="searchterm" @type="text" @width="block" @icon="search" @iconAlignment="right" @value={{this.text}} {{on "keyup" (perform this.updateSearch)}}/>
+      <AuInput id="searchterm" @type="text" @width="block" @icon="search" @iconAlignment="right" @value={{this.text}} {{on "input" (perform this.updateSearch)}}/>
       <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>Uitgebreid zoeken</AuButton>
 
       {{#if this.search.isRunning}}
         <AuLoader /><span class="au-u-hidden-visually">Aan het zoeken</span>
       {{else}}
         {{#if this.error}}
-          <AuAlert
-            @alertTitle="Probleem bij het laden"
-            @alertSkin="error"
-            @alertIcon="alert-triangle"
-            @alertSize="small"
-            @closable={{false}} >
-            <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
-            <code>{{this.error}}</code>
-            <p>Moest dit probleem aanhouden, neem contact op met <AuLinkExternal href="mailto:Gelinkt-Notuleren@vlaanderen.be" @icon="mail">Gelinkt-Notuleren@vlaanderen.be</AuLinkExternal>.</p>
-          </AuAlert>
+          <EditorPlugins::Helpers::AlertLoadError @fullSize={{false}} @error={{this.error}} />
         {{else}}
           <AuHeading @skin="4" @level="4">Suggesties</AuHeading>
           <div class="citaten--decision-list au-u-flex au-u-flex--column">
-            {{#each this.decisions as |decision|}}
-              <div class="citaten--decision-list-item">
-                <div class="citaten--decision-title">
-                  {{decision.title}}
-                </div>
-                <div class="au-u-flex au-u-flex--row au-u-flex--no-wrap au-u-flex--between au-u-margin-top-tiny">
-                  <AuButton
-                    @skin="link-secondary"
-                    @icon="plus-text"
-                    @iconAlignment="left"
-                    {{on "click" (fn this.insertCitation this.legislationType decision.uri decision.title)}}>
-                    Citaat invoegen
-                  </AuButton>
-                  <AuButton
-                    @skin="link"
-                    @icon="manual"
-                    @iconAlignment="left"
-                    {{on "click" (fn this.openDecisionDetailModal decision)}}>
-                    Details
-                  </AuButton>
-                </div>
-              </div>
-              <AuHr />
-            {{else}}
-              <AuAlert
-                @alertTitle="Geen besluiten gevonden"
-                @alertSkin="warning"
-                @alertIcon="cross"
-                @alertSize="small"
-                @closable={{false}} >
-              </AuAlert>
-            {{/each}}
+            <EditorPlugins::Citations::DecisionList
+              @decisions={{this.decisions}}
+              @onCitationInsert={{this.insertDecisionCitation}}
+              @onCitationDetails={{this.openDecisionDetailModal}} />
           </div>
         {{/if}}
       {{/if}}
@@ -82,11 +45,11 @@
 {{/if}}
 
 {{#if this.showModal}}
-  <EditorPlugins::Citations::Modal
+  <EditorPlugins::Citations::SearchModal
     @closeModal={{this.closeModal}}
-    @insertCitation={{this.insertCitation}}
+    @insertDecisionCitation={{this.insertDecisionCitation}}
+    @insertArticleCitation={{this.insertArticleCitation}}
     @selectedDecision={{this.decision}}
     @legislationTypeUri={{this.legislationTypeUri}}
-    @text={{this.text}}
-  />
+    @text={{this.text}} />
 {{/if}}

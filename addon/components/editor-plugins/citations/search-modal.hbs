@@ -1,0 +1,159 @@
+<AuModal
+  @modalOpen={{true}}
+  @closeModal={{@closeModal}}
+  @title="Voeg een verwijzing toe"
+  @size="large"
+  @padding="none" as |modal|>
+  {{#if this.selectedDecision}}
+    <modal.Body>
+      <EditorPlugins::Citations::DecisionDetail
+        @insertDecisionCitation={{this.insertDecisionCitation}}
+        @insertArticleCitation={{this.insertArticleCitation}}
+        @close={{this.closeDecisionDetail}}
+        @decision={{this.selectedDecision}} />
+    </modal.Body>
+  {{else}}
+    <modal.Body>
+      <AuMainContainer class="citaten--main-container" as |mc|>
+      <mc.sidebar class="citaten--sidebar" @scroll={{true}}>
+        <div class="au-c-sidebar">
+          <div class="au-c-sidebar__content au-u-padding">
+            <AuLabel class="au-margin-bottom-small" for="typeofdocumentexpanded" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Type document</AuLabel>
+            <PowerSelect
+              id="typeofdocumentexpanded"
+              @renderInPlace={{true}}
+              @allowClear={{false}}
+              @disabled={{false}}
+              @searchEnabled={{true}}
+              @loadingMessage="Laden..."
+              @noMatchesMessage="Geen resultaten gevonden"
+              @searchMessage="Typ om te zoeken"
+              @options={{this.legislationTypes}}
+              @selected={{this.legislationSelected}}
+              @onChange={{this.selectLegislationType}}
+              as |type|>
+              {{type}}
+            </PowerSelect>
+            <AuLabel class="au-u-margin-top au-margin-bottom-small" for="searchtermexpanded" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Zoekterm</AuLabel>
+            <AuInput id="searchtermexpanded" @type="text" @width="block" @icon="search" @iconAlignment="right" @value={{this.text}} {{on "input" (perform this.updateSearch)}}/>
+            <AuHr @size="large" />
+            <div class="citaten--date-filtering">
+              {{! Date of document }}
+              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-document-van" @inline={{false}}>Filter op datum document</AuLabel>
+              {{! From }}
+              <div class="au-u-flex">
+                <AuLabel for="search-codex-datum-document-van" class="au-u-hidden-visually">Filter op datum document vanaf datum:</AuLabel>
+                <AuLabel for="search-codex-datum-document-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">van</AuLabel>
+                <AuDatePicker
+                  @id="search-codex-datum-document-van"
+                  @onChange={{this.updateDocumentDateFrom}}
+                  @value={{this.documentDateFrom}}
+                  @localization={{this.datePickerLocalization}}
+                  class="citaten--input-group-mid" />
+              </div>
+              {{! To }}
+              <div class="au-u-flex">
+                <AuLabel for="search-codex-datum-document-tot" class="au-u-hidden-visually">Filter op datum document tot datum:</AuLabel>
+                <AuLabel for="search-codex-datum-document-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">tot</AuLabel>
+                <AuDatePicker
+                  @id="search-codex-datum-document-tot"
+                  @onChange={{this.updateDocumentDateTo}}
+                  @value={{this.documentDateTo}}
+                  @localization={{this.datePickerLocalization}}
+                  class="citaten--input-group-mid" />
+              </div>
+
+              {{! Date of staatsblad }}
+              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-staatsblad-van" @inline={{false}}>Filter op datum staatsblad</AuLabel>
+              {{! From }}
+              <div class="au-u-flex">
+                <AuLabel for="search-codex-datum-staatsblad-van" class="au-u-hidden-visually"></AuLabel>
+                <AuLabel for="search-codex-datum-staatsblad-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">van</AuLabel>
+                <AuDatePicker
+                  @id="search-codex-datum-staatsblad-van"
+                  @onChange={{this.updatePublicationDateFrom}}
+                  @value={{this.publicationDateFrom}}
+                  @localization={{this.datePickerLocalization}}
+                  class="citaten--input-group-mid" />
+              </div>
+              {{! To }}
+              <div class="au-u-flex">
+                <AuLabel for="search-codex-datum-staatsblad-tot" class="au-u-hidden-visually"></AuLabel>
+                <AuLabel for="search-codex-datum-staatsblad-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">tot</AuLabel>
+                <AuDatePicker
+                  @id="search-codex-datum-staatsblad-tot"
+                  @onChange={{this.updatePublicationDateTo}}
+                  @value={{this.publicationDateTo}}
+                  @localization={{this.datePickerLocalization}}
+                  class="citaten--input-group-mid" />
+              </div>
+            </div>
+          </div>
+        </div>
+        </mc.sidebar>
+        <mc.content>
+          {{#if this.search.isRunning}}
+            <div class="au-u-margin">
+              <AuLoader @padding="large" />
+              <span class="au-u-hidden-visually">Aan het zoeken</span>
+            </div>
+          {{else}}
+            {{#if this.error}}
+              <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin"/>
+            {{else}}
+              {{#if this.decisions.length}}
+                <div class="citaten--container-content">
+                  <EditorPlugins::Citations::DecisionList
+                    @decisions={{this.decisions}}
+                    @onCitationInsert={{this.insertDecisionCitation}}
+                    @onCitationDetails={{this.openDecisionDetail}}
+                    @fullSize={{true}} />
+                </div>
+                {{! Pagination in the footer of the dialog }}
+                <div class="citaten--container-footer au-u-background-gray-100">
+                  <AuToolbar
+                    @border="top"
+                    @size="large"
+                    @nowrap={{true}}>
+                    <div class="au-c-pagination">
+                      <p>
+                        <span class="au-u-hidden-visually">Resultaten</span>
+                        <strong>
+                          {{this.rangeStart}} - {{this.rangeEnd}}
+                        </strong>
+                        van
+                        {{this.totalCount}}
+                      </p>
+                      <div class="au-c-pagination__list-item">
+                        {{#unless this.isFirstPage}}
+                          <AuButton
+                            @skin="link"
+                            @icon="nav-left"
+                            @iconAlignment="left"
+                            {{on "click" this.previousPage}}>
+                            Vorige pagina
+                          </AuButton>
+                        {{/unless}}
+                        {{#unless this.isLastPage}}
+                          <AuButton
+                            @skin="link"
+                            @icon="nav-right"
+                            @iconAlignment="right"
+                            {{on "click" this.nextPage}}>
+                            Volgende pagina
+                          </AuButton>
+                        {{/unless}}
+                      </div>
+                    </div>
+                  </AuToolbar>
+                </div>
+              {{else}}
+                <EditorPlugins::Helpers::AlertNoItems @fullSize={{true}} class="au-u-margin" />
+              {{/if}}
+            {{/if}}
+          {{/if}}
+        </mc.content>
+      </AuMainContainer>
+    </modal.Body>
+  {{/if}}
+</AuModal>
