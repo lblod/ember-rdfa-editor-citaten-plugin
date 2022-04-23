@@ -56,10 +56,8 @@ function replaceDiacriticsInWord(word) {
 //Attempt to memoise on the latest result only. This could spare a few fetches.
 //If memoising fails, at least a normal fetch is performed.
 
-const fetchDecisionsMemory = {
-  arguments: "",
-  results: [],
-}
+const fetchDecisionsMemory = new Map();
+
 async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
   //This is silly, but null != undefined, so we have to be careful and include the correct value here
   //Also, reconstruct the whole filter object to always have the same ordering, hopefully.
@@ -71,13 +69,13 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
     publicationDateTo: filter.publicationDateTo || null,
   };
   const stringArguments = JSON.stringify({words, filter, pageNumber, pageSize});
-  if (fetchDecisionsMemory.arguments === stringArguments) {
-    return fetchDecisionsMemory.results;
+  const results = fetchDecisionsMemory.get(stringArguments);
+  if (results) {
+    return results;
   }
   else {
     const newResults = await fetchDecisionsMemd(...arguments);
-    fetchDecisionsMemory.arguments = stringArguments;
-    fetchDecisionsMemory.results = newResults;
+    fetchDecisionsMemory.set(stringArguments, newResults);
     return newResults;
   }
 }
@@ -202,7 +200,23 @@ async function fetchDecisionsMemd(words, filter, pageNumber = 0, pageSize = 5) {
   }
 }
 
-async function fetchArticles(
+const fetchArticlesMemory = new Map();
+
+async function fetchArticles(legalExpression, pageNumber, pageSize, articleFilter) {
+  //Simpler here, only one way arguments are set up
+  const stringArguments = JSON.stringify({...arguments});
+  const results = fetchArticlesMemory.get(stringArguments);
+  if (results) {
+    return results;
+  }
+  else {
+    const newResults = await fetchArticlesMemd(...arguments);
+    fetchArticlesMemory.set(stringArguments, newResults);
+    return newResults;
+  }
+}
+
+async function fetchArticlesMemd(
   legalExpression,
   pageNumber = 0,
   pageSize = 10,
