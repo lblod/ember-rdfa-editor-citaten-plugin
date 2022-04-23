@@ -53,7 +53,36 @@ function replaceDiacriticsInWord(word) {
   return word;
 }
 
+//Attempt to memoise on the latest result only. This could spare a few fetches.
+//If memoising fails, at least a normal fetch is performed.
+
+const fetchDecisionsMemory = {
+  arguments: "",
+  results: [],
+}
 async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
+  //This is silly, but null != undefined, so we have to be careful and include the correct value here
+  //Also, reconstruct the whole filter object to always have the same ordering, hopefully.
+  filter = {
+    type: filter.type,
+    documentDateFrom: filter.documentDateFrom || null,
+    documentDateTo: filter.documentDateTo || null,
+    publicationDateFrom: filter.publicationDateFrom || null,
+    publicationDateTo: filter.publicationDateTo || null,
+  };
+  const stringArguments = JSON.stringify({words, filter, pageNumber, pageSize});
+  if (fetchDecisionsMemory.arguments === stringArguments) {
+    return fetchDecisionsMemory.results;
+  }
+  else {
+    const newResults = await fetchDecisionsMemd(...arguments);
+    fetchDecisionsMemory.arguments = stringArguments;
+    fetchDecisionsMemory.results = newResults;
+    return newResults;
+  }
+}
+
+async function fetchDecisionsMemd(words, filter, pageNumber = 0, pageSize = 5) {
   // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
   // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
   // as range (see AP https://data.vlaanderen.be/doc/applicatieprofiel/besluit-publicatie/#Rechtsgrond),
