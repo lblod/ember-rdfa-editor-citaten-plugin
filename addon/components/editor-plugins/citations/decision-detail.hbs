@@ -46,13 +46,10 @@
         {{#if this.error}}
           <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin" />
         {{else}}
-          {{#each this.articleResource.value as |article|}}
-            <EditorPlugins::Citations::ArticlePreview
-              @insertArticleCitation={{(fn @insertArticleCitation @decision article)}}
-              @article={{article}} />
-          {{else}}
-            <EditorPlugins::Helpers::AlertNoItems @fullSize={{true}} class="au-u-margin"/>
-          {{/each}}
+          <EditorPlugins::Citations::ArticleList
+            @insertArticleCitation={{(fn @insertArticleCitation @decision)}}
+            @articles={{this.articleResource.value}}
+            @fullSize={{true}}/>
         {{/if}}
       {{/if}}
     </div>
