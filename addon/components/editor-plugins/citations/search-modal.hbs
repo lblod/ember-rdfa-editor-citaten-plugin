@@ -1,6 +1,6 @@
 <AuModal
   @modalOpen={{true}}
-  @closeModal={{@closeModal}}
+  @closeModal={{(fn @closeModal this.text)}}
   @title="Voeg een verwijzing toe"
   @size="large"
   @padding="none" as |modal|>

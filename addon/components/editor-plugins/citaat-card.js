@@ -130,6 +130,13 @@ export default class CitaatCardComponent extends Component {
   }
 
   @task({ restartable: true })
+  *updateSearchImmediate() {
+    this.textAfterTimeout = this.text;
+    this.legislationTypeUriAfterTimeout = this.legislationTypeUri;
+    yield;
+  }
+
+  @task({ restartable: true })
   *resourceSearch() {
     this.error = null;
     yield undefined; //To prevent other variables used below (this.text and this.legislationTypeUri) to trigger a retrigger.
@@ -182,9 +189,13 @@ export default class CitaatCardComponent extends Component {
   }
 
   @action
-  closeModal() {
+  closeModal(lastSearchTerm) {
     this.showModal = false;
     this.decision = null;
+    if (lastSearchTerm) {
+      this.text = lastSearchTerm;
+      this.updateSearchImmediate.perform();
+    }
   }
 
   @action
