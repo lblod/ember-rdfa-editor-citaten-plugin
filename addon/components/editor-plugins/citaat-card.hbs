@@ -31,8 +31,13 @@
         {{#if this.error}}
           <EditorPlugins::Helpers::AlertLoadError @fullSize={{false}} @error={{this.error}} />
         {{else}}
-          <AuHeading @skin="4" @level="4">Suggesties</AuHeading>
-          <div class="citaten--decision-list au-u-flex au-u-flex--column">
+          <AuToolbar
+            @border="bottom"
+            @skin="none"
+            @size="none">
+            <AuHeading @skin="5" @level="4">Suggesties</AuHeading>
+          </AuToolbar>
+          <div class="citaten--decision-list">
             <EditorPlugins::Citations::DecisionList
               @decisions={{this.decisionResource.value}}
               @onCitationInsert={{this.insertDecisionCitation}}
