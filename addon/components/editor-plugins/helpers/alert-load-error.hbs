@@ -9,7 +9,13 @@
   <code class="au-u-error citaten--error-code">{{@error}}</code>
   <p>
     {{t "alert.error-outro"}}
-    <AuLinkExternal href="mailto:Gelinkt-Notuleren@vlaanderen.be" @icon="mail" @iconAlignment="left">Gelinkt-Notuleren@vlaanderen.be</AuLinkExternal>.
+    <AuLinkExternal
+      href="mailto:Gelinkt-Notuleren@vlaanderen.be"
+      @icon="mail"
+      @iconAlignment="left">
+      {{!-- template-lint-disable no-bare-strings  --}}
+      Gelinkt-Notuleren@vlaanderen.be
+    </AuLinkExternal>.
   </p>
 </AuAlert>
 

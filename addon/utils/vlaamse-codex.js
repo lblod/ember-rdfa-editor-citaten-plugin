@@ -53,7 +53,7 @@ function replaceDiacriticsInWord(word) {
   return word;
 }
 
-//Attempt to memoise on the latest result only. This could spare a few fetches.
+//Attempt to memoise on the fetching by stringifying the arguments. This could spare a few fetches.
 //If memoising fails, at least a normal fetch is performed.
 
 const fetchDecisionsMemory = new Map();
@@ -68,12 +68,16 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
     publicationDateFrom: filter.publicationDateFrom || null,
     publicationDateTo: filter.publicationDateTo || null,
   };
-  const stringArguments = JSON.stringify({words, filter, pageNumber, pageSize});
+  const stringArguments = JSON.stringify({
+    words,
+    filter,
+    pageNumber,
+    pageSize,
+  });
   const results = fetchDecisionsMemory.get(stringArguments);
   if (results) {
     return results;
-  }
-  else {
+  } else {
     const newResults = await fetchDecisionsMemd(...arguments);
     fetchDecisionsMemory.set(stringArguments, newResults);
     return newResults;
@@ -202,14 +206,13 @@ async function fetchDecisionsMemd(words, filter, pageNumber = 0, pageSize = 5) {
 
 const fetchArticlesMemory = new Map();
 
-async function fetchArticles(legalExpression, pageNumber, pageSize, articleFilter) {
+async function fetchArticles(/*legalExpression, pageNumber, pageSize, articleFilter*/) {
   //Simpler here, only one way arguments are set up
-  const stringArguments = JSON.stringify({...arguments});
+  const stringArguments = JSON.stringify({ ...arguments });
   const results = fetchArticlesMemory.get(stringArguments);
   if (results) {
     return results;
-  }
-  else {
+  } else {
     const newResults = await fetchArticlesMemd(...arguments);
     fetchArticlesMemory.set(stringArguments, newResults);
     return newResults;
