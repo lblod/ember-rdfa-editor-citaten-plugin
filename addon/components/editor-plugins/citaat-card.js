@@ -189,10 +189,11 @@ export default class CitaatCardComponent extends Component {
   }
 
   @action
-  closeModal(lastSearchTerm) {
+  closeModal(lastSearchType, lastSearchTerm) {
     this.showModal = false;
     this.decision = null;
     if (lastSearchTerm) {
+      this.legislationTypeUri = lastSearchType;
       this.text = lastSearchTerm;
       this.updateSearchImmediate.perform();
     }
