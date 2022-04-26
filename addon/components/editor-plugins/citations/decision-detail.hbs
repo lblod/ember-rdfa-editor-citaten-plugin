@@ -21,7 +21,7 @@
         @iconAlignment="left"
         class="au-u-margin-right"
         {{on "click" (fn @insertDecisionCitation @decision)}}>
-        Verwijs naar heel document
+        {{t "references.refer-whole"}}
       </AuButton>
       <AuLinkExternal
         @skin="primary"
@@ -29,18 +29,18 @@
         @iconAlignment="left"
         href={{@decision.uri}}
         rel="noreferrer noopener">
-        Bekijk in Vlaamse Codex
+        {{t "references.lookup-codex"}}
       </AuLinkExternal>
       {{! Search field }}
-      <AuLabel class="au-u-margin-top-small au-margin-bottom-small" for="searchCodex" @inline={{true}} @required={{false}} @error={{false}} @warning={{false}}>Zoek artikel</AuLabel>
-      <AuInput id="searchCodex" placeholder="Artikel nummer" @type="text" @width="default" @icon="search" @iconAlignment="right" @value={{this.articleFilter}} {{on "input" (perform this.updateArticleFilter)}}/>
+      <AuLabel class="au-u-margin-top-small au-margin-bottom-small" for="searchCodex" @inline={{true}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.article"}}</AuLabel>
+      <AuInput id="searchCodex" placeholder="{{t "search.article-placeholder"}}" @type="text" @width="default" @icon="search" @iconAlignment="right" @value={{this.articleFilter}} {{on "input" (perform this.updateArticleFilter)}}/>
     </div>
     {{! Search results }}
     <div>
       {{#if this.articleResource.isRunning}}
         <div class="au-u-margin">
           <AuLoader @padding="large" />
-          <span class="au-u-hidden-visually">Aan het zoeken</span>
+          <span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
         </div>
       {{else}}
         {{#if this.error}}
@@ -69,17 +69,17 @@
               @icon="hierarchical-back"
               @iconAlignment="left"
               {{on "click" @close}}>
-              Alle zoekresultaten
+              {{t "search.back"}}
             </AuButton>
           </div>
           {{! Pagination of articles }}
           {{#if this.articleResource.value.length}}
             <p>
-              <span class="au-u-hidden-visually">Resultaten</span>
+              <span class="au-u-hidden-visually">{{t "search.results"}}</span>
               <strong>
                 {{this.rangeStart}} - {{this.rangeEnd}}
               </strong>
-              van
+              {{t "pagination.of"}}
               {{this.totalCount}}
             </p>
             <div class="au-c-pagination__list-item">
@@ -89,7 +89,7 @@
                   @icon="nav-left"
                   @iconAlignment="left"
                   {{on "click" this.previousPage}}>
-                  Vorige pagina
+                  {{t "pagination.previous"}}
                 </AuButton>
               {{/unless}}
               {{#unless this.isLastPage}}
@@ -98,7 +98,7 @@
                   @icon="nav-right"
                   @iconAlignment="right"
                   {{on "click" this.nextPage}}>
-                  Volgende pagina
+                  {{t "pagination.next"}}
                 </AuButton>
               {{/unless}}
             </div>

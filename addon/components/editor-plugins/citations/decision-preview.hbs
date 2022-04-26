@@ -19,14 +19,14 @@
           @icon="plus-text"
           @iconAlignment="left"
           {{on "click" @onCitationInsert}}>
-          Citaat invoegen
+          {{t "references.insert"}}
         </AuButton>
         <AuButton
           @skin="secondary"
           @icon="manual"
           @iconAlignment="left"
           {{on "click" @onCitationDetails}}>
-          Details
+          {{t "references.details"}}
         </AuButton>
       </AuButtonGroup>
     </div>
@@ -37,14 +37,14 @@
         @icon="plus-text"
         @iconAlignment="left"
         {{on "click" @onCitationInsert}}>
-        Citaat invoegen
+        {{t "references.insert"}}
       </AuButton>
       <AuButton
         @skin="link"
         @icon="manual"
         @iconAlignment="left"
         {{on "click" @onCitationDetails}}>
-        Details
+        {{t "references.details"}}
       </AuButton>
     </div>
   {{/if}}

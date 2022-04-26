@@ -1,12 +1,15 @@
 <AuAlert
-  @alertTitle="Probleem bij het laden"
+  @alertTitle="{{t "alert.error-title"}}"
   @alertSkin="error"
   @alertIcon="alert-triangle"
   @alertSize="{{if @fullSize "default" "small"}}"
   @closable={{false}}
   ...attributes>
-  <p>Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex.</p>
-  <code>{{@error}}</code>
-  <p>Moest dit probleem aanhouden, neem contact op met <AuLinkExternal href="mailto:Gelinkt-Notuleren@vlaanderen.be" @icon="mail" @iconAlignment="left">Gelinkt-Notuleren@vlaanderen.be</AuLinkExternal>.</p>
+  <p>{{t "alert.error-intro"}}</p>
+  <code class="au-u-error citaten--error-code">{{@error}}</code>
+  <p>
+    {{t "alert.error-outro"}}
+    <AuLinkExternal href="mailto:Gelinkt-Notuleren@vlaanderen.be" @icon="mail" @iconAlignment="left">Gelinkt-Notuleren@vlaanderen.be</AuLinkExternal>.
+  </p>
 </AuAlert>
 

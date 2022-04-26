@@ -1,7 +1,7 @@
 <AuModal
   @modalOpen={{true}}
   @closeModal={{(fn @closeModal this.text)}}
-  @title="Voeg een verwijzing toe"
+  @title={{t "card.title"}}
   @size="large"
   @padding="none" as |modal|>
   {{#if this.selectedDecision}}
@@ -25,25 +25,33 @@
               @allowClear={{false}}
               @disabled={{false}}
               @searchEnabled={{true}}
-              @loadingMessage="Laden..."
-              @noMatchesMessage="Geen resultaten gevonden"
-              @searchMessage="Typ om te zoeken"
+              @loadingMessage={{t "alert.loading"}}
+              @noMatchesMessage={{t "alert.no-results"}}
+              @searchMessage={{t "search.placeholder"}}
               @options={{this.legislationTypes}}
               @selected={{this.legislationSelected}}
               @onChange={{this.selectLegislationType}}
               as |type|>
               {{type}}
             </PowerSelect>
-            <AuLabel class="au-u-margin-top au-margin-bottom-small" for="searchtermexpanded" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Zoekterm</AuLabel>
-            <AuInput id="searchtermexpanded" @type="text" @width="block" @icon="search" @iconAlignment="right" @value={{this.text}} {{on "input" (perform this.updateSearch)}}/>
+            <AuLabel class="au-u-margin-top au-margin-bottom-small" for="searchtermexpanded" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
+            <AuInput
+              id="searchtermexpanded"
+              @type="text"
+              @width="block"
+              @icon="search"
+              @iconAlignment="right"
+              @value={{this.text}}
+              placeholder={{t "search.placeholder"}}
+              {{on "input" (perform this.updateSearch)}}/>
             <AuHr @size="large" />
             <div class="citaten--date-filtering">
               {{! Date of document }}
-              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-document-van" @inline={{false}}>Filter op datum document</AuLabel>
+              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-document-van" @inline={{false}}>{{t "search.date-document"}}</AuLabel>
               {{! From }}
               <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-document-van" class="au-u-hidden-visually">Filter op datum document vanaf datum:</AuLabel>
-                <AuLabel for="search-codex-datum-document-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">van</AuLabel>
+                <AuLabel for="search-codex-datum-document-van" class="au-u-hidden-visually">{{t "search.date-document-from"}}</AuLabel>
+                <AuLabel for="search-codex-datum-document-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.from"}}</AuLabel>
                 <AuDatePicker
                   @id="search-codex-datum-document-van"
                   @onChange={{this.updateDocumentDateFrom}}
@@ -53,8 +61,8 @@
               </div>
               {{! To }}
               <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-document-tot" class="au-u-hidden-visually">Filter op datum document tot datum:</AuLabel>
-                <AuLabel for="search-codex-datum-document-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">tot</AuLabel>
+                <AuLabel for="search-codex-datum-document-tot" class="au-u-hidden-visually">{{t "search.date-document-to"}}</AuLabel>
+                <AuLabel for="search-codex-datum-document-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.to"}}</AuLabel>
                 <AuDatePicker
                   @id="search-codex-datum-document-tot"
                   @onChange={{this.updateDocumentDateTo}}
@@ -64,11 +72,11 @@
               </div>
 
               {{! Date of staatsblad }}
-              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-staatsblad-van" @inline={{false}}>Filter op datum staatsblad</AuLabel>
+              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-staatsblad-van" @inline={{false}}>{{t "search.date-publication"}}</AuLabel>
               {{! From }}
               <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-staatsblad-van" class="au-u-hidden-visually"></AuLabel>
-                <AuLabel for="search-codex-datum-staatsblad-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">van</AuLabel>
+                <AuLabel for="search-codex-datum-staatsblad-van" class="au-u-hidden-visually">{{t "search.date-publication-from"}}</AuLabel>
+                <AuLabel for="search-codex-datum-staatsblad-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.from"}}</AuLabel>
                 <AuDatePicker
                   @id="search-codex-datum-staatsblad-van"
                   @onChange={{this.updatePublicationDateFrom}}
@@ -78,8 +86,8 @@
               </div>
               {{! To }}
               <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-staatsblad-tot" class="au-u-hidden-visually"></AuLabel>
-                <AuLabel for="search-codex-datum-staatsblad-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">tot</AuLabel>
+                <AuLabel for="search-codex-datum-staatsblad-tot" class="au-u-hidden-visually">{{t "search.date-publication-to"}}</AuLabel>
+                <AuLabel for="search-codex-datum-staatsblad-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.to"}}</AuLabel>
                 <AuDatePicker
                   @id="search-codex-datum-staatsblad-tot"
                   @onChange={{this.updatePublicationDateTo}}
@@ -95,7 +103,7 @@
           {{#if this.decisionResource.isRunning}}
             <div class="au-u-margin">
               <AuLoader @padding="large" />
-              <span class="au-u-hidden-visually">Aan het zoeken</span>
+              <span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
             </div>
           {{else}}
             {{#if this.error}}
@@ -123,11 +131,11 @@
                 @nowrap={{true}}>
                 <div class="au-c-pagination">
                   <p>
-                    <span class="au-u-hidden-visually">Resultaten</span>
+                  <span class="au-u-hidden-visually">{{t "search.results"}}</span>
                     <strong>
                       {{this.rangeStart}} - {{this.rangeEnd}}
                     </strong>
-                    van
+                    {{t "pagination.of"}}
                     {{this.totalCount}}
                   </p>
                   <div class="au-c-pagination__list-item">
@@ -137,7 +145,7 @@
                         @icon="nav-left"
                         @iconAlignment="left"
                         {{on "click" this.previousPage}}>
-                        Vorige pagina
+                        {{t "pagination.previous"}}
                       </AuButton>
                     {{/unless}}
                     {{#unless this.isLastPage}}
@@ -146,7 +154,7 @@
                         @icon="nav-right"
                         @iconAlignment="right"
                         {{on "click" this.nextPage}}>
-                        Volgende pagina
+                        {{t "pagination.next"}}
                       </AuButton>
                     {{/unless}}
                   </div>

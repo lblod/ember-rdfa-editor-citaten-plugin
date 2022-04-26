@@ -1,32 +1,37 @@
 {{#if this.showCard}}
   <AuCard @flex={{true}} @divided={{true}} @isOpenInitially={{true}} @expandable={{true}} @shadow={{true}} @size="small" as |c|>
     <c.header>
-      <AuHeading @level="3" @skin="6">
-        Voeg verwijzing toe:
-      </AuHeading>
+    <AuHeading @level="3" @skin="6">{{t "card.title"}}</AuHeading>
     </c.header>
     <c.content>
-      <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Type document</AuLabel>
+    <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
       <PowerSelect
         id="typeofdocument"
         @allowClear={{false}}
         @disabled={{false}}
         @searchEnabled={{true}}
-        @loadingMessage="Laden..."
-        @noMatchesMessage="Geen resultaten gevonden"
-        @searchMessage="Typ om te zoeken"
+        @loadingMessage="{{t "alert.loading"}}"
+        @noMatchesMessage="{{t "alert.no-results"}}"
+        @searchMessage="{{t "search.placeholder"}}"
         @options={{this.legislationTypes}}
         @selected={{this.legislationSelected}}
         @onChange={{this.selectLegislationType}}
         as |type|>
         {{type}}
       </PowerSelect>
-      <AuLabel for="searchterm" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>Zoekterm</AuLabel>
-      <AuInput id="searchterm" @type="text" @width="block" @icon="search" @iconAlignment="right" @value={{this.text}} {{on "input" (perform this.updateSearch)}}/>
-      <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>Uitgebreid zoeken</AuButton>
+      <AuLabel for="searchterm" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
+      <AuInput id="searchterm"
+        @type="text"
+        @width="block"
+        @icon="search"
+        @iconAlignment="right"
+        @value={{this.text}}
+        placeholder={{t "search.placeholder"}}
+        {{on "input" (perform this.updateSearch)}}/>
+      <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>{{t "search.advanced"}}</AuButton>
 
       {{#if this.decisionResource.isRunning}}
-        <AuLoader /><span class="au-u-hidden-visually">Aan het zoeken</span>
+      <AuLoader /><span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
       {{else}}
         {{#if this.error}}
           <EditorPlugins::Helpers::AlertLoadError @fullSize={{false}} @error={{this.error}} />
@@ -35,7 +40,7 @@
             @border="bottom"
             @skin="none"
             @size="none">
-            <AuHeading @skin="5" @level="4">Suggesties</AuHeading>
+          <AuHeading @skin="5" @level="4">{{t "card.suggestions"}}</AuHeading>
           </AuToolbar>
           <div class="citaten--decision-list">
             <EditorPlugins::Citations::DecisionList
