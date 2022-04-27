@@ -35,12 +35,15 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
   @task({ restartable: true })
   *resourceSearch() {
     this.error = null;
+    const abortController = new AbortController();
+    const signal = abortController.signal;
     try {
       const results = yield fetchArticles(
         this.args.decision.uri,
         this.pageNumber,
         this.pageSize,
-        this.articleFilterAfterTimeout
+        this.articleFilterAfterTimeout,
+        signal
       );
       this.totalCount = results.totalCount;
       return results.articles;
@@ -49,7 +52,15 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
       this.totalCount = 0;
       this.error = e;
       return [];
+    } finally {
+      abortController.abort();
     }
+  }
+
+  @action
+  close() {
+    this.articleResource.cancel();
+    this.args.close();
   }
 
   // Pagination

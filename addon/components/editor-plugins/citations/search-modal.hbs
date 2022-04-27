@@ -1,6 +1,6 @@
 <AuModal
   @modalOpen={{true}}
-  @closeModal={{(fn @closeModal this.legislationTypeUri this.text)}}
+  @closeModal={{fn this.closeModal this.legislationTypeUri this.text}}
   @title={{t "card.title"}}
   @size="large"
   @padding="none" as |modal|>

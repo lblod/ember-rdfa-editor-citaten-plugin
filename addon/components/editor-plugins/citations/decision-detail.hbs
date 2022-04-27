@@ -47,7 +47,7 @@
           <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin" />
         {{else}}
           <EditorPlugins::Citations::ArticleList
-            @insertArticleCitation={{(fn @insertArticleCitation @decision)}}
+            @insertArticleCitation={{fn @insertArticleCitation @decision}}
             @articles={{this.articleResource.value}}
             @fullSize={{true}}/>
         {{/if}}
@@ -68,7 +68,7 @@
               @skin="link"
               @icon="hierarchical-back"
               @iconAlignment="left"
-              {{on "click" @close}}>
+              {{on "click" this.close}}>
               {{t "search.back"}}
             </AuButton>
           </div>

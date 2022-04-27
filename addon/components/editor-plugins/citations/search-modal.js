@@ -94,6 +94,8 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
   *resourceSearch() {
     this.error = null;
     yield undefined; //To prevent retriggering because of the use of this.text later.
+    const abortController = new AbortController();
+    const signal = abortController.signal;
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
@@ -110,7 +112,8 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
         words,
         filter,
         this.pageNumber,
-        this.pageSize
+        this.pageSize,
+        signal
       );
       this.totalCount = results.totalCount;
       return results.decisions;
@@ -119,6 +122,9 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
       this.totalCount = 0;
       this.error = e;
       return [];
+    } finally {
+      //Abort all requests now that this task has either successfully finished or has been cancelled
+      abortController.abort();
     }
   }
 
@@ -163,13 +169,19 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
   @action
   insertDecisionCitation(decision) {
     this.args.insertDecisionCitation(decision);
-    this.args.closeModal();
+    this.closeModal();
   }
 
   @action
   insertArticleCitation(decision, article) {
     this.args.insertArticleCitation(decision, article);
-    this.args.closeModal();
+    this.closeModal();
+  }
+
+  @action
+  closeModal(legislationTypeUri, text) {
+    this.decisionResource.cancel();
+    this.args.closeModal(legislationTypeUri, text);
   }
 
   @action

@@ -90,13 +90,24 @@ export default class CitaatCardComponent extends Component {
       }
     }
     if (selectionMark) {
-      this.showCard = true;
-      this.text = selectionMark.attributes.text;
-      this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
-      this.markSelected = selectionMark;
-      this.updateSearch.perform();
+      if (this.showCard) {
+        //Card was already shown, update search condition and trigger search debounced
+        this.text = selectionMark.attributes.text;
+        this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+        this.markSelected = selectionMark;
+        this.updateSearch.perform();
+      } else {
+        //When card is renderend first time, the resource will automatically trigger, no updateSearch is needed, but make sure to first set the search conditions, before showing the card.
+        //When not first time, but reopened, search terms could not have changed yet, so also no updateSearch needed
+        this.text = selectionMark.attributes.text;
+        this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+        this.markSelected = selectionMark;
+        this.showCard = true;
+      }
     } else {
       this.showCard = false;
+      //Would be nice, but this triggers way to often causing the cancellation of useful requests
+      //this.decisionResource.cancel();
     }
   }
 
@@ -140,6 +151,8 @@ export default class CitaatCardComponent extends Component {
   *resourceSearch() {
     this.error = null;
     yield undefined; //To prevent other variables used below (this.text and this.legislationTypeUri) to trigger a retrigger.
+    const abortController = new AbortController();
+    const signal = abortController.signal;
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
@@ -152,7 +165,8 @@ export default class CitaatCardComponent extends Component {
         words,
         filter,
         this.pageNumber,
-        this.pageSize
+        this.pageSize,
+        signal
       );
       this.totalCount = results.totalCount;
       return results.decisions;
@@ -161,6 +175,9 @@ export default class CitaatCardComponent extends Component {
       this.totalCount = 0;
       this.error = e;
       return [];
+    } finally {
+      //Abort all requests now that this task has either successfully finished or has been cancelled
+      abortController.abort();
     }
   }
 
@@ -184,6 +201,7 @@ export default class CitaatCardComponent extends Component {
 
   @action
   openSearchModal() {
+    this.decisionResource.cancel();
     this.decision = null;
     this.showModal = true;
   }
@@ -192,11 +210,9 @@ export default class CitaatCardComponent extends Component {
   closeModal(lastSearchType, lastSearchTerm) {
     this.showModal = false;
     this.decision = null;
-    if (lastSearchTerm) {
-      this.legislationTypeUri = lastSearchType;
-      this.text = lastSearchTerm;
-      this.updateSearchImmediate.perform();
-    }
+    if (lastSearchType) this.legislationTypeUri = lastSearchType;
+    if (lastSearchTerm) this.text = lastSearchTerm;
+    if (lastSearchType || lastSearchTerm) this.updateSearchImmediate.perform();
   }
 
   @action
@@ -229,6 +245,7 @@ export default class CitaatCardComponent extends Component {
 
   willDestroy() {
     super.willDestroy();
+    this.decisionResource.cancel();
     this.liveHighlights.destroy();
   }
 }
