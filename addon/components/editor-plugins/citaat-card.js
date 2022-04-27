@@ -101,6 +101,14 @@ export default class CitaatCardComponent extends Component {
         //When not first time, but reopened, search terms could not have changed yet, so also no updateSearch needed
         this.text = selectionMark.attributes.text;
         this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+        if (
+          this.legislationTypeUriAfterTimeout &&
+          (this.legislationTypeUri !== this.legislationTypeUriAfterTimeout ||
+            this.text !== this.textAfterTimeout)
+        ) {
+          //Convoluted, but this is when you switch from one reference insertion to another
+          this.updateSearchImmediate.perform();
+        }
         this.markSelected = selectionMark;
         this.showCard = true;
       }
