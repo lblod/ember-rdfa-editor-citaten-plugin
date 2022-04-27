@@ -3,6 +3,11 @@
 @import "appuniversum/s-global";
 @import "appuniversum/t-sass-mq";
 
+.citaten--card-content > * + * {
+  margin-top: 1.2rem !important;
+  margin-bottom: 1.2rem !important;
+}
+
 .citaten--decision-list {
   max-height: 35vh;
   overflow: auto;

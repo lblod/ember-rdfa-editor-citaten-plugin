@@ -1,10 +1,10 @@
 {{#if this.showCard}}
   <AuCard @flex={{true}} @divided={{true}} @isOpenInitially={{true}} @expandable={{true}} @shadow={{true}} @size="small" as |c|>
     <c.header>
-    <AuHeading @level="3" @skin="6">{{t "card.title"}}</AuHeading>
+      <AuHeading @level="3" @skin="6">{{t "card.title"}}</AuHeading>
     </c.header>
-    <c.content>
-    <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
+    <c.content class="citaten--card-content">
+      <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
       <PowerSelect
         id="typeofdocument"
         @allowClear={{false}}
@@ -19,8 +19,9 @@
         as |type|>
         {{type}}
       </PowerSelect>
-      <AuLabel for="searchterm" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
-      <AuInput id="searchterm"
+      <AuLabel for="searchterm" class="au-u-margin-top" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
+      <AuInput
+        id="searchterm"
         @type="text"
         @width="block"
         @icon="search"
