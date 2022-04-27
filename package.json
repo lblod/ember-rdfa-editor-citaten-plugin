@@ -34,6 +34,7 @@
     "@appuniversum/ember-appuniversum": "^1.0.7",
     "ember-concurrency": "^2.2.0",
     "ember-concurrency-decorators": "^2.0.3",
+    "ember-power-select": "^5.0.4",
     "ember-resources": "^4.6.3"
   },
   "dependencies": {
