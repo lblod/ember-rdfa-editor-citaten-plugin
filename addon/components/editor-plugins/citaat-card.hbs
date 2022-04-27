@@ -3,36 +3,38 @@
     <c.header>
       <AuHeading @level="3" @skin="6">{{t "card.title"}}</AuHeading>
     </c.header>
-    <c.content class="citaten--card-content">
-      <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
-      <PowerSelect
-        id="typeofdocument"
-        @allowClear={{false}}
-        @disabled={{false}}
-        @searchEnabled={{true}}
-        @loadingMessage="{{t "alert.loading"}}"
-        @noMatchesMessage="{{t "alert.no-results"}}"
-        @searchMessage="{{t "search.placeholder"}}"
-        @options={{this.legislationTypes}}
-        @selected={{this.legislationSelected}}
-        @onChange={{this.selectLegislationType}}
-        as |type|>
-        {{type}}
-      </PowerSelect>
-      <AuLabel for="searchterm" class="au-u-margin-top" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
-      <AuInput
-        id="searchterm"
-        @type="text"
-        @width="block"
-        @icon="search"
-        @iconAlignment="right"
-        @value={{this.text}}
-        placeholder={{t "search.placeholder"}}
-        {{on "input" (perform this.updateSearch)}}/>
-      <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>{{t "search.advanced"}}</AuButton>
+    <c.content>
+      <div class="citaten--card-content">
+        <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
+        <PowerSelect
+          id="typeofdocument"
+          @allowClear={{false}}
+          @disabled={{false}}
+          @searchEnabled={{true}}
+          @loadingMessage="{{t "alert.loading"}}"
+          @noMatchesMessage="{{t "alert.no-results"}}"
+          @searchMessage="{{t "search.placeholder"}}"
+          @options={{this.legislationTypes}}
+          @selected={{this.legislationSelected}}
+          @onChange={{this.selectLegislationType}}
+          as |type|>
+          {{type}}
+        </PowerSelect>
+        <AuLabel for="searchterm" class="au-u-margin-top" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
+        <AuInput
+          id="searchterm"
+          @type="text"
+          @width="block"
+          @icon="search"
+          @iconAlignment="right"
+          @value={{this.text}}
+          placeholder={{t "search.placeholder"}}
+          {{on "input" (perform this.updateSearch)}}/>
+        <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>{{t "search.advanced"}}</AuButton>
+      </div>
 
       {{#if this.decisionResource.isRunning}}
-      <AuLoader /><span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
+        <AuLoader /><span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
       {{else}}
         {{#if this.error}}
           <EditorPlugins::Helpers::AlertLoadError @fullSize={{false}} @error={{this.error}} />
@@ -41,7 +43,7 @@
             @border="bottom"
             @skin="none"
             @size="none">
-          <AuHeading @skin="5" @level="4">{{t "card.suggestions"}}</AuHeading>
+            <AuHeading @skin="5" @level="4">{{t "card.suggestions"}}</AuHeading>
           </AuToolbar>
           <div class="citaten--decision-list">
             <EditorPlugins::Citations::DecisionList
