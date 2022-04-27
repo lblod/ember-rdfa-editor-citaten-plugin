@@ -339,6 +339,11 @@ async function fetchArticlesMemd(
   }
 }
 
+function cleanCaches() {
+  this.fetchDecisionsMemory.clear();
+  this.fetchArticlesMemory.clear();
+}
+
 function escapeValue(value) {
   if (value) {
     const shadowDomElement = document.createElement('textarea');
@@ -393,4 +398,4 @@ async function executeQuery(query, abortSignal) {
   }
 }
 
-export { fetchDecisions, fetchArticles };
+export { fetchDecisions, fetchArticles, cleanCaches };

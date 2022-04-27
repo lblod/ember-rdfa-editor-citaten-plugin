@@ -5,7 +5,7 @@ import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
 import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
-import { fetchDecisions } from '../../utils/vlaamse-codex';
+import { fetchDecisions, cleanCaches } from '../../utils/vlaamse-codex';
 import { useTask } from 'ember-resources';
 import {
   LEGISLATION_TYPES,
@@ -254,6 +254,7 @@ export default class CitaatCardComponent extends Component {
   willDestroy() {
     super.willDestroy();
     this.decisionResource.cancel();
+    cleanCaches();
     this.liveHighlights.destroy();
   }
 }
