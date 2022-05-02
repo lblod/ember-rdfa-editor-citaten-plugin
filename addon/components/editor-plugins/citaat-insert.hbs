@@ -3,6 +3,7 @@
     @icon="add"
     @iconAlignment="left"
     @skin="link"
+    @disabled={{this.disableInsert}}
     {{on 'click' this.openModal}}>
     {{t "insert.title"}}
   </AuButton>
