@@ -12,6 +12,11 @@ export default class CitatenPlugin {
       componentName: 'editor-plugins/citaat-card',
       identifier: 'editor-plugins/citaat-card',
     });
+    controller.registerWidget({
+      desiredLocation: 'insertSidebar',
+      componentName: 'editor-plugins/citaat-insert',
+      identifier: 'editor-plugins/citaat-insert',
+    });
     controller.registerMark(CitatenMark);
   }
 }

@@ -1,0 +1,18 @@
+<AuList::Item>
+  <AuButton
+    @icon="add"
+    @iconAlignment="left"
+    @skin="link"
+    {{on 'click' this.openModal}}>
+    {{t "insert.title"}}
+  </AuButton>
+</AuList::Item>
+
+{{#if this.showModal}}
+  <EditorPlugins::Citations::Modal
+    @closeModal={{this.closeModal}}
+    @insertCitation={{this.insertCitation}}
+    @legislationTypeUri={{this.legislationTypeUri}}
+    @text={{this.text}}
+  />
+{{/if}}

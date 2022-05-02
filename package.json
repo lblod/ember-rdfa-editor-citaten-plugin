@@ -42,7 +42,7 @@
     "ember-intl": "^5.7.2"
   },
   "devDependencies": {
-    "@appuniversum/ember-appuniversum": "^1.0.2",
+    "@appuniversum/ember-appuniversum": "^1.0.10",
     "@codemirror/basic-setup": "^0.19.1",
     "@codemirror/lang-html": "^0.19.4",
     "@codemirror/lang-xml": "^0.19.1",
@@ -51,7 +51,7 @@
     "@embroider/test-setup": "^0.48.1",
     "@glimmer/component": "^1.0.4",
     "@glimmer/tracking": "^1.0.4",
-    "@lblod/ember-rdfa-editor": "^0.55.0",
+    "@lblod/ember-rdfa-editor": "^0.57.0",
     "babel-eslint": "^10.1.0",
     "broccoli-asset-rev": "^3.0.0",
     "ember-auto-import": "^2.0.2",
