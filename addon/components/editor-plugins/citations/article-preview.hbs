@@ -1,0 +1,16 @@
+<div class="au-u-margin" ...attributes>
+  <AuHeading @level="3" @skin="5" class="au-u-margin-bottom-small">
+  {{@article.number}} ({{@article.dateInForce}} - {{if @article.dateNoLongerInForce @article.dateNoLongerInForce "…"}})
+  </AuHeading>
+  <p>
+    {{@article.content}}
+  </p>
+  <AuButton
+    @skin="primary"
+    @icon="plus-text"
+    @iconAlignment="left"
+    class="au-u-margin-top-small"
+    {{on "click" @insertArticleCitation}}>
+    {{t "references.refer-article"}}
+  </AuButton>
+</div>

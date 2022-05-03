@@ -3,7 +3,8 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { task, timeout } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
-
+import { capitalize } from '@ember/string';
+import { useTask } from 'ember-resources';
 import {
   LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
@@ -23,9 +24,10 @@ function getISODate(date) {
   }
 }
 
-export default class EditorPluginsCitationsModalComponent extends Component {
+export default class EditorPluginsCitationsSearchModalComponent extends Component {
   @service intl;
   @tracked text;
+  @tracked textAfterTimeout;
   // Vlaamse Codex currently doesn't contain captions and content of decisions
   // @tracked isEnabledSearchCaption = false
   // @tracked isEnabledSearchContent = false
@@ -64,25 +66,41 @@ export default class EditorPluginsCitationsModalComponent extends Component {
     this.legislationTypeUri =
       this.args.legislationTypeUri || LEGISLATION_TYPES['decreet'];
     this.text = this.args.text;
-    this.search.perform();
   }
 
   get legislationTypes() {
-    return LEGISLATION_TYPE_CONCEPTS;
+    return Object.keys(LEGISLATION_TYPES).map(capitalize);
   }
-  @(task(function* () {
-    yield timeout(500);
-    yield this.search.perform();
-  }).keepLatest())
-  searchText;
 
-  @(task(function* (pageNumber) {
-    this.pageNumber = pageNumber || 0; // reset page to 0 for a new search task
+  get legislationSelected() {
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.value === this.legislationTypeUri
+    );
+    return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
+  }
+
+  decisionResource = useTask(this, this.resourceSearch, () => [
+    this.textAfterTimeout,
+    this.legislationTypeUri,
+    this.pageSize,
+    this.pageNumber,
+    this.documentDateFrom,
+    this.documentDateTo,
+    this.publicationDateFrom,
+    this.publicationDateTo,
+  ]);
+
+  @task({ restartable: true })
+  *resourceSearch() {
     this.error = null;
+    yield undefined; //To prevent retriggering because of the use of this.text later.
+    const abortController = new AbortController();
+    const signal = abortController.signal;
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
-      const words = (this.text || '').match(/\S+/g) || [];
+      const words =
+        (this.textAfterTimeout || this.text || '').match(/\S+/g) || [];
       const filter = {
         type: this.legislationTypeUri,
         documentDateFrom: getISODate(this.documentDateFrom),
@@ -94,68 +112,76 @@ export default class EditorPluginsCitationsModalComponent extends Component {
         words,
         filter,
         this.pageNumber,
-        this.pageSize
+        this.pageSize,
+        signal
       );
       this.totalCount = results.totalCount;
-      this.decisions = results.decisions;
+      return results.decisions;
     } catch (e) {
       console.warn(e); // eslint-ignore-line no-console
       this.totalCount = 0;
-      this.decisions = [];
       this.error = e;
+      return [];
+    } finally {
+      //Abort all requests now that this task has either successfully finished or has been cancelled
+      abortController.abort();
     }
-  }).keepLatest())
-  search;
+  }
+
+  @task({ restartable: true })
+  *updateSearch() {
+    yield timeout(500);
+    this.textAfterTimeout = this.text;
+    this.pageNumber = 0;
+  }
 
   @action
-  selectLegislationType(event) {
-    this.legislationTypeUri = event.target.value;
-    this.search.perform();
+  selectLegislationType(type) {
+    type = type.toLowerCase();
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.label.toLowerCase() === type
+    );
+    this.legislationTypeUri = found
+      ? found.value
+      : LEGISLATION_TYPE_CONCEPTS[0].value;
   }
 
   @action
   updateDocumentDateFrom(isoDate, date) {
     this.documentDateFrom = date;
-    this.search.perform();
   }
 
   @action
   updateDocumentDateTo(isoDate, date) {
     this.documentDateTo = date;
-    this.search.perform();
   }
 
   @action
   updatePublicationDateFrom(isoDate, date) {
     this.publicationDateFrom = date;
-    this.search.perform();
   }
 
   @action
   updatePublicationDateTo(isoDate, date) {
     this.publicationDateTo = date;
-    this.search.perform();
   }
 
   @action
   insertDecisionCitation(decision) {
-    this.args.insertCitation(
-      decision.legislationType.label,
-      decision.uri,
-      decision.title
-    );
-    this.args.closeModal();
+    this.args.insertDecisionCitation(decision);
+    this.closeModal();
   }
 
   @action
   insertArticleCitation(decision, article) {
-    const title = `${decision.title}, ${article.number}`;
-    this.args.insertCitation(
-      decision.legislationType.label,
-      article.uri,
-      title
-    );
-    this.args.closeModal();
+    this.args.insertArticleCitation(decision, article);
+    this.closeModal();
+  }
+
+  @action
+  closeModal(legislationTypeUri, text) {
+    this.decisionResource.cancel();
+    this.args.closeModal(legislationTypeUri, text);
   }
 
   @action
@@ -172,12 +198,12 @@ export default class EditorPluginsCitationsModalComponent extends Component {
 
   @action
   previousPage() {
-    this.search.perform(this.pageNumber - 1);
+    --this.pageNumber;
   }
 
   @action
   nextPage() {
-    this.search.perform(this.pageNumber + 1);
+    ++this.pageNumber;
   }
 
   get rangeStart() {

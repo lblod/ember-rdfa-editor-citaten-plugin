@@ -1,0 +1,10 @@
+<AuAlert
+  @alertTitle="{{t "alert.no-results"}}"
+  @alertSkin="warning"
+  @alertIcon="cross"
+  @alertSize="{{if @fullSize "default" "small"}}"
+  @closable={{false}}
+  class="{{unless @fullSize "au-u-margin-top-small"}}"
+  ...attributes>
+</AuAlert>
+

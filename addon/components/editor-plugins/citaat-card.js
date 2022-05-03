@@ -3,9 +3,14 @@ import { tracked } from '@glimmer/tracking';
 import { task } from 'ember-concurrency-decorators';
 import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
+import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
-import { fetchDecisions } from '../../utils/vlaamse-codex';
-import { LEGISLATION_TYPE_CONCEPTS } from '../../utils/legislation-types';
+import { fetchDecisions, cleanCaches } from '../../utils/vlaamse-codex';
+import { useTask } from 'ember-resources';
+import {
+  LEGISLATION_TYPES,
+  LEGISLATION_TYPE_CONCEPTS,
+} from '../../utils/legislation-types';
 
 const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
 
@@ -25,7 +30,9 @@ export default class CitaatCardComponent extends Component {
   @tracked showCard = false;
   @tracked decision;
   @tracked legislationTypeUri;
+  @tracked legislationTypeUriAfterTimeout;
   @tracked text;
+  @tracked textAfterTimeout;
   @tracked markSelected;
   liveHighlights;
 
@@ -83,13 +90,32 @@ export default class CitaatCardComponent extends Component {
       }
     }
     if (selectionMark) {
-      this.showCard = true;
-      this.text = selectionMark.attributes.text;
-      this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
-      this.markSelected = selectionMark;
-      this.search.perform();
+      if (this.showCard) {
+        //Card was already shown, update search condition and trigger search debounced
+        this.text = selectionMark.attributes.text;
+        this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+        this.markSelected = selectionMark;
+        this.updateSearch.perform();
+      } else {
+        //When card is renderend first time, the resource will automatically trigger, no updateSearch is needed, but make sure to first set the search conditions, before showing the card.
+        //When not first time, but reopened, search terms could not have changed yet, so also no updateSearch needed
+        this.text = selectionMark.attributes.text;
+        this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+        if (
+          this.legislationTypeUriAfterTimeout &&
+          (this.legislationTypeUri !== this.legislationTypeUriAfterTimeout ||
+            this.text !== this.textAfterTimeout)
+        ) {
+          //Convoluted, but this is when you switch from one reference insertion to another
+          this.updateSearchImmediate.perform();
+        }
+        this.markSelected = selectionMark;
+        this.showCard = true;
+      }
     } else {
       this.showCard = false;
+      //Would be nice, but this triggers way to often causing the cancellation of useful requests
+      //this.decisionResource.cancel();
     }
   }
 
@@ -98,45 +124,81 @@ export default class CitaatCardComponent extends Component {
   }
 
   get legislationTypes() {
-    return LEGISLATION_TYPE_CONCEPTS;
+    return Object.keys(LEGISLATION_TYPES).map(capitalize);
+  }
+
+  get legislationSelected() {
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.value === this.legislationTypeUri
+    );
+    return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
+  }
+
+  decisionResource = useTask(this, this.resourceSearch, () => [
+    this.textAfterTimeout,
+    this.legislationTypeUriAfterTimeout,
+    this.pageNumber,
+    this.pageSize,
+  ]);
+
+  @task({ restartable: true })
+  *updateSearch() {
+    yield timeout(500);
+    this.textAfterTimeout = this.text;
+    this.legislationTypeUriAfterTimeout = this.legislationTypeUri;
   }
 
   @task({ restartable: true })
-  *search() {
+  *updateSearchImmediate() {
+    this.textAfterTimeout = this.text;
+    this.legislationTypeUriAfterTimeout = this.legislationTypeUri;
+    yield;
+  }
+
+  @task({ restartable: true })
+  *resourceSearch() {
     this.error = null;
+    yield undefined; //To prevent other variables used below (this.text and this.legislationTypeUri) to trigger a retrigger.
+    const abortController = new AbortController();
+    const signal = abortController.signal;
     try {
       // Split search string by grouping on non-whitespace characters
       // This probably needs to be more complex to search on group of words
-      const words = (this.text || '').match(/\S+/g) || [];
+      const words =
+        (this.textAfterTimeout || this.text || '').match(/\S+/g) || [];
       const filter = {
-        type: this.legislationTypeUri,
+        type: this.legislationTypeUriAfterTimeout || this.legislationTypeUri,
       };
       const results = yield fetchDecisions(
         words,
         filter,
         this.pageNumber,
-        this.pageSize
+        this.pageSize,
+        signal
       );
       this.totalCount = results.totalCount;
-      this.decisions = results.decisions;
+      return results.decisions;
     } catch (e) {
       console.warn(e); // eslint-ignore-line no-console
       this.totalCount = 0;
-      this.decisions = [];
       this.error = e;
+      return [];
+    } finally {
+      //Abort all requests now that this task has either successfully finished or has been cancelled
+      abortController.abort();
     }
   }
 
   @action
-  selectLegislationType(event) {
-    this.legislationTypeUri = event.target.value;
-    this.search.perform();
-  }
-
-  @task({ restartable: true })
-  *updateSearch() {
-    yield timeout(200);
-    yield this.search.perform();
+  selectLegislationType(type) {
+    type = type.toLowerCase();
+    const found = LEGISLATION_TYPE_CONCEPTS.find(
+      (c) => c.label.toLowerCase() === type
+    );
+    this.legislationTypeUri = found
+      ? found.value
+      : LEGISLATION_TYPE_CONCEPTS[0].value;
+    this.legislationTypeUriAfterTimeout = this.legislationTypeUri;
   }
 
   @action
@@ -147,18 +209,25 @@ export default class CitaatCardComponent extends Component {
 
   @action
   openSearchModal() {
+    this.decisionResource.cancel();
     this.decision = null;
     this.showModal = true;
   }
 
   @action
-  closeModal() {
+  closeModal(lastSearchType, lastSearchTerm) {
     this.showModal = false;
     this.decision = null;
+    if (lastSearchType) this.legislationTypeUri = lastSearchType;
+    if (lastSearchTerm) this.text = lastSearchTerm;
+    if (lastSearchType || lastSearchTerm) this.updateSearchImmediate.perform();
   }
 
   @action
-  insertCitation(type, uri, title) {
+  insertDecisionCitation(decision) {
+    const type = decision.legislationType.label;
+    const uri = decision.uri;
+    const title = decision.title;
     const range = this.controller.rangeFactory.fromAroundNode(
       this.markSelected.node
     );
@@ -169,27 +238,23 @@ export default class CitaatCardComponent extends Component {
   }
 
   @action
-  prevPage() {
-    this.pageNumber = this.pageNumber - 1;
-    this.search.perform();
-  }
-
-  @action
-  nextPage() {
-    this.pageNumber = this.pageNumber + 1;
-    this.search.perform();
-  }
-
-  get legislationType() {
-    const type = this.legislationTypes.find(
-      (type) => type.value === this.legislationTypeUri
+  insertArticleCitation(decision, article) {
+    const type = decision.legislationType.label;
+    const uri = article.uri;
+    const title = `${decision.title}, ${article.number}`;
+    const range = this.controller.rangeFactory.fromAroundNode(
+      this.markSelected.node
     );
-    if (type) return type.label;
-    else return '';
+    const citationHtml = `${
+      type ? type : ''
+    } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
+    this.controller.executeCommand('insert-html', citationHtml, range);
   }
 
   willDestroy() {
     super.willDestroy();
+    this.decisionResource.cancel();
+    cleanCaches();
     this.liveHighlights.destroy();
   }
 }

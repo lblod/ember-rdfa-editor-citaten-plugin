@@ -53,7 +53,50 @@ function replaceDiacriticsInWord(word) {
   return word;
 }
 
-async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
+//Attempt to memoise on the fetching by stringifying the arguments. This could spare a few fetches.
+//If memoising fails, at least a normal fetch is performed.
+
+const fetchDecisionsMemory = new Map();
+
+async function fetchDecisions(
+  words,
+  filter,
+  pageNumber = 0,
+  pageSize = 5
+  /*abortSignal*/
+) {
+  //This is silly, but null != undefined, so we have to be careful and include the correct value here
+  //Also, reconstruct the whole filter object to always have the same ordering, hopefully.
+  filter = {
+    type: filter.type,
+    documentDateFrom: filter.documentDateFrom || null,
+    documentDateTo: filter.documentDateTo || null,
+    publicationDateFrom: filter.publicationDateFrom || null,
+    publicationDateTo: filter.publicationDateTo || null,
+  };
+  const stringArguments = JSON.stringify({
+    words,
+    filter,
+    pageNumber,
+    pageSize,
+  });
+  const results = fetchDecisionsMemory.get(stringArguments);
+  if (results) {
+    return results;
+  } else {
+    const newResults = await fetchDecisionsMemd(...arguments);
+    fetchDecisionsMemory.set(stringArguments, newResults);
+    return newResults;
+  }
+}
+
+async function fetchDecisionsMemd(
+  words,
+  filter,
+  pageNumber = 0,
+  pageSize = 5,
+  abortSignal
+) {
   // TBD/NOTE: in the context of a <http://data.europa.eu/eli/ontology#LegalResource>
   // the eli:cites can have either a <http://xmlns.com/foaf/0.1/Document> or <http://data.europa.eu/eli/ontology#LegalResource>
   // as range (see AP https://data.vlaanderen.be/doc/applicatieprofiel/besluit-publicatie/#Rechtsgrond),
@@ -98,8 +141,8 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
       'FILTER(! STRSTARTS(LCASE(?title),"tot wijziging"))'
     );
   }
-  const totalCount = await executeCountQuery(`
-      PREFIX eli: <http://data.europa.eu/eli/ontology#>
+  const totalCount = await executeCountQuery(
+    `PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
       SELECT COUNT(DISTINCT(?expressionUri)) as ?count
       WHERE {
@@ -118,11 +161,13 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
         ${excludeAdaptationFilters.join('\n')}
         ${documentDateFilter}
         ${publicationDateFilter}
-      }`);
+      }`,
+    abortSignal
+  );
 
   if (totalCount > 0) {
-    const response = await executeQuery(`
-        PREFIX eli: <http://data.europa.eu/eli/ontology#>
+    const response = await executeQuery(
+      `PREFIX eli: <http://data.europa.eu/eli/ontology#>
 
         SELECT DISTINCT ?expressionUri as ?uri ?title ?publicationDate ?documentDate
         WHERE {
@@ -142,7 +187,9 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
           ${excludeAdaptationFilters.join('\n')}
           ${documentDateFilter}
           ${publicationDateFilter}
-        } ORDER BY ?title LIMIT ${pageSize} OFFSET ${pageNumber * pageSize}`);
+        } ORDER BY ?title LIMIT ${pageSize} OFFSET ${pageNumber * pageSize}`,
+      abortSignal
+    );
 
     const decisions = response.results.bindings.map((binding) => {
       const escapedTitle = escapeValue(binding.title.value);
@@ -173,17 +220,44 @@ async function fetchDecisions(words, filter, pageNumber = 0, pageSize = 5) {
   }
 }
 
+const fetchArticlesMemory = new Map();
+
 async function fetchArticles(
+  legalExpression,
+  pageNumber,
+  pageSize,
+  articleFilter
+  /*abortSignal*/
+) {
+  //Simpler here, only one way arguments are set up
+  const stringArguments = JSON.stringify({
+    legalExpression,
+    pageNumber,
+    pageSize,
+    articleFilter,
+  });
+  const results = fetchArticlesMemory.get(stringArguments);
+  if (results) {
+    return results;
+  } else {
+    const newResults = await fetchArticlesMemd(...arguments);
+    fetchArticlesMemory.set(stringArguments, newResults);
+    return newResults;
+  }
+}
+
+async function fetchArticlesMemd(
   legalExpression,
   pageNumber = 0,
   pageSize = 10,
-  articleFilter
+  articleFilter,
+  abortSignal
 ) {
   const numberFilter = articleFilter
     ? `FILTER( !BOUND(?number) || CONTAINS(?number, "${articleFilter}"))`
     : '';
-  const totalCount = await executeCountQuery(`
-    PREFIX eli: <http://data.europa.eu/eli/ontology#>
+  const totalCount = await executeCountQuery(
+    `PREFIX eli: <http://data.europa.eu/eli/ontology#>
     PREFIX dct: <http://purl.org/dc/terms/>
 
     SELECT COUNT(DISTINCT(?article)) as ?count
@@ -200,35 +274,39 @@ async function fetchArticles(
         FILTER( !BOUND(?dateNoLongerInForce) || ?dateNoLongerInForce > NOW() )
         OPTIONAL { ?article eli:number ?number . }
         ${numberFilter}
-    }`);
+    }`,
+    abortSignal
+  );
 
   if (totalCount > 0) {
     // ?number has format like "Artikel 12." We parse the number from the string for ordering
     // Second degree ordering on ?numberStr to make sure "Artikel 3/1." comes after "Artikel 3."
-    const response = await executeQuery(`
-    PREFIX eli: <http://data.europa.eu/eli/ontology#>
-    PREFIX prov: <http://www.w3.org/ns/prov#>
-    PREFIX dct: <http://purl.org/dc/terms/>
+    const response = await executeQuery(
+      `PREFIX eli: <http://data.europa.eu/eli/ontology#>
+      PREFIX prov: <http://www.w3.org/ns/prov#>
+      PREFIX dct: <http://purl.org/dc/terms/>
 
-    SELECT DISTINCT ?article ?dateInForce ?dateNoLongerInForce ?number ?content WHERE {
-        ?legalResource eli:is_realized_by <${legalExpression}> ;
-                       eli:has_part ?articleResource .
-        ?articleResource eli:is_realized_by ?article ;
-                         dct:type <https://data.vlaanderen.be/id/concept/TypeRechtsbrononderdeel/Artikel>.
-        OPTIONAL {
-          ?article eli:first_date_entry_in_force ?dateInForce .
-          FILTER (?dateInForce <= NOW() )
-        }
-        OPTIONAL { ?article eli:date_no_longer_in_force ?dateNoLongerInForce }
-        FILTER( !BOUND(?dateNoLongerInForce) || ?dateNoLongerInForce > NOW() )
-        OPTIONAL { ?article prov:value ?content . }
-        OPTIONAL { ?article eli:number ?number . }
-        ${numberFilter}
-        BIND(REPLACE(?number, "Artikel ", "") as ?numberStr)
-        BIND(STRDT(?numberStr, xsd:integer) as ?numberInt)
-    } ORDER BY ?numberInt ?numberStr LIMIT ${pageSize} OFFSET ${
-      pageNumber * pageSize
-    }`);
+      SELECT DISTINCT ?article ?dateInForce ?dateNoLongerInForce ?number ?content WHERE {
+          ?legalResource eli:is_realized_by <${legalExpression}> ;
+                         eli:has_part ?articleResource .
+          ?articleResource eli:is_realized_by ?article ;
+                           dct:type <https://data.vlaanderen.be/id/concept/TypeRechtsbrononderdeel/Artikel>.
+          OPTIONAL {
+            ?article eli:first_date_entry_in_force ?dateInForce .
+            FILTER (?dateInForce <= NOW() )
+          }
+          OPTIONAL { ?article eli:date_no_longer_in_force ?dateNoLongerInForce }
+          FILTER( !BOUND(?dateNoLongerInForce) || ?dateNoLongerInForce > NOW() )
+          OPTIONAL { ?article prov:value ?content . }
+          OPTIONAL { ?article eli:number ?number . }
+          ${numberFilter}
+          BIND(REPLACE(?number, "Artikel ", "") as ?numberStr)
+          BIND(STRDT(?numberStr, xsd:integer) as ?numberInt)
+      } ORDER BY ?numberInt ?numberStr LIMIT ${pageSize} OFFSET ${
+        pageNumber * pageSize
+      }`,
+      abortSignal
+    );
 
     const articles = response.results.bindings.map((binding) => {
       const escapedContent = escapeValue(
@@ -261,6 +339,11 @@ async function fetchArticles(
   }
 }
 
+function cleanCaches() {
+  this.fetchDecisionsMemory.clear();
+  this.fetchArticlesMemory.clear();
+}
+
 function escapeValue(value) {
   if (value) {
     const shadowDomElement = document.createElement('textarea');
@@ -288,12 +371,12 @@ function dateValue(value) {
   }
 }
 
-async function executeCountQuery(query) {
-  const response = await executeQuery(query);
+async function executeCountQuery(query, abortSignal) {
+  const response = await executeQuery(query, abortSignal);
   return parseInt(response.results.bindings[0].count.value);
 }
 
-async function executeQuery(query) {
+async function executeQuery(query, abortSignal) {
   const encodedQuery = encodeURIComponent(query.trim());
   const endpoint = `${SPARQL_ENDPOINT}`;
   const response = await fetch(endpoint, {
@@ -303,6 +386,7 @@ async function executeQuery(query) {
       'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
     },
     body: `query=${encodedQuery}`,
+    signal: abortSignal,
   });
 
   if (response.ok) {
@@ -314,4 +398,4 @@ async function executeQuery(query) {
   }
 }
 
-export { fetchDecisions, fetchArticles };
+export { fetchDecisions, fetchArticles, cleanCaches };
