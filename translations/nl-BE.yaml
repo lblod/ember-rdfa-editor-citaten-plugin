@@ -2,6 +2,9 @@ card:
   title: Voeg verwijzing toe
   suggestions: Suggesties
 
+insert:
+  title: Verwijzing invoegen
+
 search:
   term: Zoekterm
   advanced: Uitgebreid zoeken
@@ -38,4 +41,3 @@ alert:
   error-title: Probleem bij het laden
   error-intro: "Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex:"
   error-outro: Moest dit probleem aanhouden, neem contact op met 
-

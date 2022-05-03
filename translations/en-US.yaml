@@ -2,6 +2,9 @@ card:
   title: Add reference
   suggestions: Suggestions
 
+insert:
+  title: Insert reference
+
 search:
   term: Search term
   advanced: Advanced search
