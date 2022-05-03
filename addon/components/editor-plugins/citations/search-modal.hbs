@@ -45,57 +45,55 @@
               placeholder={{t "search.placeholder"}}
               {{on "input" (perform this.updateSearch)}}/>
             <AuHr @size="large" />
-            <div class="citaten--date-filtering">
-              {{! Date of document }}
-              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-document-van" @inline={{false}}>{{t "search.date-document"}}</AuLabel>
-              {{! From }}
-              <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-document-van" class="au-u-hidden-visually">{{t "search.date-document-from"}}</AuLabel>
-                <AuLabel for="search-codex-datum-document-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.from"}}</AuLabel>
-                <AuDatePicker
-                  @id="search-codex-datum-document-van"
-                  @onChange={{this.updateDocumentDateFrom}}
-                  @value={{this.documentDateFrom}}
-                  @localization={{this.datePickerLocalization}}
-                  class="citaten--input-group-mid" />
-              </div>
-              {{! To }}
-              <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-document-tot" class="au-u-hidden-visually">{{t "search.date-document-to"}}</AuLabel>
-                <AuLabel for="search-codex-datum-document-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.to"}}</AuLabel>
-                <AuDatePicker
-                  @id="search-codex-datum-document-tot"
-                  @onChange={{this.updateDocumentDateTo}}
-                  @value={{this.documentDateTo}}
-                  @localization={{this.datePickerLocalization}}
-                  class="citaten--input-group-mid" />
-              </div>
+            {{! Date of document }}
+            <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-document-van" @inline={{false}}>{{t "search.date-document"}}</AuLabel>
+            {{! From }}
+            <AuFormRow @alignment="pre" class="au-u-margin-bottom-tiny">
+              <AuLabel for="search-codex-datum-document-van" class="au-u-hidden-visually">{{t "search.date-document-from"}}</AuLabel>
+              <AuLabel for="search-codex-datum-document-van" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.from"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-document-van"
+                @alignment="top"
+                @onChange={{this.updateDocumentDateFrom}}
+                @value={{this.documentDateFrom}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
+            {{! To }}
+            <AuFormRow @alignment="pre">
+              <AuLabel for="search-codex-datum-document-tot" class="au-u-hidden-visually">{{t "search.date-document-to"}}</AuLabel>
+              <AuLabel for="search-codex-datum-document-tot" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.to"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-document-tot"
+                @alignment="top"
+                @onChange={{this.updateDocumentDateTo}}
+                @value={{this.documentDateTo}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
 
-              {{! Date of staatsblad }}
-              <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-staatsblad-van" @inline={{false}}>{{t "search.date-publication"}}</AuLabel>
-              {{! From }}
-              <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-staatsblad-van" class="au-u-hidden-visually">{{t "search.date-publication-from"}}</AuLabel>
-                <AuLabel for="search-codex-datum-staatsblad-van" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.from"}}</AuLabel>
-                <AuDatePicker
-                  @id="search-codex-datum-staatsblad-van"
-                  @onChange={{this.updatePublicationDateFrom}}
-                  @value={{this.publicationDateFrom}}
-                  @localization={{this.datePickerLocalization}}
-                  class="citaten--input-group-mid" />
-              </div>
-              {{! To }}
-              <div class="au-u-flex">
-                <AuLabel for="search-codex-datum-staatsblad-tot" class="au-u-hidden-visually">{{t "search.date-publication-to"}}</AuLabel>
-                <AuLabel for="search-codex-datum-staatsblad-tot" aria-hidden="true" class="au-c-input citaten--input-group-pre au-u-background-gray-100 au-u-padding-tiny">{{t "search.to"}}</AuLabel>
-                <AuDatePicker
-                  @id="search-codex-datum-staatsblad-tot"
-                  @onChange={{this.updatePublicationDateTo}}
-                  @value={{this.publicationDateTo}}
-                  @localization={{this.datePickerLocalization}}
-                  class="citaten--input-group-mid" />
-              </div>
-            </div>
+            {{! Date of staatsblad }}
+            <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-staatsblad-van" @inline={{false}}>{{t "search.date-publication"}}</AuLabel>
+            {{! From }}
+            <AuFormRow @alignment="pre" class="au-u-margin-bottom-tiny">
+              <AuLabel for="search-codex-datum-staatsblad-van" class="au-u-hidden-visually">{{t "search.date-publication-from"}}</AuLabel>
+              <AuLabel for="search-codex-datum-staatsblad-van" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.from"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-staatsblad-van"
+                @alignment="top"
+                @onChange={{this.updatePublicationDateFrom}}
+                @value={{this.publicationDateFrom}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
+            {{! To }}
+            <AuFormRow @alignment="pre">
+              <AuLabel for="search-codex-datum-staatsblad-tot" class="au-u-hidden-visually">{{t "search.date-publication-to"}}</AuLabel>
+              <AuLabel for="search-codex-datum-staatsblad-tot" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.to"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-staatsblad-tot"
+                @alignment="top"
+                @onChange={{this.updatePublicationDateTo}}
+                @value={{this.publicationDateTo}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
           </div>
         </div>
         </mc.sidebar>
@@ -110,7 +108,7 @@
               <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin"/>
             {{else}}
               {{#if this.decisionResource.value.length}}
-                <div class="citaten--container-content">
+                <div class="citaten--container-content au-u-padding-top-small au-u-padding-bottom-small">
                   <EditorPlugins::Citations::DecisionList
                     @decisions={{this.decisionResource.value}}
                     @onCitationInsert={{this.insertDecisionCitation}}

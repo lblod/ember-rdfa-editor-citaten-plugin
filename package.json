@@ -49,8 +49,7 @@
     "sass": "^1.49.4"
   },
   "devDependencies": {
-    "@appuniversum/appuniversum": "^1.0.0",
-    "@appuniversum/ember-appuniversum": "^1.0.2",
+    "@appuniversum/ember-appuniversum": "^1.0.12",
     "@codemirror/basic-setup": ">=0.19.1",
     "@codemirror/lang-html": ">=0.19.4",
     "@codemirror/lang-xml": ">=0.19.1",

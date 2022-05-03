@@ -1,8 +1,8 @@
 <div class="citaten--main-container au-u-flex au-u-flex--column au-u-flex--between">
   <div class="citaten--container-content">
     {{! Heading with title and actions }}
-    <div class="au-u-background-gray-100 au-u-padding">
-      <AuHeading @level="2" @skin="3">
+    <div class="citaten--container-header au-u-background-gray-100 au-o-box">
+      <AuHeading @level="2" @skin="4">
         {{capitalize @decision.fullTitle}}
       </AuHeading>
       {{#if @decision.publicationDate}}
@@ -38,13 +38,13 @@
     {{! Search results }}
     <div>
       {{#if this.articleResource.isRunning}}
-        <div class="au-u-margin">
+        <div class="au-o-box">
           <AuLoader @padding="large" />
           <span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
         </div>
       {{else}}
         {{#if this.error}}
-          <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin" />
+          <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-o-box" />
         {{else}}
           <EditorPlugins::Citations::ArticleList
             @insertArticleCitation={{fn @insertArticleCitation @decision}}

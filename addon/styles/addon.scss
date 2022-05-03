@@ -3,19 +3,9 @@
 @import "appuniversum/s-global";
 @import "appuniversum/t-sass-mq";
 
-.citaten--card-content > * + * {
-  margin-top: 1.2rem !important;
-  margin-bottom: 1.2rem !important;
-}
-
 .citaten--decision-list {
   max-height: 35vh;
   overflow: auto;
-  margin-top: 0 !important;
-
-  ul.au-c-list {
-    margin-left: 0 !important;
-  }
 }
 
 .citaten--decision-title {
@@ -28,10 +18,6 @@
   -webkit-box-orient: vertical;
 }
 
-.citaten--decision-list-item button {
-  text-align: left;
-}
-
 /*To show the dopdown content on top of the modal*/
 .ember-basic-dropdown-content {
   z-index: 1000000 !important;
@@ -40,42 +26,26 @@
 .citaten--main-container {
   height: 100% !important;
 }
+
 .citaten--main-container .citaten--sidebar,
 .citaten--main-container .au-c-main-container__sidebar {
   @include mq(medium) {
     flex-basis: 30rem;
   }
 }
+
 .citaten--main-container .au-c-main-container__content {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
+.citaten--container-header {
+  border-bottom: .1rem solid var(--au-gray-200);
+}
+
 .citaten--container-content {
   overflow: auto;
-}
-
-.citaten--container-footer {
-  
-}
-
-.citaten--date-filtering .au-date-picker {
-  width: 100%;
-}
-
-.citaten--input-group-pre {
-  display: block !important;
-  min-width: 3em;
-  text-align: center;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  border-right: none !important;
-}
-.citaten--input-group-mid,
-.citaten--input-group-mid input {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
 }
 
 .citaten--error-code {

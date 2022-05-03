@@ -1,5 +1,5 @@
-<div class="citaten--decision-list-item au-u-margin-top-small au-u-margin-bottom-small {{if @fullSize "au-u-margin-right au-u-margin-left"}}" ...attributes>
-  <p class="citaten--decision-title {{if @fullSize "au-u-medium"}}">
+<div class="citaten--decision-list-item {{if @fullSize "au-u-padding-small"}}" ...attributes>
+  <p class="citaten--decision-title {{if @fullSize "au-u-h6 au-u-medium" "au-u-h-functional"}}">
     {{if @fullSize (capitalize @decision.fullTitle) @decision.title}}
   </p>
   {{#if (and @fullSize @decision.publicationDate)}}
@@ -36,6 +36,7 @@
         @skin="link-secondary"
         @icon="plus-text"
         @iconAlignment="left"
+        class="au-u-h-functional"
         {{on "click" @onCitationInsert}}>
         {{t "references.insert"}}
       </AuButton>
@@ -43,6 +44,7 @@
         @skin="link"
         @icon="manual"
         @iconAlignment="left"
+        class="au-u-h-functional"
         {{on "click" @onCitationDetails}}>
         {{t "references.details"}}
       </AuButton>
