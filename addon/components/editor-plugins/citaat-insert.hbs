@@ -12,7 +12,8 @@
 {{#if this.showModal}}
   <EditorPlugins::Citations::SearchModal
     @closeModal={{this.closeModal}}
-    @insertCitation={{this.insertCitation}}
+    @insertDecisionCitation={{this.insertDecisionCitation}}
+    @insertArticleCitation={{this.insertArticleCitation}}
     @legislationTypeUri={{this.legislationTypeUri}}
     @text={{this.text}}
   />

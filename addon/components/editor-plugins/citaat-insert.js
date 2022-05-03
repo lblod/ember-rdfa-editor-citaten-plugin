@@ -40,7 +40,22 @@ export default class EditorPluginsCitaatInsertComponent extends Component {
   }
 
   @action
-  insertCitation(type, uri, title) {
+  insertDecisionCitation(decision) {
+    const type = decision.legislationType.label;
+    const uri = decision.uri;
+    const title = decision.title;
+    const range = this.args.controller.selection.lastRange;
+    const citationHtml = `${
+      type ? type : ''
+    } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
+    this.args.controller.executeCommand('insert-html', citationHtml, range);
+  }
+
+  @action
+  insertArticleCitation(decision, article) {
+    const type = decision.legislationType.label;
+    const uri = article.uri;
+    const title = `${decision.title}, ${article.number}`;
     const range = this.args.controller.selection.lastRange;
     const citationHtml = `${
       type ? type : ''
