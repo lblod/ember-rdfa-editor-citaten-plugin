@@ -1,2 +1,43 @@
+card:
+  title: Voeg verwijzing toe
+  suggestions: Suggesties
+
 insert:
   title: Verwijzing invoegen
+
+search:
+  term: Zoekterm
+  advanced: Uitgebreid zoeken
+  type: Type van document
+  placeholder: Typ om te zoeken
+  date-document: Filter op datum document
+  date-document-from: "Filter document op datum vanaf:"
+  date-document-to: "Filter document op datum tot:"
+  date-publication: Filter op datum staatsblad
+  date-publication-from: "Filter publication op datum vanaf:"
+  date-publication-to: "Filter publicatie op datum tot:"
+  from: van
+  to: tot
+  article: Zoek artikel
+  article-placeholder: Artikel nummer
+  back: Terug naar zoekresultaten
+  results: Resultaten
+
+pagination:
+  next: Volgende pagina
+  previous: Vorige pagina
+  of: van
+
+references:
+  insert: Verwijzing invoegen
+  details: Details
+  refer-whole: Verwijs naar volledig document
+  refer-article: Verwijs naar artikel
+  lookup-codex: Bekijk in Vlaams Codex
+
+alert:
+  loading: Laden…
+  no-results: Geen resultaten gevonden
+  error-title: Probleem bij het laden
+  error-intro: "Er heeft zich een fout voorgedaan bij het zoeken in de Vlaamse Codex:"
+  error-outro: Moest dit probleem aanhouden, neem contact op met 

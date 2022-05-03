@@ -1,0 +1,53 @@
+@import "appuniversum/s-colors";
+@import "appuniversum/s-root";
+@import "appuniversum/s-global";
+@import "appuniversum/t-sass-mq";
+
+.citaten--decision-list {
+  max-height: 35vh;
+  overflow: auto;
+}
+
+.citaten--decision-title {
+  /*Still with vendor prefixes for now */
+  /*Have the title only a couple of lines long at the most*/
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/*To show the dopdown content on top of the modal*/
+.ember-basic-dropdown-content {
+  z-index: 1000000 !important;
+}
+
+.citaten--main-container {
+  height: 100% !important;
+}
+
+.citaten--main-container .citaten--sidebar,
+.citaten--main-container .au-c-main-container__sidebar {
+  @include mq(medium) {
+    flex-basis: 30rem;
+  }
+}
+
+.citaten--main-container .au-c-main-container__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.citaten--container-header {
+  border-bottom: .1rem solid var(--au-gray-200);
+}
+
+.citaten--container-content {
+  overflow: auto;
+}
+
+.citaten--error-code {
+  font-family: var(--au-font-tertiary);
+}

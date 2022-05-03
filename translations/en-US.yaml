@@ -1,2 +1,43 @@
+card:
+  title: Add reference
+  suggestions: Suggestions
+
 insert:
   title: Insert reference
+
+search:
+  term: Search term
+  advanced: Advanced search
+  type: Type of document
+  placeholder: Type to search
+  date-document: Filter on date document
+  date-document-from: "Filter document on date from:"
+  date-document-to: "Filter document on date until:"
+  date-publication: Filter on date government gazette
+  date-publication-from: "Filter publication on date from:"
+  date-publication-to: "Filter publication on date until:"
+  from: from
+  to: to
+  article: Search for article
+  article-placeholder: Article number
+  back: Back to search results
+  results: Results
+
+pagination:
+  next: Next page
+  previous: Previous page
+  of: of
+
+references:
+  insert: Insert reference
+  details: Details
+  refer-whole: Refer to whole document
+  refer-article: Refer to this article
+  lookup-codex: Lookup in Flemish Codex
+
+alert:
+  loading: Loading…
+  no-results: No results found
+  error-title: Error while loading results
+  error-intro: "An error occured while loading results from the Flemish Codex:"
+  error-outro: In case this problem keeps occuring, please contact

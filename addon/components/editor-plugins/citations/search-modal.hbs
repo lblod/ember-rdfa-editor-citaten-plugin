@@ -1,0 +1,167 @@
+<AuModal
+  @modalOpen={{true}}
+  @closeModal={{fn this.closeModal this.legislationTypeUri this.text}}
+  @title={{t "card.title"}}
+  @size="large"
+  @padding="none" as |modal|>
+  {{#if this.selectedDecision}}
+    <modal.Body>
+      <EditorPlugins::Citations::DecisionDetail
+        @insertDecisionCitation={{this.insertDecisionCitation}}
+        @insertArticleCitation={{this.insertArticleCitation}}
+        @close={{this.closeDecisionDetail}}
+        @decision={{this.selectedDecision}} />
+    </modal.Body>
+  {{else}}
+    <modal.Body>
+      <AuMainContainer class="citaten--main-container" as |mc|>
+      <mc.sidebar class="citaten--sidebar" @scroll={{true}}>
+        <div class="au-c-sidebar">
+          <div class="au-c-sidebar__content au-u-padding">
+            <AuLabel class="au-margin-bottom-small" for="typeofdocumentexpanded" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
+            <PowerSelect
+              id="typeofdocumentexpanded"
+              @renderInPlace={{true}}
+              @allowClear={{false}}
+              @disabled={{false}}
+              @searchEnabled={{true}}
+              @loadingMessage={{t "alert.loading"}}
+              @noMatchesMessage={{t "alert.no-results"}}
+              @searchMessage={{t "search.placeholder"}}
+              @options={{this.legislationTypes}}
+              @selected={{this.legislationSelected}}
+              @onChange={{this.selectLegislationType}}
+              as |type|>
+              {{type}}
+            </PowerSelect>
+            <AuLabel class="au-u-margin-top au-margin-bottom-small" for="searchtermexpanded" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
+            <AuInput
+              id="searchtermexpanded"
+              @type="text"
+              @width="block"
+              @icon="search"
+              @iconAlignment="right"
+              @value={{this.text}}
+              placeholder={{t "search.placeholder"}}
+              {{on "input" (perform this.updateSearch)}}/>
+            <AuHr @size="large" />
+            {{! Date of document }}
+            <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-document-van" @inline={{false}}>{{t "search.date-document"}}</AuLabel>
+            {{! From }}
+            <AuFormRow @alignment="pre" class="au-u-margin-bottom-tiny">
+              <AuLabel for="search-codex-datum-document-van" class="au-u-hidden-visually">{{t "search.date-document-from"}}</AuLabel>
+              <AuLabel for="search-codex-datum-document-van" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.from"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-document-van"
+                @alignment="top"
+                @onChange={{this.updateDocumentDateFrom}}
+                @value={{this.documentDateFrom}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
+            {{! To }}
+            <AuFormRow @alignment="pre">
+              <AuLabel for="search-codex-datum-document-tot" class="au-u-hidden-visually">{{t "search.date-document-to"}}</AuLabel>
+              <AuLabel for="search-codex-datum-document-tot" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.to"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-document-tot"
+                @alignment="top"
+                @onChange={{this.updateDocumentDateTo}}
+                @value={{this.documentDateTo}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
+
+            {{! Date of staatsblad }}
+            <AuLabel class="au-u-margin-top au-u-margin-bottom-small" for="search-codex-datum-staatsblad-van" @inline={{false}}>{{t "search.date-publication"}}</AuLabel>
+            {{! From }}
+            <AuFormRow @alignment="pre" class="au-u-margin-bottom-tiny">
+              <AuLabel for="search-codex-datum-staatsblad-van" class="au-u-hidden-visually">{{t "search.date-publication-from"}}</AuLabel>
+              <AuLabel for="search-codex-datum-staatsblad-van" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.from"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-staatsblad-van"
+                @alignment="top"
+                @onChange={{this.updatePublicationDateFrom}}
+                @value={{this.publicationDateFrom}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
+            {{! To }}
+            <AuFormRow @alignment="pre">
+              <AuLabel for="search-codex-datum-staatsblad-tot" class="au-u-hidden-visually">{{t "search.date-publication-to"}}</AuLabel>
+              <AuLabel for="search-codex-datum-staatsblad-tot" aria-hidden="true" class="au-u-1-4" @inline={{true}}>{{t "search.to"}}</AuLabel>
+              <AuDatePicker
+                @id="search-codex-datum-staatsblad-tot"
+                @alignment="top"
+                @onChange={{this.updatePublicationDateTo}}
+                @value={{this.publicationDateTo}}
+                @localization={{this.datePickerLocalization}} />
+            </AuFormRow>
+          </div>
+        </div>
+        </mc.sidebar>
+        <mc.content>
+          {{#if this.decisionResource.isRunning}}
+            <div class="au-u-margin">
+              <AuLoader @padding="large" />
+              <span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
+            </div>
+          {{else}}
+            {{#if this.error}}
+              <EditorPlugins::Helpers::AlertLoadError @fullSize={{true}} @error={{this.error}} class="au-u-margin"/>
+            {{else}}
+              {{#if this.decisionResource.value.length}}
+                <div class="citaten--container-content au-u-padding-top-small au-u-padding-bottom-small">
+                  <EditorPlugins::Citations::DecisionList
+                    @decisions={{this.decisionResource.value}}
+                    @onCitationInsert={{this.insertDecisionCitation}}
+                    @onCitationDetails={{this.openDecisionDetail}}
+                    @fullSize={{true}} />
+                </div>
+              {{else}}
+                <EditorPlugins::Helpers::AlertNoItems @fullSize={{true}} class="au-u-margin" />
+              {{/if}}
+            {{/if}}
+          {{/if}}
+          {{#if this.decisionResource.value.length}}
+            {{! Pagination in the footer of the dialog }}
+            <div class="citaten--container-footer au-u-background-gray-100">
+              <AuToolbar
+                @border="top"
+                @size="large"
+                @nowrap={{true}}>
+                <div class="au-c-pagination">
+                  <p>
+                  <span class="au-u-hidden-visually">{{t "search.results"}}</span>
+                    <strong>
+                      {{this.rangeStart}} - {{this.rangeEnd}}
+                    </strong>
+                    {{t "pagination.of"}}
+                    {{this.totalCount}}
+                  </p>
+                  <div class="au-c-pagination__list-item">
+                    {{#unless this.isFirstPage}}
+                      <AuButton
+                        @skin="link"
+                        @icon="nav-left"
+                        @iconAlignment="left"
+                        {{on "click" this.previousPage}}>
+                        {{t "pagination.previous"}}
+                      </AuButton>
+                    {{/unless}}
+                    {{#unless this.isLastPage}}
+                      <AuButton
+                        @skin="link"
+                        @icon="nav-right"
+                        @iconAlignment="right"
+                        {{on "click" this.nextPage}}>
+                        {{t "pagination.next"}}
+                      </AuButton>
+                    {{/unless}}
+                  </div>
+                </div>
+              </AuToolbar>
+            </div>
+          {{/if}}
+        </mc.content>
+      </AuMainContainer>
+    </modal.Body>
+  {{/if}}
+</AuModal>

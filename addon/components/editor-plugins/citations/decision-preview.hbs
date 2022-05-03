@@ -1,0 +1,53 @@
+<div class="citaten--decision-list-item {{if @fullSize "au-u-padding-small"}}" ...attributes>
+  <p class="citaten--decision-title {{if @fullSize "au-u-h6 au-u-medium" "au-u-h-functional"}}">
+    {{if @fullSize (capitalize @decision.fullTitle) @decision.title}}
+  </p>
+  {{#if (and @fullSize @decision.publicationDate)}}
+    <AuPill
+      class="au-u-margin-top-small au-u-margin-bottom-small"
+      @skin="border"
+      @icon="calendar"
+      @iconAlignment="left">
+      {{@decision.publicationDate}}
+    </AuPill>
+  {{/if}}
+  {{#if @fullSize}}
+    <div>
+      <AuButtonGroup @inline={{false}}>
+        <AuButton
+          @skin="primary"
+          @icon="plus-text"
+          @iconAlignment="left"
+          {{on "click" @onCitationInsert}}>
+          {{t "references.insert"}}
+        </AuButton>
+        <AuButton
+          @skin="secondary"
+          @icon="manual"
+          @iconAlignment="left"
+          {{on "click" @onCitationDetails}}>
+          {{t "references.details"}}
+        </AuButton>
+      </AuButtonGroup>
+    </div>
+  {{else}}
+    <div class="au-u-flex au-u-flex--row au-u-flex--no-wrap au-u-flex--between au-u-margin-top-tiny">
+      <AuButton
+        @skin="link-secondary"
+        @icon="plus-text"
+        @iconAlignment="left"
+        class="au-u-h-functional"
+        {{on "click" @onCitationInsert}}>
+        {{t "references.insert"}}
+      </AuButton>
+      <AuButton
+        @skin="link"
+        @icon="manual"
+        @iconAlignment="left"
+        class="au-u-h-functional"
+        {{on "click" @onCitationDetails}}>
+        {{t "references.details"}}
+      </AuButton>
+    </div>
+  {{/if}}
+</div>
