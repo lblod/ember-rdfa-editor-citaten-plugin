@@ -1,6 +1,18 @@
 
 
 
+## 0.17.0 (2022-05-05)
+
+#### :rocket: Enhancement
+* [#28](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/28) Feature / Widget redesign ([@benjay10](https://github.com/benjay10))
+* [#27](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/27) Update design to Ember-AppUniversum and more ([@benjay10](https://github.com/benjay10))
+
+#### :house: Internal
+* [#25](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/25) Bump tar from 2.2.1 to 2.2.2 ([@dependabot[bot]](https://github.com/apps/dependabot))
+
+#### Committers: 1
+- Ben ([@benjay10](https://github.com/benjay10))
+
 ## 0.16.0 (2022-04-07)
 
 #### :bug: Bug Fix
