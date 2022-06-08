@@ -4,7 +4,6 @@ import { isBlank } from '@ember/utils';
 const STOP_WORDS = ['het', 'de', 'van', 'tot', 'dat'];
 const DATE_REGEX = new RegExp('(\\d{1,2})\\s(\\w+)\\s(\\d{2,4})', 'g');
 const INVISIBLE_SPACE = '\u200B';
-const UNBREAKABLE_SPACE = '\u00A0';
 const SPACES_REGEX = new RegExp('[\\s${UNBREAKABLE_SPACE}]+');
 
 export default function processMatch(match) {
@@ -51,7 +50,7 @@ export default function processMatch(match) {
 }
 
 function cleanupText(text) {
-  if (!text) return "";
+  if (!text) return '';
   const { textWithoutDates } = extractDates(text);
   const textWithoutOddChars = textWithoutDates.replace(
     new RegExp(`[,.:"()&${INVISIBLE_SPACE}]`, 'g'),
