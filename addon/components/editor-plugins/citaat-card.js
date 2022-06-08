@@ -14,9 +14,31 @@ import {
 
 const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
 
+// Regex nicely structured:
+// (
+//   (
+//     \w*decreet |
+//     omzendbrief |
+//     verdrag |
+//     grondwetswijziging |
+//     samenwerkingsakkoord |
+//     \w*wetboek |
+//     protocol |
+//     besluit[^\S\n]van[^\S\n]de[^\S\n]vlaamse[^\S\n]regering |
+//     geco[öo]rdineerde wetten |
+//     \w*wet |
+//     koninklijk[^\S\n]?besluit |
+//     ministerieel[^\S\n]?besluit |
+//     genummerd[^\S\n]?koninklijk[^\S\n]?besluit
+//   )
+//   [^\S\n]*
+//   (
+//     ([^\S\n] | [\u0021-\uFFFF\d;:'"()&\-_]){3,}
+//   )?
+// )
 const NNWS = '[^\\S\\n]';
 const CITATION_REGEX = new RegExp(
-  `(gelet${NNWS}op)?${NNWS}?(het|de)?${NNWS}?((decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|[a-z]*${NNWS}?wetboek|protocol|besluit${NNWS}van${NNWS}de${NNWS}vlaamse${NNWS}regering|geco[öo]rdineerde wetten|[a-z]*${NNWS}?wet|[a-z]+${NNWS}?besluit)(${NNWS}+(${NNWS}|[${BASIC_MULTIPLANE_CHARACTER}\\d;:'"()&-_]){3,}[${BASIC_MULTIPLANE_CHARACTER}\\d]+)|[a-z]+decreet|grondwet)`,
+  `((\\w*decreet|omzendbrief|verdrag|grondwetswijziging|samenwerkingsakkoord|\\w*wetboek|protocol|besluit${NNWS}van${NNWS}de${NNWS}vlaamse${NNWS}regering|geco[öo]rdineerdewetten|\\w*wet|koninklijk${NNWS}?besluit|ministerieel${NNWS}?besluit|genummerd${NNWS}?koninklijk${NNWS}?besluit|\\w*${NNWS}?besluit)${NNWS}*((${NNWS}|[${BASIC_MULTIPLANE_CHARACTER};:'"()&\-_]){3,})?)`,
   'uig'
 );
 
@@ -42,7 +64,7 @@ export default class CitaatCardComponent extends Component {
       datastoreQuery: (datastore) => {
         const matches = datastore
           .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
-          .searchTextIn('predicate', CITATION_REGEX);
+          .searchTextIn('object', CITATION_REGEX);
         const resultMatches = matches.filter((match) => {
           return (
             datastore
@@ -54,7 +76,7 @@ export default class CitaatCardComponent extends Component {
             0
           );
         });
-        resultMatches.forEach((match) => (match.range = match.groupRanges[3]));
+        resultMatches.forEach((match) => (match.range = match.groupRanges[1]));
         return resultMatches;
       },
 
@@ -63,7 +85,6 @@ export default class CitaatCardComponent extends Component {
           name: 'citaten',
           attributesBuilder: (textMatch) => {
             const result = processMatch(textMatch);
-
             return {
               setBy: 'citaten-plugin',
               text: result.text,
