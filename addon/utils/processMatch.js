@@ -33,9 +33,11 @@ export default function processMatch(match) {
     typeLabel = 'gecoördineerde wetten';
   } else if (/grondwet/i.test(type)) {
     typeLabel = 'grondwet';
-  } else if (/\w*wet/i.test(type)) {
+  } else if (/\w+wet/i.test(type)) {
     typeLabel = 'wet';
     cleanedSearchTerms = `${type} ${cleanedSearchTerms}`;
+  } else if (/wet/i.test(type)) {
+    typeLabel = 'wet';
   } else {
     typeLabel = type.toLowerCase().trim();
   }
