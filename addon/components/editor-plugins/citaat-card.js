@@ -6,11 +6,11 @@ import { action } from '@ember/object';
 import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
 import { fetchDecisions, cleanCaches } from '../../utils/vlaamse-codex';
-import { useTask } from 'ember-resources';
 import {
   LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
 } from '../../utils/legislation-types';
+import { task as trackedTask } from 'ember-resources/util/ember-concurrency';
 
 const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
 
@@ -134,7 +134,7 @@ export default class CitaatCardComponent extends Component {
     return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
   }
 
-  decisionResource = useTask(this, this.resourceSearch, () => [
+  decisionResource = trackedTask(this, this.resourceSearch, () => [
     this.textAfterTimeout,
     this.legislationTypeUriAfterTimeout,
     this.pageNumber,
@@ -251,10 +251,11 @@ export default class CitaatCardComponent extends Component {
     this.controller.executeCommand('insert-html', citationHtml, range);
   }
 
-  willDestroy() {
-    super.willDestroy();
-    this.decisionResource.cancel();
+  async willDestroy() {
+    // Not necessary as ember-concurrency does this for us.
+    // this.decisionResource.cancel();
     cleanCaches();
     this.liveHighlights.destroy();
+    super.willDestroy();
   }
 }

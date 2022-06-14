@@ -4,7 +4,7 @@ import { action } from '@ember/object';
 import { task, timeout } from 'ember-concurrency';
 import { inject as service } from '@ember/service';
 import { capitalize } from '@ember/string';
-import { useTask } from 'ember-resources';
+import { task as trackedTask } from 'ember-resources/util/ember-concurrency';
 import {
   LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
@@ -79,7 +79,7 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
     return capitalize(found ? found.label : LEGISLATION_TYPE_CONCEPTS[0].label);
   }
 
-  decisionResource = useTask(this, this.resourceSearch, () => [
+  decisionResource = trackedTask(this, this.resourceSearch, () => [
     this.textAfterTimeout,
     this.legislationTypeUri,
     this.pageSize,

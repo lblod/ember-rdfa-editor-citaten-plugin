@@ -340,8 +340,8 @@ async function fetchArticlesMemd(
 }
 
 function cleanCaches() {
-  this.fetchDecisionsMemory.clear();
-  this.fetchArticlesMemory.clear();
+  fetchDecisionsMemory.clear();
+  fetchArticlesMemory.clear();
 }
 
 function escapeValue(value) {
