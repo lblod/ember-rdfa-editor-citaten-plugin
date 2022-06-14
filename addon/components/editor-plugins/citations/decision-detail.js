@@ -4,7 +4,7 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { fetchArticles } from '../../../utils/vlaamse-codex';
 import { task } from 'ember-concurrency-decorators';
-import { useTask } from 'ember-resources';
+import { task as trackedTask } from 'ember-resources/util/ember-concurrency';
 
 export default class EditorPluginsCitationsDecisionDetailComponent extends Component {
   @tracked error;
@@ -26,7 +26,7 @@ export default class EditorPluginsCitationsDecisionDetailComponent extends Compo
     this.articleFilterAfterTimeout = this.articleFilter;
   }
 
-  articleResource = useTask(this, this.resourceSearch, () => [
+  articleResource = trackedTask(this, this.resourceSearch, () => [
     this.pageNumber,
     this.pageSize,
     this.articleFilterAfterTimeout,
