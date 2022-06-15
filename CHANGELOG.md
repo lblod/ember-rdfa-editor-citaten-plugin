@@ -1,6 +1,15 @@
 
 
 
+
+## 0.17.1 (2022-06-15)
+
+#### :bug: Bug Fix
+* [#30](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/30) removed task cancellation in willDestroy-hook ([@elpoelma](https://github.com/elpoelma))
+
+#### Committers: 1
+- Elena Poelman ([@elpoelma](https://github.com/elpoelma))
+
 ## 0.17.0 (2022-05-05)
 
 #### :rocket: Enhancement
