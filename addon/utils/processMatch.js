@@ -30,6 +30,10 @@ export default function processMatch(match) {
     typeLabel = 'wetboek';
   } else if (/gecoordineerde wetten/i.test(type)) {
     typeLabel = 'gecoördineerde wetten';
+  } else if (/gecoördineerde wetten/i.test(type)) {
+    typeLabel = 'gecoördineerde wetten';
+  } else if (/grondwetswijziging/i.test(type)) {
+    typeLabel = 'grondwetswijziging';
   } else if (/grondwet/i.test(type)) {
     typeLabel = 'grondwet';
   } else if (/\w+wet/i.test(type)) {
