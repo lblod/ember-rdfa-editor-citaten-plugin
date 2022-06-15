@@ -28,9 +28,7 @@ export default function processMatch(match) {
     cleanedSearchTerms = `${type} ${cleanedSearchTerms}`;
   } else if (/wetboek/i.test(type)) {
     typeLabel = 'wetboek';
-  } else if (/gecoordineerde wetten/i.test(type)) {
-    typeLabel = 'gecoördineerde wetten';
-  } else if (/gecoördineerde wetten/i.test(type)) {
+  } else if (/geco[oö]rdineerde[^\S\n]wetten/i.test(type)) {
     typeLabel = 'gecoördineerde wetten';
   } else if (/grondwetswijziging/i.test(type)) {
     typeLabel = 'grondwetswijziging';
