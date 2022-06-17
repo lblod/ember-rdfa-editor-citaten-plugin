@@ -2,6 +2,14 @@
 
 
 
+## 0.17.2 (2022-06-17)
+
+#### :rocket: Enhancement
+* [#29](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/29) Adjusted triggering of the Card with search terms ([@benjay10](https://github.com/benjay10))
+
+#### Committers: 1
+- Ben ([@benjay10](https://github.com/benjay10))
+
 ## 0.17.1 (2022-06-15)
 
 #### :bug: Bug Fix
