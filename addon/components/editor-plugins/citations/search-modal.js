@@ -42,6 +42,8 @@ export default class EditorPluginsCitationsSearchModalComponent extends Componen
   @tracked documentDateTo = null;
   @tracked publicationDateFrom = null;
   @tracked publicationDateTo = null;
+  minDate = new Date('1930-01-01T12:00:00');
+  maxDate = new Date(`${new Date().getFullYear() + 10}-01-01T12:00:00`);
 
   get datePickerLocalization() {
     return {
