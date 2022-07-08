@@ -2,6 +2,16 @@
 
 
 
+## 0.17.3 (2022-07-08)
+
+#### :bug: Bug Fix
+* [#32](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/32) update editor to 0.60.1 and modify mark definition ([@elpoelma](https://github.com/elpoelma))
+* [#31](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/31) Increase date range in AuDatePickers ([@benjay10](https://github.com/benjay10))
+
+#### Committers: 2
+- Ben ([@benjay10](https://github.com/benjay10))
+- Elena Poelman ([@elpoelma](https://github.com/elpoelma))
+
 ## 0.17.2 (2022-06-17)
 
 #### :rocket: Enhancement
