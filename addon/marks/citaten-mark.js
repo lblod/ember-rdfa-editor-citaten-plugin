@@ -18,16 +18,14 @@ const citatenMarkSpec = {
   name: 'citaten',
   priority: 100,
   renderSpec(mark) {
-    return [
-      {
-        tag: 'span',
-        attributes: {
-          'data-citaten-text': mark.attributes.text,
-          'data-legislation-type-uri': mark.attributes.legislationTypeUri,
-        },
+    return {
+      tag: 'span',
+      attributes: {
+        'data-citaten-text': mark.attributes.text,
+        'data-legislation-type-uri': mark.attributes.legislationTypeUri,
       },
-      [0],
-    ];
+      children: [0],
+    };
   },
 };
 
