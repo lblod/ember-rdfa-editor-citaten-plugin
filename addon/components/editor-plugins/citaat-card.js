@@ -64,7 +64,7 @@ export default class CitaatCardComponent extends Component {
       datastoreQuery: (datastore) => {
         const matches = datastore
           .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
-          .searchTextIn('object', CITATION_REGEX);
+          .searchTextIn('predicate', CITATION_REGEX);
         const resultMatches = matches.filter((match) => {
           return (
             datastore
