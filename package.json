@@ -29,7 +29,7 @@
     "test:ember-compatibility": "ember try:each"
   },
   "peerDependencies": {
-    "@lblod/ember-rdfa-editor": ">= 0.55.0",
+    "@lblod/ember-rdfa-editor": ">= 0.60.0",
     "@appuniversum/appuniversum": "^1.0.0",
     "@appuniversum/ember-appuniversum": "^1.0.7",
     "ember-concurrency": "^2.2.0",
