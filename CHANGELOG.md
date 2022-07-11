@@ -2,6 +2,14 @@
 
 
 
+## 0.17.4 (2022-07-11)
+
+#### :bug: Bug Fix
+* [#33](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/33) replace search in objects by search in predicates ([@elpoelma](https://github.com/elpoelma))
+
+#### Committers: 1
+- Elena Poelman ([@elpoelma](https://github.com/elpoelma))
+
 ## 0.17.3 (2022-07-08)
 
 #### :bug: Bug Fix
