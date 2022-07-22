@@ -11,17 +11,22 @@ export default class EditorPluginsCitaatInsertComponent extends Component {
 
   constructor() {
     super(...arguments);
-    this.args.controller.onEvent(
-      'selectionChanged',
-      this.onSelectionChanged.bind(this)
+    this.args.controller.addTransactionListener(
+      this.onTransactionUpdate.bind(this)
     );
   }
 
-  onSelectionChanged() {
-    const limitedDatastore = this.args.controller.datastore.limitToRange(
-      this.args.controller.selection.lastRange,
-      'rangeIsInside'
-    );
+  onTransactionUpdate(transaction, operations) {
+    if (
+      operations.some((operation) => operation.type === 'selection-operation')
+    )
+      this.onSelectionChanged(transaction);
+  }
+
+  onSelectionChanged(transaction) {
+    const limitedDatastore = transaction
+      .getCurrentDataStore()
+      .limitToRange(transaction.currentSelection.lastRange, 'rangeIsInside');
     const motivering = limitedDatastore
       .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
       .asQuads()

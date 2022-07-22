@@ -95,14 +95,18 @@ export default class CitaatCardComponent extends Component {
         'highlighted',
       ],
     });
-    this.controller.onEvent(
-      'selectionChanged',
-      this.onSelectionChanged.bind(this)
-    );
+    this.controller.addTransactionListener(this.onTransactionUpdate.bind(this));
   }
 
-  onSelectionChanged() {
-    const marks = this.controller.selection.lastRange.getMarks();
+  onTransactionUpdate(transaction, operations) {
+    if (
+      operations.some((operation) => operation.type === 'selection-operation')
+    )
+      this.onSelectionChanged(transaction.currentSelection);
+  }
+
+  onSelectionChanged(selection) {
+    const marks = selection.lastRange.getMarks();
     let selectionMark;
     for (let mark of marks) {
       if (mark.name === 'citaten') {
