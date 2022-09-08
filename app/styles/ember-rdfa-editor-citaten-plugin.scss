@@ -1,7 +1,4 @@
-@import "appuniversum/s-colors";
-@import "appuniversum/s-root";
-@import "appuniversum/s-global";
-@import "appuniversum/t-sass-mq";
+@import 'ember-appuniversum';
 
 .citaten--decision-list {
   max-height: 35vh;
