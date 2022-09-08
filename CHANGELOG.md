@@ -2,6 +2,16 @@
 
 
 
+
+## 0.18.0 (2022-09-08)
+
+#### :boom: Breaking Change
+* [#36](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/36) bump editor to v0.63.1 ([@abeforgit](https://github.com/abeforgit))
+
+#### Committers: 1
+- Arne Bertrand ([@abeforgit](https://github.com/abeforgit))
+
+
 ## 0.17.4 (2022-07-11)
 
 #### :bug: Bug Fix
