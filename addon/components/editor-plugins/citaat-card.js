@@ -11,6 +11,7 @@ import {
   LEGISLATION_TYPE_CONCEPTS,
 } from '../../utils/legislation-types';
 import { task as trackedTask } from 'ember-resources/util/ember-concurrency';
+import { modifiesSelection } from '../../utils/step-checker';
 
 const BASIC_MULTIPLANE_CHARACTER = '\u0021-\uFFFF'; // most of the characters used around the world
 
@@ -95,48 +96,47 @@ export default class CitaatCardComponent extends Component {
         'highlighted',
       ],
     });
-    this.controller.onEvent(
-      'selectionChanged',
-      this.onSelectionChanged.bind(this)
-    );
+    this.controller.addTransactionDispatchListener(this.onTransactionDispatch);
   }
-
-  onSelectionChanged() {
-    const marks = this.controller.selection.lastRange.getMarks();
-    let selectionMark;
-    for (let mark of marks) {
-      if (mark.name === 'citaten') {
-        selectionMark = mark;
-        break;
-      }
-    }
-    if (selectionMark) {
-      if (this.showCard) {
-        //Card was already shown, update search condition and trigger search debounced
-        this.text = selectionMark.attributes.text;
-        this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
-        this.markSelected = selectionMark;
-        this.updateSearch.perform();
-      } else {
-        //When card is renderend first time, the resource will automatically trigger, no updateSearch is needed, but make sure to first set the search conditions, before showing the card.
-        //When not first time, but reopened, search terms could not have changed yet, so also no updateSearch needed
-        this.text = selectionMark.attributes.text;
-        this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
-        if (
-          this.legislationTypeUriAfterTimeout &&
-          (this.legislationTypeUri !== this.legislationTypeUriAfterTimeout ||
-            this.text !== this.textAfterTimeout)
-        ) {
-          //Convoluted, but this is when you switch from one reference insertion to another
-          this.updateSearchImmediate.perform();
+  @action
+  onTransactionDispatch(transaction) {
+    if (modifiesSelection(transaction.steps)) {
+      const marks = this.controller.selection.lastRange.getMarks();
+      let selectionMark;
+      for (let mark of marks) {
+        if (mark.name === 'citaten') {
+          selectionMark = mark;
+          break;
         }
-        this.markSelected = selectionMark;
-        this.showCard = true;
       }
-    } else {
-      this.showCard = false;
-      //Would be nice, but this triggers way to often causing the cancellation of useful requests
-      //this.decisionResource.cancel();
+      if (selectionMark) {
+        if (this.showCard) {
+          //Card was already shown, update search condition and trigger search debounced
+          this.text = selectionMark.attributes.text;
+          this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+          this.markSelected = selectionMark;
+          this.updateSearch.perform();
+        } else {
+          //When card is renderend first time, the resource will automatically trigger, no updateSearch is needed, but make sure to first set the search conditions, before showing the card.
+          //When not first time, but reopened, search terms could not have changed yet, so also no updateSearch needed
+          this.text = selectionMark.attributes.text;
+          this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
+          if (
+            this.legislationTypeUriAfterTimeout &&
+            (this.legislationTypeUri !== this.legislationTypeUriAfterTimeout ||
+              this.text !== this.textAfterTimeout)
+          ) {
+            //Convoluted, but this is when you switch from one reference insertion to another
+            this.updateSearchImmediate.perform();
+          }
+          this.markSelected = selectionMark;
+          this.showCard = true;
+        }
+      } else {
+        this.showCard = false;
+        //Would be nice, but this triggers way to often causing the cancellation of useful requests
+        //this.decisionResource.cancel();
+      }
     }
   }
 
@@ -255,7 +255,12 @@ export default class CitaatCardComponent extends Component {
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
-    this.controller.executeCommand('insert-html', citationHtml, range);
+    this.controller.perform((tr) => {
+      tr.commands.insertHtml({
+        htmlString: citationHtml,
+        range,
+      });
+    });
   }
 
   @action
@@ -269,7 +274,12 @@ export default class CitaatCardComponent extends Component {
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
-    this.controller.executeCommand('insert-html', citationHtml, range);
+    this.controller.perform((tr) => {
+      tr.commands.insertHtml({
+        htmlString: citationHtml,
+        range,
+      });
+    });
   }
 
   async willDestroy() {

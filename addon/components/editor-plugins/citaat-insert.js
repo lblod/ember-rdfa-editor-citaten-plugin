@@ -2,6 +2,7 @@ import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
 import { LEGISLATION_TYPES } from '../../utils/legislation-types';
+import { modifiesSelection } from '../../utils/step-checker';
 
 export default class EditorPluginsCitaatInsertComponent extends Component {
   @tracked disableInsert = false;
@@ -11,22 +12,24 @@ export default class EditorPluginsCitaatInsertComponent extends Component {
 
   constructor() {
     super(...arguments);
-    this.args.controller.onEvent(
-      'selectionChanged',
-      this.onSelectionChanged.bind(this)
+    this.args.controller.addTransactionDispatchListener(
+      this.onTransactionDispatch
     );
   }
 
-  onSelectionChanged() {
-    const limitedDatastore = this.args.controller.datastore.limitToRange(
-      this.args.controller.selection.lastRange,
-      'rangeIsInside'
-    );
-    const motivering = limitedDatastore
-      .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
-      .asQuads()
-      .next().value;
-    this.disableInsert = motivering ? false : true;
+  @action
+  onTransactionDispatch(transaction) {
+    if (modifiesSelection(transaction.steps)) {
+      const limitedDatastore = this.args.controller.datastore.limitToRange(
+        this.args.controller.selection.lastRange,
+        'rangeIsInside'
+      );
+      const motivering = limitedDatastore
+        .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
+        .asQuads()
+        .next().value;
+      this.disableInsert = motivering ? false : true;
+    }
   }
 
   @action
@@ -48,7 +51,12 @@ export default class EditorPluginsCitaatInsertComponent extends Component {
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
-    this.args.controller.executeCommand('insert-html', citationHtml, range);
+    this.args.controller.perform((tr) => {
+      tr.commands.insertHtml({
+        htmlString: citationHtml,
+        range,
+      });
+    });
   }
 
   @action
@@ -60,6 +68,11 @@ export default class EditorPluginsCitaatInsertComponent extends Component {
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
-    this.args.controller.executeCommand('insert-html', citationHtml, range);
+    this.args.controller.perform((tr) => {
+      tr.commands.insertHtml({
+        htmlString: citationHtml,
+        range,
+      });
+    });
   }
 }
