@@ -4,6 +4,16 @@
 
 
 
+
+## 0.18.2 (2022-09-29)
+
+#### :bug: Bug Fix
+* [#40](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/40) fix(selection-handler): handle cases with empty selection ([@abeforgit](https://github.com/abeforgit))
+
+#### Committers: 1
+- Arne Bertrand ([@abeforgit](https://github.com/abeforgit))
+
+
 ## 0.18.1 (2022-09-29)
 
 #### :bug: Bug Fix
