@@ -5,10 +5,10 @@ import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
 import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
-import { fetchDecisions, cleanCaches } from '../../utils/vlaamse-codex';
+import { cleanCaches, fetchDecisions } from '../../utils/vlaamse-codex';
 import {
-  LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
+  LEGISLATION_TYPES,
 } from '../../utils/legislation-types';
 import { task as trackedTask } from 'ember-resources/util/ember-concurrency';
 
@@ -102,7 +102,11 @@ export default class CitaatCardComponent extends Component {
   }
 
   onSelectionChanged() {
-    const marks = this.controller.selection.lastRange.getMarks();
+    const range = this.controller.selection.lastRange;
+    if (!range) {
+      return;
+    }
+    const marks = range.getMarks();
     let selectionMark;
     for (let mark of marks) {
       if (mark.name === 'citaten') {
