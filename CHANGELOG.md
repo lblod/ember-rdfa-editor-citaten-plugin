@@ -3,6 +3,16 @@
 
 
 
+
+## 0.18.1 (2022-09-29)
+
+#### :bug: Bug Fix
+* [#38](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/38) fix(selection-handler): handle cases where the selection has no ranges ([@abeforgit](https://github.com/abeforgit))
+
+#### Committers: 1
+- Arne Bertrand ([@abeforgit](https://github.com/abeforgit))
+
+
 ## 0.18.0 (2022-09-08)
 
 #### :boom: Breaking Change
