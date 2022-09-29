@@ -18,8 +18,12 @@ export default class EditorPluginsCitaatInsertComponent extends Component {
   }
 
   onSelectionChanged() {
+    const selectedRange = this.args.controller.selection.lastRange;
+    if (!selectedRange) {
+      return;
+    }
     const limitedDatastore = this.args.controller.datastore.limitToRange(
-      this.args.controller.selection.lastRange,
+      selectedRange,
       'rangeIsInside'
     );
     const motivering = limitedDatastore
