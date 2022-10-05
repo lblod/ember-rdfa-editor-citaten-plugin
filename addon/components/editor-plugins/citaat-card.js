@@ -56,7 +56,7 @@ export default class CitaatCardComponent extends Component {
   @tracked legislationTypeUriAfterTimeout;
   @tracked text;
   @tracked textAfterTimeout;
-  @tracked markSelected;
+  @tracked insertRange;
   liveHighlights;
 
   constructor() {
@@ -114,7 +114,6 @@ export default class CitaatCardComponent extends Component {
           //Card was already shown, update search condition and trigger search debounced
           this.text = selectionMark.attributes.text;
           this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
-          this.markSelected = selectionMark;
           this.updateSearch.perform();
         } else {
           //When card is renderend first time, the resource will automatically trigger, no updateSearch is needed, but make sure to first set the search conditions, before showing the card.
@@ -129,9 +128,9 @@ export default class CitaatCardComponent extends Component {
             //Convoluted, but this is when you switch from one reference insertion to another
             this.updateSearchImmediate.perform();
           }
-          this.markSelected = selectionMark;
           this.showCard = true;
         }
+        this.insertRange = this.controller.selection.lastRange;
       } else {
         this.showCard = false;
         //Would be nice, but this triggers way to often causing the cancellation of useful requests
@@ -249,9 +248,7 @@ export default class CitaatCardComponent extends Component {
     const type = decision.legislationType.label;
     const uri = decision.uri;
     const title = decision.title;
-    const range = this.controller.rangeFactory.fromAroundNode(
-      this.markSelected.node
-    );
+    const range = this.insertRange;
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
@@ -268,9 +265,7 @@ export default class CitaatCardComponent extends Component {
     const type = decision.legislationType.label;
     const uri = article.uri;
     const title = `${decision.title}, ${article.number}`;
-    const range = this.controller.rangeFactory.fromAroundNode(
-      this.markSelected.node
-    );
+    const range = this.insertRange;
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
