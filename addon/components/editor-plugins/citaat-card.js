@@ -56,13 +56,14 @@ export default class CitaatCardComponent extends Component {
   @tracked legislationTypeUriAfterTimeout;
   @tracked text;
   @tracked textAfterTimeout;
-  @tracked markSelected;
-  liveHighlights;
+  @tracked insertRange;
+  liveMarkRule;
+  // liveHighlights;
 
   constructor() {
     super(...arguments);
-    this.liveHighlights = this.args.controller.createLiveMarkSet({
-      datastoreQuery: (datastore) => {
+    this.liveMarkRule = {
+      matcher: (datastore) => {
         const matches = datastore
           .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
           .searchTextIn('predicate', CITATION_REGEX);
@@ -80,8 +81,7 @@ export default class CitaatCardComponent extends Component {
         resultMatches.forEach((match) => (match.range = match.groupRanges[1]));
         return resultMatches;
       },
-
-      liveMarkSpecs: [
+      liveSpecs: [
         {
           name: 'citaten',
           attributesBuilder: (textMatch) => {
@@ -95,12 +95,21 @@ export default class CitaatCardComponent extends Component {
         },
         'highlighted',
       ],
-    });
-    this.controller.addTransactionDispatchListener(this.onTransactionDispatch);
+    };
   }
+
   @action
-  onTransactionDispatch(transaction) {
+  didInsert() {
+    this.controller.perform((tr) => {
+      tr.commands.addLiveMarkRule({
+        rule: this.liveMarkRule,
+      });
+      tr.addTransactionDispatchListener(this.onTransactionDispatch);
+    });
+  }
+  onTransactionDispatch = (transaction) => {
     if (modifiesSelection(transaction.steps)) {
+      console.log('TRANSACTION DISPATCH');
       const marks = this.controller.selection.lastRange.getMarks();
       let selectionMark;
       for (let mark of marks) {
@@ -114,7 +123,6 @@ export default class CitaatCardComponent extends Component {
           //Card was already shown, update search condition and trigger search debounced
           this.text = selectionMark.attributes.text;
           this.legislationTypeUri = selectionMark.attributes.legislationTypeUri;
-          this.markSelected = selectionMark;
           this.updateSearch.perform();
         } else {
           //When card is renderend first time, the resource will automatically trigger, no updateSearch is needed, but make sure to first set the search conditions, before showing the card.
@@ -129,16 +137,16 @@ export default class CitaatCardComponent extends Component {
             //Convoluted, but this is when you switch from one reference insertion to another
             this.updateSearchImmediate.perform();
           }
-          this.markSelected = selectionMark;
           this.showCard = true;
         }
+        this.insertRange = this.controller.selection.lastRange;
       } else {
         this.showCard = false;
         //Would be nice, but this triggers way to often causing the cancellation of useful requests
         //this.decisionResource.cancel();
       }
     }
-  }
+  };
 
   get controller() {
     return this.args.controller;
@@ -249,9 +257,8 @@ export default class CitaatCardComponent extends Component {
     const type = decision.legislationType.label;
     const uri = decision.uri;
     const title = decision.title;
-    const range = this.controller.rangeFactory.fromAroundNode(
-      this.markSelected.node
-    );
+    console.log('MARK SELECTED: ', this.markSelected)
+    const range = this.insertRange;
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
@@ -268,9 +275,7 @@ export default class CitaatCardComponent extends Component {
     const type = decision.legislationType.label;
     const uri = article.uri;
     const title = `${decision.title}, ${article.number}`;
-    const range = this.controller.rangeFactory.fromAroundNode(
-      this.markSelected.node
-    );
+    const range = this.insertRange;
     const citationHtml = `${
       type ? type : ''
     } <a class="annotation" href="${uri}" property="eli:cites" typeof="eli:LegalExpression">${title}</a>&nbsp;`;
@@ -286,7 +291,12 @@ export default class CitaatCardComponent extends Component {
     // Not necessary as ember-concurrency does this for us.
     // this.decisionResource.cancel();
     cleanCaches();
-    this.liveHighlights.destroy();
+    this.controller.perform((tr) => {
+      tr.commands.removeLiveMarkRule({
+        rule: this.liveMarkRule,
+      });
+      tr.removeTransactionDispatchListener(this.onTransactionDispatch);
+    });
     super.willDestroy();
   }
 }
