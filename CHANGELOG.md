@@ -5,6 +5,15 @@
 
 
 
+
+## 0.18.3 (2022-10-07)
+
+#### :house: Internal
+* [#41](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/41) Add release-it packages and release script ([@elpoelma](https://github.com/elpoelma))
+
+#### Committers: 1
+- Elena Poelman ([@elpoelma](https://github.com/elpoelma))
+
 ## 0.18.2 (2022-09-29)
 
 #### :bug: Bug Fix
