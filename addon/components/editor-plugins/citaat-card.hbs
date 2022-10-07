@@ -1,76 +1,78 @@
-{{#if this.showCard}}
-  <AuCard @flex={{true}} @divided={{true}} @isOpenInitially={{true}} @expandable={{true}} @shadow={{true}} @size="small" as |c|>
-    <c.header>
-      <AuHeading @level="3" @skin="6">{{t "card.title"}}</AuHeading>
-    </c.header>
-    <c.content>
-      <div class="au-o-flow au-o-flow--small">
-        <AuFormRow>
-          <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
-          <PowerSelect
-            id="typeofdocument"
-            @allowClear={{false}}
-            @disabled={{false}}
-            @searchEnabled={{true}}
-            @loadingMessage="{{t "alert.loading"}}"
-            @noMatchesMessage="{{t "alert.no-results"}}"
-            @searchMessage="{{t "search.placeholder"}}"
-            @options={{this.legislationTypes}}
-            @selected={{this.legislationSelected}}
-            @onChange={{this.selectLegislationType}}
-            class="au-u-1-1"
-            as |type|>
-            {{type}}
-          </PowerSelect>
-        </AuFormRow>
-        <AuFormRow>
-          <AuLabel for="searchterm" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
-          <AuInput
-            id="searchterm"
-            @type="text"
-            @width="block"
-            @icon="search"
-            @iconAlignment="right"
-            @value={{this.text}}
-            placeholder={{t "search.placeholder"}}
-            {{on "input" (perform this.updateSearch)}}/>
-        </AuFormRow>
-        <AuFormRow>
-          <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>{{t "search.advanced"}}</AuButton>
-        </AuFormRow>
-      </div>
-    </c.content>
-    <c.footer class="au-u-background-gray-100 au-u-padding-none">
-      {{#if this.decisionResource.isRunning}}
-        <AuLoader /><span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
-      {{else}}
-        {{#if this.error}}
-          <EditorPlugins::Helpers::AlertLoadError @fullSize={{false}} @error={{this.error}} />
+<div {{did-insert this.didInsert}}>
+  {{#if this.showCard}}
+    <AuCard @flex={{true}} @divided={{true}} @isOpenInitially={{true}} @expandable={{true}} @shadow={{true}} @size="small" as |c|>
+      <c.header>
+        <AuHeading @level="3" @skin="6">{{t "card.title"}}</AuHeading>
+      </c.header>
+      <c.content>
+        <div class="au-o-flow au-o-flow--small">
+          <AuFormRow>
+            <AuLabel for="typeofdocument" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.type"}}</AuLabel>
+            <PowerSelect
+              id="typeofdocument"
+              @allowClear={{false}}
+              @disabled={{false}}
+              @searchEnabled={{true}}
+              @loadingMessage="{{t "alert.loading"}}"
+              @noMatchesMessage="{{t "alert.no-results"}}"
+              @searchMessage="{{t "search.placeholder"}}"
+              @options={{this.legislationTypes}}
+              @selected={{this.legislationSelected}}
+              @onChange={{this.selectLegislationType}}
+              class="au-u-1-1"
+              as |type|>
+              {{type}}
+            </PowerSelect>
+          </AuFormRow>
+          <AuFormRow>
+            <AuLabel for="searchterm" @inline={{false}} @required={{false}} @error={{false}} @warning={{false}}>{{t "search.term"}}</AuLabel>
+            <AuInput
+              id="searchterm"
+              @type="text"
+              @width="block"
+              @icon="search"
+              @iconAlignment="right"
+              @value={{this.text}}
+              placeholder={{t "search.placeholder"}}
+              {{on "input" (perform this.updateSearch)}}/>
+          </AuFormRow>
+          <AuFormRow>
+            <AuButton @skin="link" @icon="search" @iconAlignment="left" {{on "click" this.openSearchModal}}>{{t "search.advanced"}}</AuButton>
+          </AuFormRow>
+        </div>
+      </c.content>
+      <c.footer class="au-u-background-gray-100 au-u-padding-none">
+        {{#if this.decisionResource.isRunning}}
+          <AuLoader /><span class="au-u-hidden-visually">{{t "alert.loading"}}</span>
         {{else}}
-          <AuToolbar
-            @border="bottom"
-            @skin="none"
-            class="au-u-padding-small" >
-            <AuHeading @skin="6" @level="4">{{t "card.suggestions"}}</AuHeading>
-          </AuToolbar>
-          <div class="citaten--decision-list au-u-margin-none au-u-padding-top-tiny au-u-padding-bottom-tiny">
-            <EditorPlugins::Citations::DecisionList
-              @decisions={{this.decisionResource.value}}
-              @onCitationInsert={{this.insertDecisionCitation}}
-              @onCitationDetails={{this.openDecisionDetailModal}} />
-          </div>
+          {{#if this.error}}
+            <EditorPlugins::Helpers::AlertLoadError @fullSize={{false}} @error={{this.error}} />
+          {{else}}
+            <AuToolbar
+              @border="bottom"
+              @skin="none"
+              class="au-u-padding-small" >
+              <AuHeading @skin="6" @level="4">{{t "card.suggestions"}}</AuHeading>
+            </AuToolbar>
+            <div class="citaten--decision-list au-u-margin-none au-u-padding-top-tiny au-u-padding-bottom-tiny">
+              <EditorPlugins::Citations::DecisionList
+                @decisions={{this.decisionResource.value}}
+                @onCitationInsert={{this.insertDecisionCitation}}
+                @onCitationDetails={{this.openDecisionDetailModal}} />
+            </div>
+          {{/if}}
         {{/if}}
-      {{/if}}
-    </c.footer>
-  </AuCard>
-{{/if}}
+      </c.footer>
+    </AuCard>
+  {{/if}}
 
-{{#if this.showModal}}
-  <EditorPlugins::Citations::SearchModal
-    @closeModal={{this.closeModal}}
-    @insertDecisionCitation={{this.insertDecisionCitation}}
-    @insertArticleCitation={{this.insertArticleCitation}}
-    @selectedDecision={{this.decision}}
-    @legislationTypeUri={{this.legislationTypeUri}}
-    @text={{this.text}} />
-{{/if}}
+  {{#if this.showModal}}
+    <EditorPlugins::Citations::SearchModal
+      @closeModal={{this.closeModal}}
+      @insertDecisionCitation={{this.insertDecisionCitation}}
+      @insertArticleCitation={{this.insertArticleCitation}}
+      @selectedDecision={{this.decision}}
+      @legislationTypeUri={{this.legislationTypeUri}}
+      @text={{this.text}} />
+  {{/if}}
+</div>

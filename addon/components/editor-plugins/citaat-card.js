@@ -57,12 +57,13 @@ export default class CitaatCardComponent extends Component {
   @tracked text;
   @tracked textAfterTimeout;
   @tracked insertRange;
-  liveHighlights;
+  liveMarkRule;
+  // liveHighlights;
 
   constructor() {
     super(...arguments);
-    this.liveHighlights = this.args.controller.createLiveMarkSet({
-      datastoreQuery: (datastore) => {
+    this.liveMarkRule = {
+      matcher: (datastore) => {
         const matches = datastore
           .match(null, '>http://data.vlaanderen.be/ns/besluit#motivering')
           .searchTextIn('predicate', CITATION_REGEX);
@@ -80,8 +81,7 @@ export default class CitaatCardComponent extends Component {
         resultMatches.forEach((match) => (match.range = match.groupRanges[1]));
         return resultMatches;
       },
-
-      liveMarkSpecs: [
+      liveSpecs: [
         {
           name: 'citaten',
           attributesBuilder: (textMatch) => {
@@ -95,12 +95,21 @@ export default class CitaatCardComponent extends Component {
         },
         'highlighted',
       ],
-    });
-    this.controller.addTransactionDispatchListener(this.onTransactionDispatch);
+    };
   }
+
   @action
-  onTransactionDispatch(transaction) {
+  didInsert() {
+    this.controller.perform((tr) => {
+      tr.commands.addLiveMarkRule({
+        rule: this.liveMarkRule,
+      });
+      tr.addTransactionDispatchListener(this.onTransactionDispatch);
+    });
+  }
+  onTransactionDispatch = (transaction) => {
     if (modifiesSelection(transaction.steps)) {
+      console.log('TRANSACTION DISPATCH');
       const marks = this.controller.selection.lastRange.getMarks();
       let selectionMark;
       for (let mark of marks) {
@@ -137,7 +146,7 @@ export default class CitaatCardComponent extends Component {
         //this.decisionResource.cancel();
       }
     }
-  }
+  };
 
   get controller() {
     return this.args.controller;
@@ -281,7 +290,12 @@ export default class CitaatCardComponent extends Component {
     // Not necessary as ember-concurrency does this for us.
     // this.decisionResource.cancel();
     cleanCaches();
-    this.liveHighlights.destroy();
+    this.controller.perform((tr) => {
+      tr.commands.removeLiveMarkRule({
+        rule: this.liveMarkRule,
+      });
+      tr.removeTransactionDispatchListener(this.onTransactionDispatch);
+    });
     super.willDestroy();
   }
 }
