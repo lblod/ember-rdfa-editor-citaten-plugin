@@ -3,6 +3,35 @@
 
 
 
+
+
+
+## 0.18.3 (2022-10-07)
+
+#### :house: Internal
+* [#41](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/41) Add release-it packages and release script ([@elpoelma](https://github.com/elpoelma))
+
+#### Committers: 1
+- Elena Poelman ([@elpoelma](https://github.com/elpoelma))
+
+## 0.18.2 (2022-09-29)
+
+#### :bug: Bug Fix
+* [#40](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/40) fix(selection-handler): handle cases with empty selection ([@abeforgit](https://github.com/abeforgit))
+
+#### Committers: 1
+- Arne Bertrand ([@abeforgit](https://github.com/abeforgit))
+
+
+## 0.18.1 (2022-09-29)
+
+#### :bug: Bug Fix
+* [#38](https://github.com/lblod/ember-rdfa-editor-citaten-plugin/pull/38) fix(selection-handler): handle cases where the selection has no ranges ([@abeforgit](https://github.com/abeforgit))
+
+#### Committers: 1
+- Arne Bertrand ([@abeforgit](https://github.com/abeforgit))
+
+
 ## 0.18.0 (2022-09-08)
 
 #### :boom: Breaking Change

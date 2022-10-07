@@ -5,10 +5,10 @@ import { timeout } from 'ember-concurrency';
 import { action } from '@ember/object';
 import { capitalize } from '@ember/string';
 import processMatch from '../../utils/processMatch';
-import { fetchDecisions, cleanCaches } from '../../utils/vlaamse-codex';
+import { cleanCaches, fetchDecisions } from '../../utils/vlaamse-codex';
 import {
-  LEGISLATION_TYPES,
   LEGISLATION_TYPE_CONCEPTS,
+  LEGISLATION_TYPES,
 } from '../../utils/legislation-types';
 import { task as trackedTask } from 'ember-resources/util/ember-concurrency';
 import { modifiesSelection } from '../../utils/step-checker';
@@ -96,10 +96,6 @@ export default class CitaatCardComponent extends Component {
         'highlighted',
       ],
     };
-  }
-
-  @action
-  didInsert() {
     this.controller.perform((tr) => {
       tr.commands.addLiveMarkRule({
         rule: this.liveMarkRule,
@@ -107,9 +103,12 @@ export default class CitaatCardComponent extends Component {
       tr.addTransactionDispatchListener(this.onTransactionDispatch);
     });
   }
+
   onTransactionDispatch = (transaction) => {
-    if (modifiesSelection(transaction.steps)) {
-      console.log('TRANSACTION DISPATCH');
+    if (
+      modifiesSelection(transaction.steps) &&
+      this.controller.selection.lastRange
+    ) {
       const marks = this.controller.selection.lastRange.getMarks();
       let selectionMark;
       for (let mark of marks) {
