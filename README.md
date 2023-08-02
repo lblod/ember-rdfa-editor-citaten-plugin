@@ -1,4 +1,5 @@
 # @lblod/ember-rdfa-editor-citaten-plugin
+:warning: This ember addon is no longer maintained. Please use [@lblod/ember-rdfa-editor-lblod-plugins](https://github.com/lblod/ember-rdfa-editor-lblod-plugins) instead.
 
 RDFa editor plugin to insert references to a legal resource or legal expression into the document.
 
